@@ -3,22 +3,24 @@ import { Html, Button, Body, Container, Head, Heading, Preview, Text } from "@re
 
 interface EmailTemplateProps{
   fullName: string;
-  verificationCode: string;
+  verificationLink: string;
 }
 
 
 export const EmailTemplate: React.FC<Readonly<EmailTemplateProps>> = ({
   fullName,
-  verificationCode
+  verificationLink
 }) => (
   <Html>
     <Head>
-      <title>Verification Code</title>
+      <title>Verification Link</title>
     </Head>
     <Body>
       <Container>
-        <Text>Hey {fullName} <br/> Your verification code for meal tracker is:</Text>
-        <Heading>{verificationCode}</Heading>
+        <Text>Hey {fullName} <br/> Your verification link for meal tracker is:</Text>
+        <Text>{verificationLink}</Text>
+        <Text>Click on the link to verify your email.</Text>
+        <p>Don't click if you are not trying to create an account in Meal Tracker.</p>
       </Container>
     </Body>
   </Html>

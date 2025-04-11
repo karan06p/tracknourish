@@ -17,6 +17,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { Oval } from "react-loader-spinner";
+import { useRouter } from "next/navigation";
 
 const signUpFormSchema = z.object({
   firstName: z.string().min(2).max(15),
@@ -28,7 +29,8 @@ const signUpFormSchema = z.object({
 });
 
 export default function SignUp() {
-  const [isLoading, setIsLoading] = useState<boolean>(false)
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const router = useRouter();
 
   const form = useForm<z.infer<typeof signUpFormSchema>>({
     resolver: zodResolver(signUpFormSchema),
@@ -43,9 +45,6 @@ export default function SignUp() {
   const onFormSubmit = async (values: z.infer<typeof signUpFormSchema>) => {
     setIsLoading(true)
     const { firstName, lastName, email, password } = values; 
-    // generate a random verification code
-    const randomCode = Math.random() * 1000000;
-    const verificationCode = Math.round(randomCode).toString();
 
     // send request to API
     const res = await fetch("http://localhost:3000/api/sign-up", {
@@ -55,13 +54,13 @@ export default function SignUp() {
         lastName: lastName,
         email: email,
         password: password,
-        verificationCode: verificationCode,
       }),
     }).then((response) => {
       response.json().then((data) => {
         if(response.status === 200){
           console.log(data.message)
-            toast.success(data.message)
+          toast.success(data.message)
+          router.push("/verify-email")
         }else{
           console.log(data.message);
           toast.error(data.message)
