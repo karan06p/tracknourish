@@ -1,4 +1,5 @@
 import { Metadata } from "next";
+import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = {
     title: "Authentication",
@@ -12,7 +13,7 @@ export default function RootLayout({
     children: React.ReactNode;
   }>) {
     return (
-        <div className="h-screen w-screen flex items-center justify-center"
+        <div className="h-screen w-screen"
         >
           {children}
         </div>

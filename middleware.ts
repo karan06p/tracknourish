@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import jwt from "jsonwebtoken";
 
-const publicRoutes = ["/", "/auth/sign-in", "/auth/sign-up"];
+const publicRoutes = ["/", "/auth/sign-in", "/auth/sign-up", "/dashboard"]; // just for now
 
 export function middleware(request: NextRequest) {
     const { pathname } = request.nextUrl;

@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form"; 
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Card, CardHeader } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Form,
   FormField,
@@ -16,8 +16,9 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { Oval } from "react-loader-spinner";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { ArrowRight, Eye, EyeOff, Mail, User, Lock } from "lucide-react";
 
 const signUpFormSchema = z.object({
   firstName: z.string().min(2).max(15),
@@ -30,6 +31,7 @@ const signUpFormSchema = z.object({
 
 export default function SignUp() {
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
 
   const form = useForm<z.infer<typeof signUpFormSchema>>({
@@ -60,7 +62,7 @@ export default function SignUp() {
         if(response.status === 200){
           console.log(data.message)
           toast.success(data.message)
-          router.push("/verify-email")
+          router.push("/auth/verify-email")
         }else{
           console.log(data.message);
           toast.error(data.message)
@@ -75,23 +77,75 @@ export default function SignUp() {
 
 
   return (
-    <Card className="w-3/12">
-      <CardHeader className="text-xl text-center">Sign Up Form</CardHeader>
-      <Form {...form}>
-        <form
-          onSubmit={form.handleSubmit(onFormSubmit)}
-          className="space-y-8 m-4"
-        >
-          <div className="flex flex-col justify-center items-center gap-y-7 w-full">
-            <div className="w-full flex gap-2">
+    <div className="flex w-full min-h-screen items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+      <Card className="w-full max-w-md">
+        <CardHeader className="space-y-1">
+          <CardTitle className="text-2xl font-bold text-center">Create an account</CardTitle>
+          <CardDescription className="text-center">
+            Enter your information to create your account
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onFormSubmit)} className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="firstName"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>First Name</FormLabel>
+                      <FormControl>
+                        <div className="relative">
+                          <User className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                          <Input
+                            placeholder="John"
+                            className="pl-10"
+                            {...field}
+                          />
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="lastName"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Last Name</FormLabel>
+                      <FormControl>
+                        <div className="relative">
+                          <User className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                          <Input
+                            placeholder="Doe"
+                            className="pl-10"
+                            {...field}
+                          />
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
               <FormField
                 control={form.control}
-                name="firstName"
+                name="email"
                 render={({ field }) => (
-                  <FormItem className="w-1/2">
-                    <FormLabel>First Name</FormLabel>
+                  <FormItem>
+                    <FormLabel>Email</FormLabel>
                     <FormControl>
-                      <Input {...field} />
+                      <div className="relative">
+                        <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                        <Input
+                          type="email"
+                          placeholder="john.doe@example.com"
+                          className="pl-10"
+                          {...field}
+                        />
+                      </div>
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -99,65 +153,40 @@ export default function SignUp() {
               />
               <FormField
                 control={form.control}
-                name="lastName"
+                name="password"
                 render={({ field }) => (
-                  <FormItem className="w-1/2">
-                    <FormLabel>Last Name</FormLabel>
+                  <FormItem>
+                    <FormLabel>Password</FormLabel>
                     <FormControl>
-                      <Input {...field} />
+                      <div className="relative">
+                        <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                        <Input
+                           type={showPassword ? "text" : "password"}
+                          className="pl-10 pr-10"
+                          placeholder="••••••••"
+                          {...field}
+                        />
+                      </div>
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
-            </div>
-            <FormField
-              control={form.control}
-              name="email"
-              render={({ field }) => (
-                <FormItem className="w-full">
-                  <FormLabel>Email</FormLabel>
-                  <FormControl>
-                    <Input placeholder="demo123@gmail.com" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="password"
-              render={({ field }) => (
-                <FormItem className="w-full">
-                  <FormLabel>Password</FormLabel>
-                  <FormControl>
-                    <input
-                      className="file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input flex h-9 w-full min-w-0 rounded-md border bg-transparent px-3 py-1 text-base shadow-xs transition-[color,box-shadow] outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm
-                      focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]
-                      aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive"
-                      placeholder="Password"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
-          <div className="flex item-center justify-center">
-            <Button type="submit">{isLoading ? 
-            (
-              <>
-                
-                <Oval visible={true}
-                color="#FFFFFF"
-                ariaLabel="oval-loading"/>
-              </>
-            ) :  "Submit"}
-            </Button>
-          </div>
-        </form>
-      </Form>
-    </Card>
+              <Button type="submit" className="w-full">
+                Sign Up <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
+            </form>
+          </Form>
+        </CardContent>
+        <CardFooter className="flex flex-col items-center">
+          <p className="text-sm text-gray-600">
+            Already have an account?{" "}
+            <Link href="/signin" className="text-blue-600 hover:text-blue-800 font-medium">
+              Sign In
+            </Link>
+          </p>
+        </CardFooter>
+      </Card>
+    </div>
   );
 }
