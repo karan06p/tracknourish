@@ -15,15 +15,17 @@ const VerifyEmail = () => {
   const token = searchParams.get("token")
 
   useEffect(() => {
-    /* const channel = new BroadcastChannel("email-verification");
-
-    // If this tab receives the "verified" message, update the UI
-      channel.onmessage = (event) => {
-        if(event.data === "verified"){
-          setIsVerified(true)
+    const channel = new BroadcastChannel("email-verification");
+    
+    channel.onmessage = (event) => {
+      if (event.data === "verified") {
+        // Close self only if it's the original static tab
+        if (localStorage.getItem("canSelfClose") === "true") {
+          localStorage.removeItem("canSelfClose");
+          window.close();
         }
       }
-    */
+    };
 
     const verifyUserEmail = async () => {
       if(!token) return;
@@ -42,14 +44,8 @@ const VerifyEmail = () => {
         console.log(res)
         if(res.status === 200){
           setIsVerified(true);
-          
-          /*
-          // Notify other tabs about email being verified
-              channel.postMessage("verified");
-          // and at last redirect the user 
-              router.push("/dashboard")
-          */
-
+          channel.postMessage("verified");
+          router.push("/dashboard")
           // TODO:- Add a loader here to make user experience smoother
         }
       } catch (error) {
@@ -57,24 +53,15 @@ const VerifyEmail = () => {
         toast.warning("An error occurred while verifying your email.")
       }
 
-      /*
-       // Close the verify email tab after verification
-       const verifyEmailTab = sessionStorage.getItem("verifyEmailTab");
-
-       if (verifyEmailTab) {
-         const tab = JSON.parse(verifyEmailTab);
-         if (tab && !tab.closed) {
-           tab.close(); // Close the verification tab
-           sessionStorage.removeItem("verifyEmailTab"); // Clean up sessionStorage
-         }
-       }
-      */
-
     };
 
     verifyUserEmail();
 
-    // return () => channel.close();
+    return () => channel.close();
+  }, []);
+
+  useEffect(() => {
+
   }, [token])
 
   //TODO :- Complete

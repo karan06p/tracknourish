@@ -61,6 +61,7 @@ export default function SignUp() {
       response.json().then((data) => {
         if(response.status === 200){
           toast.success(data.message)
+          localStorage.setItem("canSelfClose", "true")
           router.push("/auth/verify-email");
         }else{
           console.log(data.message);
