@@ -18,6 +18,7 @@ const resendApiKey = process.env.RESEND_API_KEY!;
 
 
 const resend = new Resend(resendApiKey)
+const JWT_SECRET = process.env.JWT_SECRET!
 
 export async function POST(req: Request) {
     connectToDB();
@@ -36,7 +37,7 @@ export async function POST(req: Request) {
   
       const hashedPassword = await hashPassword(password);
   
-      // Create the user first so we can get the ID for the verification token
+      // Create the user first so we can get the ID for jwt tokens
       const newUser = new User({
         firstName,
         lastName,
@@ -46,14 +47,14 @@ export async function POST(req: Request) {
   
       const savedUser = await newUser.save();
   
-      // Generate verification token (contains user ID)
+      // Generate verification token (contains user email)
       const verificationToken = jwt.sign(
-        { userId: savedUser._id },
-        process.env.JWT_SECRET!,
+        { email },
+        JWT_SECRET,
         { expiresIn: "15m" }
       );
   
-      const verificationLink = `${process.env.NEXT_PUBLIC_BASE_URL!}/verify-email?token=${verificationToken}`;
+      const verificationLink = `${process.env.NEXT_PUBLIC_BASE_URL!}/auth/verify-email?token=${verificationToken}`;
   
       // Send the verification email
       try {
@@ -73,11 +74,11 @@ export async function POST(req: Request) {
       }
   
       // Create access and refresh tokens
-      const accessToken = jwt.sign({ email }, process.env.JWT_SECRET!, {
+      const accessToken = jwt.sign({ userId: savedUser._id }, JWT_SECRET, {
         expiresIn: "1h",
       });
   
-      const refreshToken = jwt.sign({ email }, process.env.JWT_SECRET!, {
+      const refreshToken = jwt.sign({ userId: savedUser._id }, JWT_SECRET, {
         expiresIn: "10d",
       });
   

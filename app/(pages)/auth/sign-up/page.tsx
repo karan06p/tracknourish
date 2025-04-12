@@ -49,7 +49,7 @@ export default function SignUp() {
     const { firstName, lastName, email, password } = values; 
 
     // send request to API
-    const res = await fetch("http://localhost:3000/api/sign-up", {
+    await fetch(`${process.env.NEXT_PUBLIC_BASE_URL!}/api/sign-up`, {
       method: "POST",
       body: JSON.stringify({
         firstName: firstName,
@@ -60,9 +60,8 @@ export default function SignUp() {
     }).then((response) => {
       response.json().then((data) => {
         if(response.status === 200){
-          console.log(data.message)
           toast.success(data.message)
-          router.push("/auth/verify-email")
+          router.push("/auth/verify-email");
         }else{
           console.log(data.message);
           toast.error(data.message)
