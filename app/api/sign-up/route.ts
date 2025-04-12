@@ -51,20 +51,19 @@ export async function POST(req: Request) {
       const verificationToken = jwt.sign(
         { email },
         JWT_SECRET,
-        { expiresIn: "15m" }
+        { expiresIn: "30m" }
       );
   
       const verificationLink = `${process.env.NEXT_PUBLIC_BASE_URL!}/auth/verify-email?token=${verificationToken}`;
   
       // Send the verification email
       try {
-        const fullName = `${firstName} ${lastName}`;
         await resend.emails.send({
           from: "Meal Tracker <onboarding@resend.dev>",
           to: email,
           subject: "Meal Tracker Email Verification",
           react: await EmailTemplate({
-            fullName,
+            firstName,
             verificationLink,
           }),
         });

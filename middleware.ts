@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import jwt from "jsonwebtoken";
 
-const publicRoutes = ["/", "/auth/sign-in", "/auth/sign-up", "/dashboard"]; // just for now
-
+const publicRoutes = ["/", "/auth/sign-in", "/auth/sign-up"];
+const JWT_SECRET = process.env.JWT_SECRET!;
 export function middleware(request: NextRequest) {
     const { pathname } = request.nextUrl;
 
@@ -16,7 +16,7 @@ export function middleware(request: NextRequest) {
     };
 
     try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET!);
+        const decoded = jwt.verify(token, JWT_SECRET);
         // You can also attach user info to request if needed
         return NextResponse.next();
     } catch (err) {
