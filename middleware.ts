@@ -1,25 +1,27 @@
 import { NextRequest, NextResponse } from "next/server";
-import jwt from "jsonwebtoken";
-
+import { jwtVerify } from "jose"; // REMEMBER :- JWT tokens do not work in nextjs middleware
+ 
 const publicRoutes = ["/", "/auth/sign-in", "/auth/sign-up"];
-const JWT_SECRET = process.env.JWT_SECRET!;
-export function middleware(request: NextRequest) {
+const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET!);
+export async function middleware(request: NextRequest) {
     const { pathname } = request.nextUrl;
 
     // allow public routes
     if(publicRoutes.includes(pathname)) return NextResponse.next();
 
-    const token = request.cookies.get("access_token")?.value;
+    const token = request.cookies.get("accessToken")?.value;
+    console.log("Cookies:", request.cookies.get("accessToken")?.value);
 
     if(!token){
         return NextResponse.redirect(new URL("/auth/sign-in", request.url))
     };
 
     try {
-        const decoded = jwt.verify(token, JWT_SECRET);
+        await jwtVerify(token, JWT_SECRET);
         // You can also attach user info to request if needed
         return NextResponse.next();
     } catch (err) {
+        console.error("JWT error:", err);
         return NextResponse.redirect(new URL('/auth/sign-in', request.url));
     }
 }

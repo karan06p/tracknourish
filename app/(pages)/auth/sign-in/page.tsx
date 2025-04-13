@@ -27,6 +27,7 @@ const signInSchema = z.object({
 type SignInFormValues = z.infer<typeof signInSchema>;
 
 const SignIn = () => {
+  const [isLoading, setIsLoading] = useState(false)
   const [showPassword, setShowPassword] = useState(false);
   const router = useRouter()
   
@@ -38,18 +39,28 @@ const SignIn = () => {
     },
   });
 
-  const onSubmit = (values: SignInFormValues) => {
-    // Here you would typically connect to your authentication backend
-    console.log("Form submitted:", values);
-    
-    // For demonstration purposes, we'll show a success toast and redirect
-    toast.success("Signed in successfully!", {
-      description: "Redirecting to dashboard...",
-    });
-    
-    setTimeout(() => {
-      router.replace("/dashboard");
-    }, 2000);
+  const onSubmit = async (values: SignInFormValues) => {
+    setIsLoading(true)
+    const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/sign-in`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        email: values.email,
+        password: values.password,
+      }),
+      credentials: "include"
+    })
+
+    if(res.status === 200){
+      toast.success("Signed in successfully!", {
+        description: "Redirecting to dashboard...",
+      });
+      router.push("/dashboard")
+    }else {
+      const errorData = await res.json();
+      toast.error(errorData.message || "Something went wrong");
+      console.log("Sign-in error:", res);
+    }
   };
 
   return (
@@ -133,7 +144,7 @@ const SignIn = () => {
         <CardFooter className="flex flex-col items-center">
           <p className="text-sm text-gray-600">
             Don't have an account?{" "}
-            <Link href="/signup" className="text-blue-600 hover:text-blue-800 font-medium">
+            <Link href="/auth/sign-up" className="text-blue-600 hover:text-blue-800 font-medium">
               Sign Up
             </Link>
           </p>

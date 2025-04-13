@@ -42,7 +42,7 @@ export async function POST(req: Request) {
         firstName,
         lastName,
         email,
-        password: hashedPassword,
+        hashedPassword,
       });
   
       const savedUser = await newUser.save();
@@ -78,7 +78,7 @@ export async function POST(req: Request) {
       });
   
       const refreshToken = jwt.sign({ userId: savedUser._id }, JWT_SECRET, {
-        expiresIn: "10d",
+        expiresIn: "15d",
       });
   
       // Save refresh token to user record
