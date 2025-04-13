@@ -32,7 +32,7 @@ export async function POST(req: Request) {
   
       const alreadyExists = await User.findOne({ email });
       if (alreadyExists) {
-        return ApiResponse(300, "User already exists");
+        return ApiResponse(300, "User already exists please sign-in");
       }
   
       const hashedPassword = await hashPassword(password);
