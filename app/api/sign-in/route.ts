@@ -28,7 +28,7 @@ export async function POST(req: Request){
         if(isPasswordValid === false) return ApiResponse(400, "Incorrect Password");
 
         // now password is valid for the given email so create jwt tokens to login the user
-        const accessToken = jwt.sign({ userIduserId: user._id }, JWT_SECRET, { expiresIn: "1h" });
+        const accessToken = jwt.sign({ userId: user._id }, JWT_SECRET, { expiresIn: "1h" });
         const refreshToken = jwt.sign({ userId: user._id }, JWT_SECRET, { expiresIn: "15d" });
 
         // save the refresh token for the user in DB

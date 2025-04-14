@@ -29,10 +29,17 @@ import {
   Cell
 } from "recharts";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
+import { useUser } from "@/hooks/use-user";
 
 const Dashboard = () => {
-  const [userName] = useState("John Doe"); // In a real app, this would come from auth
-  
+  const { user, isLoading, isError } = useUser();
+
+  console.log("user is", user)
+  if (isLoading) return <p>Loading...</p>;
+  // if (isError || !user) {
+  //   console.log(isError)
+  //   return <p>Error loading user info</p>;
+  // }
   // Mock data for charts
   const caloriesData = [
     { name: "Mon", calories: 1950 },
@@ -76,7 +83,7 @@ const Dashboard = () => {
           <div className="py-8 md:flex md:items-center md:justify-between">
             <div className="flex-1 min-w-0">
               <h1 className="text-2xl font-bold leading-7 text-white sm:text-3xl">
-                Welcome back, {userName}
+                Welcome back, {user.firstName}
               </h1>
               <p className="mt-2 text-sm text-blue-100">
                 Track your nutrition journey and stay healthy
