@@ -65,12 +65,11 @@ export default function SignUp() {
           localStorage.setItem("canSelfClose", "true")
           router.push("/auth/verify-email");
         }else{
-          console.log(data.message);
           toast.error(data.message)
         }
     })
     })
-    .catch((error) => console.log(error))
+    .catch((error) => console.error(error))
     .finally(() => setIsLoading(false));
 
   };

@@ -1,11 +1,13 @@
+import { fetchWithAuth } from "@/lib/fetchWithAuth";
 import useSWR from "swr";
 
 const baseUrl = process.env.NEXT_PUBLIC_BASE_URL!;
 const fetcher = async ( url: string ) => {
-    const res = await fetch(url, {
+    const res = await fetchWithAuth(url, {
         credentials: "include",
     });
-
+    if(!res)return;
+    
     if(!res.ok){
         const errorData = await res.json();
         throw new Error(errorData.message || "Something went wrong");

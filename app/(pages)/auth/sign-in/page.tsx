@@ -55,11 +55,10 @@ const SignIn = () => {
       toast.success("Signed in successfully!", {
         description: "Redirecting to dashboard...",
       });
-      router.push("/dashboard")
+      router.push("/")
     }else {
       const errorData = await res.json();
       toast.error(errorData.message || "Something went wrong");
-      console.log("Sign-in error:", res);
     }
   };
 

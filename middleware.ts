@@ -1,18 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
 import { jwtVerify } from "jose"; // REMEMBER :- JWT tokens do not work in nextjs middleware
 
-const publicRoutes = ["/", "/auth/sign-in", "/auth/sign-up"];
+const publicRoutes = ["/landing", "/auth/sign-in", "/auth/sign-up", "/auth/verify-email"];
 const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET!);
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  const token = request.cookies.get("accessToken")?.value;
+  const accessToken = request.cookies.get("accessToken")?.value;
+  const refreshToken = request.cookies.get("refreshToken")?.value;
 
   // If it's a public route
   if (publicRoutes.includes(pathname)) {
-    if (token) {
+    if (accessToken) {
       try {
-        jwtVerify(token, JWT_SECRET);
-        return NextResponse.redirect(new URL("/dashboard", request.url));
+        jwtVerify(accessToken, JWT_SECRET);
+        return NextResponse.redirect(new URL("/", request.url));
       } catch (err) {
         return NextResponse.next();
       }
@@ -20,22 +21,27 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
   // For protected routes
-  if (!token) {
-    return NextResponse.redirect(new URL("/auth/sign-in", request.url));
+  if (!accessToken) {
+    if (!refreshToken) {
+      return NextResponse.redirect(new URL("/landing", request.url));
+    }
+    try {
+      await jwtVerify(refreshToken, JWT_SECRET);
+      return NextResponse.next();
+    } catch (err) {
+      console.error("Invalid refreshToken")
+      return NextResponse.redirect(new URL("/landing", request.url));
+    }
   }
 
   try {
-    await jwtVerify(token, JWT_SECRET);
+    await jwtVerify(accessToken!, JWT_SECRET);
     return NextResponse.next();
   } catch (err) {
-    return NextResponse.redirect(new URL("/auth/sign-in", request.url));
+    return NextResponse.redirect(new URL("/landing", request.url));
   }
 }
 
 export const config = {
-  matcher: ["/", 
-    "/auth/sign-in", 
-    "/auth/sign-up", 
-    "/dashboard/:path*", 
-    "/profile/:path*"], // 👈 protected routes
+  matcher: ["/((?!api|_next|static).*)"],
 };

@@ -15,10 +15,9 @@ export async function GET(req: NextRequest){
         const payload = jwt.verify(token, JWT_SECRET) as { userId: string };
         const user = await User.findById(payload.userId).select("-hashedPassword -refreshToken");
         if (!user) return ApiResponse(404, "User not found");
-        console.log(user)
         return NextResponse.json(user, { status: 200 });
        } catch (error) {
-        
+        return ApiResponse(400, "Error in verifying token")
        }
     } catch (error) {
         console.error("Error while giving user-info", error);

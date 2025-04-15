@@ -40,7 +40,6 @@ const VerifyEmail = () => {
         });
 
         const data = await res.json();
-        console.log("Verification data: ", data);
         if (res.status === 200) {
           setIsVerified(true);
           channel.postMessage("verified");
@@ -51,7 +50,7 @@ const VerifyEmail = () => {
           }, 1000);
 
           const redirectTimeout = setTimeout(() => {
-            router.push("/dashboard");
+            router.push("/");
           }, 4000);
 
           return () => {

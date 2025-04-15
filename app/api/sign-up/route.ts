@@ -18,7 +18,7 @@ const resendApiKey = process.env.RESEND_API_KEY!;
 
 
 const resend = new Resend(resendApiKey)
-const JWT_SECRET = process.env.JWT_SECRET!
+const JWT_SECRET = process.env.JWT_SECRET!;
 
 export async function POST(req: Request) {
     connectToDB();
@@ -37,15 +37,14 @@ export async function POST(req: Request) {
   
       const hashedPassword = await hashPassword(password);
   
-      // Create the user first so we can get the ID for jwt tokens
+      // Create the user in DB
       const newUser = new User({
         firstName,
         lastName,
         email,
         hashedPassword,
       });
-  
-      const savedUser = await newUser.save();
+      await newUser.save();
   
       // Generate verification token (contains user email)
       const verificationToken = jwt.sign(
@@ -62,7 +61,7 @@ export async function POST(req: Request) {
           from: "Meal Tracker <onboarding@resend.dev>",
           to: email,
           subject: "Meal Tracker Email Verification",
-          react: await EmailTemplate({
+          react: EmailTemplate({
             firstName,
             verificationLink,
           }),
@@ -70,41 +69,9 @@ export async function POST(req: Request) {
       } catch (error) {
         console.error("Error sending verification email", error);
         return ApiResponse(500, "Failed to send verification email");
-      }
-  
-      // Create access and refresh tokens
-      const accessToken = jwt.sign({ userId: savedUser._id }, JWT_SECRET, {
-        expiresIn: "1h",
-      });
-  
-      const refreshToken = jwt.sign({ userId: savedUser._id }, JWT_SECRET, {
-        expiresIn: "15d",
-      });
-  
-      // Save refresh token to user record
-      savedUser.refreshToken = refreshToken;
-      await savedUser.save();
-  
-      // Create response with cookies
-      const response = ApiResponse(200, "User registered");
-  
-      response.cookies.set("accessToken", accessToken, {
-        httpOnly: true,
-        // secure: true, // uncomment for production
-        sameSite: "strict",
-        path: "/",
-        maxAge: 1 * 60 * 60, // 1 hour
-      });
-  
-      response.cookies.set("refreshToken", refreshToken, {
-        httpOnly: true,
-        // secure: true, // uncomment for production
-        sameSite: "strict",
-        path: "/",
-        maxAge: 10 * 24 * 60 * 60, // 10 days
-      });
-  
-      return response;
+      };
+
+      return ApiResponse(200, "Verification Email sent");
     } catch (error) {
       console.error("Error in signing up user", error);
       return ApiResponse(400, "Couldn't sign up");

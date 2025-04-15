@@ -1,403 +1,356 @@
-"use client";
+"use client"
 
-import React, { useEffect, useRef } from "react";
-import { cn } from "@/lib/utils";
-import Footer from "@/components/Footer";
-import Navbar from "@/components/Navbar";
-import { FeatureCard } from "@/components/FeatureCard";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { 
+  BarChart as BarChartIcon, 
+  LineChart as LineChartIcon, 
+  TrendingUp, 
+  TrendingDown,
+  Utensils,
+  Activity,
+  Droplet,
+  PieChart
+} from "lucide-react";
+import {
+  BarChart,
+  Bar,
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  PieChart as RechartsPieChart,
+  Pie,
+  Cell
+} from "recharts";
+import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
+import { useUser } from "@/hooks/use-user";
+import { toast } from "sonner";
 
-export default function Home() {
-  const heroRef = useRef<HTMLDivElement>(null);
-  const imageRef = useRef<HTMLImageElement>(null);
+const Dashboard = () => {
+  const { user, isLoading, isError } = useUser();
 
-  useEffect(() => {
-    const handleScroll = () => {
-      if (!heroRef.current || !imageRef.current) return;
-
-      // Parallax effect for the image
-      const scrollPosition = window.scrollY;
-      const translateY = scrollPosition * 0.2;
-
-      imageRef.current.style.transform = `translateY(${translateY}px)`;
-    };
-
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
-
-  const features = [
-    {
-      icon: (
-        <svg
-          width="24"
-          height="24"
-          viewBox="0 0 24 24"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-          className="text-primary"
-        >
-          <path
-            d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </svg>
-      ),
-      title: "Intuitive Meal Tracking",
-      description:
-        "Quickly log your meals with our user-friendly interface. Take photos, scan barcodes, or use voice input for effortless tracking.",
-    },
-    {
-      icon: (
-        <svg
-          width="24"
-          height="24"
-          viewBox="0 0 24 24"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-          className="text-primary"
-        >
-          <path
-            d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-          <path
-            d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3M12 17h.01"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </svg>
-      ),
-      title: "Detailed Nutritional Insights",
-      description:
-        "Gain comprehensive insights into your nutritional intake. Track macros, vitamins, and minerals with detailed visualizations.",
-    },
-    {
-      icon: (
-        <svg
-          width="24"
-          height="24"
-          viewBox="0 0 24 24"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-          className="text-primary"
-        >
-          <path
-            d="M4.93 19.07A10 10 0 1 1 19.07 4.93 10 10 0 0 1 4.93 19.07zm0 0L2 22"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-          <path
-            d="M7 10.5h10"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-          <path
-            d="M10.5 7v7"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </svg>
-      ),
-      title: "Personal Goal Setting",
-      description:
-        "Set custom nutrition goals based on your dietary preferences and fitness objectives. Track your progress with visual indicators.",
-    },
-    {
-      icon: (
-        <svg
-          width="24"
-          height="24"
-          viewBox="0 0 24 24"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-          className="text-primary"
-        >
-          <path
-            d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14z"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-          <path
-            d="M7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </svg>
-      ),
-      title: "AI-Powered Recommendations",
-      description:
-        "Receive personalized meal suggestions and nutritional advice based on your eating habits and health goals.",
-    },
-    {
-      icon: (
-        <svg
-          width="24"
-          height="24"
-          viewBox="0 0 24 24"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-          className="text-primary"
-        >
-          <path
-            d="M7 11v8a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-8a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1zM21 11v8a1 1 0 0 1-1 1h-2a1 1 0 0 1-1-1v-8a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1zM14 11v8a1 1 0 0 1-1 1h-2a1 1 0 0 1-1-1v-8a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1z"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-          <path
-            d="M5 11V7a4 4 0 0 1 4-4h6a4 4 0 0 1 4 4v4"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </svg>
-      ),
-      title: "Recipe Database",
-      description:
-        "Access thousands of healthy recipes with detailed nutritional information. Filter by dietary restrictions and preferences.",
-    },
-    {
-      icon: (
-        <svg
-          width="24"
-          height="24"
-          viewBox="0 0 24 24"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-          className="text-primary"
-        >
-          <path
-            d="M8 18h8M10 7.236a3 3 0 0 1 4 0M7 3v2M17 3v2M6.2 21h11.6c1.12 0 1.68 0 2.108-.218a2 2 0 0 0 .874-.874C21 19.48 21 18.92 21 17.8V8.2c0-1.12 0-1.68-.218-2.108a2 2 0 0 0-.874-.874C19.48 5 18.92 5 17.8 5H6.2c-1.12 0-1.68 0-2.108.218a2 2 0 0 0-.874.874C3 6.52 3 7.08 3 8.2v9.6c0 1.12 0 1.68.218 2.108a2 2 0 0 0 .874.874C4.52 21 5.08 21 6.2 21z"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </svg>
-      ),
-      title: "Meal Planning",
-      description:
-        "Plan your weekly meals in advance with smart suggestions based on your nutritional goals and preferences.",
-    },
+  if (isLoading) return <p>Loading...</p>;
+  if (isError || !user){
+    toast("User not found")
+    return (
+    <p>Error loading user info</p>)
+  }
+  // Mock data for charts
+  const caloriesData = [
+    { name: "Mon", calories: 1950 },
+    { name: "Tue", calories: 2100 },
+    { name: "Wed", calories: 1850 },
+    { name: "Thu", calories: 2300 },
+    { name: "Fri", calories: 2050 },
+    { name: "Sat", calories: 2200 },
+    { name: "Sun", calories: 1900 }
   ];
-
+  
+  const macrosData = [
+    { name: "Mon", protein: 85, carbs: 220, fat: 65 },
+    { name: "Tue", protein: 92, carbs: 240, fat: 70 },
+    { name: "Wed", protein: 78, carbs: 190, fat: 60 },
+    { name: "Thu", protein: 95, carbs: 250, fat: 75 },
+    { name: "Fri", protein: 88, carbs: 210, fat: 68 },
+    { name: "Sat", protein: 90, carbs: 230, fat: 72 },
+    { name: "Sun", protein: 82, carbs: 200, fat: 63 }
+  ];
+  
+  const pieData = [
+    { name: "Protein", value: 82, color: "#8884d8" },
+    { name: "Carbs", value: 200, color: "#82ca9d" },
+    { name: "Fat", value: 63, color: "#ffc658" }
+  ];
+  
+  // Chart config
+  const chartConfig = {
+    calories: { label: "Calories", color: "#FF6384" },
+    protein: { label: "Protein", color: "#8884d8" },
+    carbs: { label: "Carbs", color: "#82ca9d" },
+    fat: { label: "Fat", color: "#ffc658" }
+  };
+  
   return (
-    <>
-    <Navbar />
-    <div
-      ref={heroRef}
-      className="relative min-h-screen pt-24 px-6 md:px-10 overflow-hidden bg-white"
-    >
-      <div
-        className="absolute top-0 left-0 w-1/2 h-full bg-gradient-to-r from-primary/5 to-transparent pointer-events-none"
-        aria-hidden="true"
-      />
-      <div
-        className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-primary/5 to-transparent pointer-events-none"
-        aria-hidden="true"
-      />
-
-      <div className="relative z-10 max-w-7xl mx-auto flex flex-col lg:flex-row items-center gap-16 md:gap-20 pt-16 md:pt-24">
-        <div className="w-full lg:w-1/2 animate-fade-in-up">
-          <div className="max-w-2xl">
-            <span className="inline-block py-1 px-3 bg-primary/10 text-primary rounded-full text-sm font-medium mb-6 animate-scale-in">
-              Simplify Your Nutrition Journey
-            </span>
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight">
-              Track Your Meals with Elegant Simplicity
-            </h1>
-            <p className="text-lg text-gray-600 mb-8 leading-relaxed">
-              NutriTrack helps you maintain a healthy lifestyle through
-              intuitive meal tracking, detailed nutritional insights, and
-              personalized recommendations.
-            </p>
-
-            <div className="flex flex-col sm:flex-row gap-4 mb-10">
-              <a
-                href="/auth/sign-up"
-                className="glass-button px-8 py-3 rounded-full text-center font-medium"
-              >
-                Get Started
-              </a>
-              <a
-                href="#learn-more"
-                className="px-8 py-3 rounded-full bg-white border border-gray-300 text-gray-700 text-center font-medium transition-colors hover:bg-gray-50"
-              >
-                Learn More
-              </a>
+    <div className="min-h-screen bg-gray-50/70">
+      {/* Dashboard header with gradient */}
+      <div className="bg-gradient-to-r from-blue-500/90 to-indigo-600/90 shadow-md">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="py-8 md:flex md:items-center md:justify-between">
+            <div className="flex-1 min-w-0">
+              <h1 className="text-2xl font-bold leading-7 text-white sm:text-3xl">
+                Welcome back, {user.firstName}
+              </h1>
+              <p className="mt-2 text-sm text-blue-100">
+                Track your nutrition journey and stay healthy
+              </p>
             </div>
-
-            <div className="flex items-center gap-4">
-              <div className="flex -space-x-2">
-                <img
-                  src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&h=120&q=80"
-                  alt="User"
-                  className="w-10 h-10 rounded-full border-2 border-white object-cover"
-                  loading="lazy"
-                />
-                <img
-                  src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=120&h=120&q=80"
-                  alt="User"
-                  className="w-10 h-10 rounded-full border-2 border-white object-cover"
-                  loading="lazy"
-                />
-                <img
-                  src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=120&h=120&q=80"
-                  alt="User"
-                  className="w-10 h-10 rounded-full border-2 border-white object-cover"
-                  loading="lazy"
-                />
-              </div>
-              <div className="text-sm text-gray-500">
-                <span className="font-semibold text-gray-700">5,000+</span>{" "}
-                active users
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="w-full lg:w-1/2 h-full animate-fade-in-up animation-delay-150">
-          <div className="relative w-full aspect-square max-w-lg mx-auto">
-            <div
-              className="absolute inset-0 bg-gradient-to-br from-primary/20 to-purple-100/30 rounded-3xl transform rotate-3 scale-105 animate-blur-in"
-              aria-hidden="true"
-            />
-            <div className="glass-card absolute inset-4 rounded-2xl overflow-hidden shadow-lg animate-scale-in">
-              <img
-                ref={imageRef}
-                src="https://images.unsplash.com/photo-1498837167922-ddd27525d352?auto=format&fit=crop&w=800&q=80"
-                alt="Healthy meals"
-                className="w-full h-full object-cover transform scale-105"
-                loading="lazy"
-              />
-            </div>
-
-            <div className="absolute top-6 -left-8 glass-card p-4 rounded-xl shadow-md animate-fade-in animation-delay-200 hidden md:block">
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
-                  <svg
-                    width="16"
-                    height="16"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"
-                      stroke="#22C55E"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                    <path
-                      d="M9 12l2 2 4-4"
-                      stroke="#22C55E"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
-                </div>
-                <div>
-                  <p className="text-xs font-medium">Daily Goal</p>
-                  <p className="text-sm font-semibold">87% Complete</p>
-                </div>
-              </div>
-            </div>
-
-            <div className="absolute -bottom-2 -right-8 glass-card p-4 rounded-xl shadow-md animate-fade-in animation-delay-300 hidden md:block">
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                  <svg
-                    width="16"
-                    height="16"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"
-                      stroke="#3B82F6"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                    <path
-                      d="M12 6v6l4 2"
-                      stroke="#3B82F6"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
-                </div>
-                <div>
-                  <p className="text-xs font-medium">Tracked meals</p>
-                  <p className="text-sm font-semibold">1,248 this month</p>
-                </div>
-              </div>
+            <div className="mt-4 flex md:mt-0 md:ml-4 space-x-3">
+              <Link href="/meals">
+                <Button variant="secondary" className="flex items-center gap-2 shadow-sm">
+                  <Utensils className="h-4 w-4" />
+                  Track New Meal
+                </Button>
+              </Link>
+              <Button className="bg-white text-blue-600 hover:bg-blue-50 flex items-center gap-2 shadow-sm">
+                <PieChart className="h-4 w-4" />
+                View Reports
+              </Button>
             </div>
           </div>
         </div>
       </div>
 
-      <div
-        className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-white to-transparent pointer-events-none"
-        aria-hidden="true"
-      />
+      {/* Dashboard content */}
+      <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+        <div className="px-4 py-6 sm:px-0">
+          {/* Stats overview with subtle animations */}
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mb-6">
+            <Card className="overflow-hidden transition-all duration-300 hover:shadow-md">
+              <CardHeader className="pb-2 flex flex-row items-start justify-between space-y-0">
+                <div>
+                  <CardDescription>Meals tracked</CardDescription>
+                  <CardTitle className="text-3xl">24</CardTitle>
+                </div>
+                <Utensils className="h-5 w-5 text-blue-500" />
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-center">
+                  <TrendingUp className="mr-1 h-4 w-4 text-green-500" />
+                  <p className="text-xs text-muted-foreground">
+                    <span className="text-green-500 font-medium">+12%</span> from last week
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+            
+            <Card className="overflow-hidden transition-all duration-300 hover:shadow-md">
+              <CardHeader className="pb-2 flex flex-row items-start justify-between space-y-0">
+                <div>
+                  <CardDescription>Average calories</CardDescription>
+                  <CardTitle className="text-3xl">2,140</CardTitle>
+                </div>
+                <Activity className="h-5 w-5 text-rose-500" />
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-center">
+                  <TrendingDown className="mr-1 h-4 w-4 text-rose-500" />
+                  <p className="text-xs text-muted-foreground">
+                    <span className="text-rose-500 font-medium">+3%</span> from last week
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+            
+            <Card className="overflow-hidden transition-all duration-300 hover:shadow-md">
+              <CardHeader className="pb-2 flex flex-row items-start justify-between space-y-0">
+                <div>
+                  <CardDescription>Protein intake (g)</CardDescription>
+                  <CardTitle className="text-3xl">82</CardTitle>
+                </div>
+                <div className="h-5 w-5 rounded-full bg-indigo-100 flex items-center justify-center">
+                  <span className="text-xs font-bold text-indigo-600">P</span>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-center">
+                  <TrendingUp className="mr-1 h-4 w-4 text-green-500" />
+                  <p className="text-xs text-muted-foreground">
+                    <span className="text-green-500 font-medium">+7%</span> from last week
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+            
+            <Card className="overflow-hidden transition-all duration-300 hover:shadow-md">
+              <CardHeader className="pb-2 flex flex-row items-start justify-between space-y-0">
+                <div>
+                  <CardDescription>Water intake (oz)</CardDescription>
+                  <CardTitle className="text-3xl">64</CardTitle>
+                </div>
+                <Droplet className="h-5 w-5 text-blue-400" />
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-center">
+                  <TrendingUp className="mr-1 h-4 w-4 text-green-500" />
+                  <p className="text-xs text-muted-foreground">
+                    <span className="text-green-500 font-medium">+2%</span> from last week
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Nutrition trends with real charts */}
+          <Card className="mb-6">
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle>Nutrition Trends</CardTitle>
+                  <CardDescription>
+                    Track your nutrition patterns over the past week
+                  </CardDescription>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <Tabs defaultValue="calories">
+                <TabsList className="mb-4">
+                  <TabsTrigger value="calories">
+                    <BarChartIcon className="h-4 w-4 mr-2" />
+                    Calories
+                  </TabsTrigger>
+                  <TabsTrigger value="macros">
+                    <LineChartIcon className="h-4 w-4 mr-2" />
+                    Macros
+                  </TabsTrigger>
+                  <TabsTrigger value="breakdown">
+                    <PieChart className="h-4 w-4 mr-2" />
+                    Breakdown
+                  </TabsTrigger>
+                </TabsList>
+                
+                <TabsContent value="calories" className="space-y-4">
+                  <ChartContainer config={chartConfig} className="h-[300px]">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart data={caloriesData} margin={{ top: 10, right: 10, left: 10, bottom: 20 }}>
+                        <CartesianGrid strokeDasharray="3 3" vertical={false} opacity={0.3} />
+                        <XAxis dataKey="name" tick={{ fontSize: 12 }} />
+                        <YAxis tick={{ fontSize: 12 }} />
+                        <ChartTooltip content={<ChartTooltipContent />} />
+                        <Bar dataKey="calories" fill="#FF6384" radius={[4, 4, 0, 0]} />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </ChartContainer>
+                </TabsContent>
+                
+                <TabsContent value="macros" className="space-y-4">
+                  <ChartContainer config={chartConfig} className="h-[300px]">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <LineChart data={macrosData} margin={{ top: 10, right: 10, left: 10, bottom: 20 }}>
+                        <CartesianGrid strokeDasharray="3 3" vertical={false} opacity={0.3} />
+                        <XAxis dataKey="name" tick={{ fontSize: 12 }} />
+                        <YAxis tick={{ fontSize: 12 }} />
+                        <ChartTooltip content={<ChartTooltipContent />} />
+                        <Line type="monotone" dataKey="protein" stroke="#8884d8" strokeWidth={2} dot={{ r: 4 }} activeDot={{ r: 6 }} />
+                        <Line type="monotone" dataKey="carbs" stroke="#82ca9d" strokeWidth={2} dot={{ r: 4 }} activeDot={{ r: 6 }} />
+                        <Line type="monotone" dataKey="fat" stroke="#ffc658" strokeWidth={2} dot={{ r: 4 }} activeDot={{ r: 6 }} />
+                      </LineChart>
+                    </ResponsiveContainer>
+                  </ChartContainer>
+                </TabsContent>
+                
+                <TabsContent value="breakdown" className="space-y-4">
+                  <div className="h-[300px] flex items-center justify-center">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <RechartsPieChart>
+                        <Pie
+                          data={pieData}
+                          cx="50%"
+                          cy="50%"
+                          labelLine={false}
+                          outerRadius={100}
+                          fill="#8884d8"
+                          dataKey="value"
+                          label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                        >
+                          {pieData.map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={entry.color} />
+                          ))}
+                        </Pie>
+                        <Tooltip />
+                      </RechartsPieChart>
+                    </ResponsiveContainer>
+                  </div>
+                </TabsContent>
+              </Tabs>
+            </CardContent>
+          </Card>
+
+          {/* Recent meals section with improved styling */}
+          <Card>
+            <CardHeader>
+              <div className="flex justify-between items-center">
+                <div>
+                  <CardTitle>Recent Meals</CardTitle>
+                  <CardDescription>
+                    Your most recently logged meals
+                  </CardDescription>
+                </div>
+                <Link href="/meals">
+                  <Button variant="outline" size="sm">View All</Button>
+                </Link>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="rounded-md border">
+                <div className="p-4 border-b hover:bg-gray-50 transition-colors">
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <h3 className="font-medium flex items-center gap-2">
+                        <span className="w-2 h-2 rounded-full bg-green-500"></span>
+                        Breakfast
+                      </h3>
+                      <p className="text-sm text-gray-500">Today, 7:30 AM</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="font-medium text-blue-600">520 kcal</p>
+                      <p className="text-sm text-gray-500">P: 24g | C: 68g | F: 16g</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="p-4 border-b hover:bg-gray-50 transition-colors">
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <h3 className="font-medium flex items-center gap-2">
+                        <span className="w-2 h-2 rounded-full bg-yellow-500"></span>
+                        Lunch
+                      </h3>
+                      <p className="text-sm text-gray-500">Yesterday, 12:15 PM</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="font-medium text-blue-600">680 kcal</p>
+                      <p className="text-sm text-gray-500">P: 32g | C: 78g | F: 22g</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="p-4 hover:bg-gray-50 transition-colors">
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <h3 className="font-medium flex items-center gap-2">
+                        <span className="w-2 h-2 rounded-full bg-purple-500"></span>
+                        Dinner
+                      </h3>
+                      <p className="text-sm text-gray-500">Yesterday, 6:45 PM</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="font-medium text-blue-600">750 kcal</p>
+                      <p className="text-sm text-gray-500">P: 38g | C: 65g | F: 29g</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div className="flex justify-center mt-4">
+                <Link href="/meals">
+                  <Button variant="default" className="w-full sm:w-auto">
+                    <Utensils className="mr-2 h-4 w-4" />
+                    Track New Meal
+                  </Button>
+                </Link>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
     </div>
-
-
-    {/* Features Section */}
-
-    <section id="features" className="py-24 px-6 md:px-10 bg-gray-50">
-      <div className="max-w-7xl mx-auto">
-        <div className="text-center mb-16 max-w-3xl mx-auto animate-fade-in-up">
-          <span className="inline-block py-1 px-3 bg-primary/10 text-primary rounded-full text-sm font-medium mb-6">
-            Powerful Features
-          </span>
-          <h2 className="text-3xl md:text-4xl font-bold mb-6">
-            Everything you need to maintain a healthy diet
-          </h2>
-          <p className="text-lg text-gray-600">
-            Our comprehensive set of features helps you track, analyze, and improve your nutrition habits with minimal effort and maximum results.
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {features.map((feature, index) => (
-            <FeatureCard
-              key={index}
-              icon={feature.icon}
-              title={feature.title}
-              description={feature.description}
-              index={index}
-            />
-          ))}
-        </div>
-      </div>
-    </section>
-    <Footer />
-    </>
   );
-}
+};
+
+export default Dashboard;

@@ -2,6 +2,7 @@ import { connectToDB } from "@/db/connectDb";
 import { ApiResponse, comparePassword } from "@/lib/utils";
 import { User } from "@/schema/UserSchema";
 import jwt from "jsonwebtoken"
+import { NextResponse } from "next/server";
 
 interface SignInParams{
     email: string;
@@ -9,6 +10,7 @@ interface SignInParams{
 }
 
 const JWT_SECRET = process.env.JWT_SECRET!;
+const isProd = process.env.NODE_ENV === "production"
 
 export async function POST(req: Request){
     connectToDB()
@@ -35,11 +37,11 @@ export async function POST(req: Request){
         user.refreshToken = refreshToken;
         await user.save();
 
-        const response = ApiResponse(200, "User signed in");
+        const response = NextResponse.json({ message: "User signed in" }, { status: 200 });
 
         response.cookies.set("accessToken", accessToken, {
             httpOnly: true,
-            // secure: true, // uncomment for production
+            secure: isProd, 
             sameSite: "strict",
             path: "/",
             maxAge: 1 * 60 * 60, // 1 hour
@@ -47,12 +49,11 @@ export async function POST(req: Request){
       
           response.cookies.set("refreshToken", refreshToken, {
             httpOnly: true,
-            // secure: true, // uncomment for production
+            secure: isProd,
             sameSite: "strict",
             path: "/",
             maxAge: 10 * 24 * 60 * 60, // 10 days
         });
-
         return response;
     } catch (error) {
         console.error("Error in signing in" ,error);

@@ -11,17 +11,13 @@ export const connectToDB = async () => {
         bufferCommands: true
     }
 
-    if(cachedConnection){
-        console.log("Using cached connection");
-        return cachedConnection;
-    }
+    if(cachedConnection) return cachedConnection;
+
     try {
         const conn = await mongoose.connect(uri, options);
         cachedConnection = conn.connection;
-        console.log("New mongoDb connection established");
         return cachedConnection;
     } catch (error) {
-        console.log(error);
         throw error;
     }
 }
