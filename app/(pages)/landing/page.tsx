@@ -3,6 +3,7 @@
 import React, { useEffect, useRef } from "react";
 import Footer from "@/components/Footer";
 import { FeatureCard } from "@/components/FeatureCard";
+import Navbar from "@/components/Navbar";
 
 export default function Home() {
   const heroRef = useRef<HTMLDivElement>(null);
@@ -201,6 +202,7 @@ export default function Home() {
 
   return (
     <>
+    <Navbar />
     <div
       ref={heroRef}
       className="relative min-h-screen pt-24 px-6 md:px-10 overflow-hidden bg-white"

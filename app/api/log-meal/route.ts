@@ -5,12 +5,15 @@ import jwt from "jsonwebtoken"
 import { NextRequest } from "next/server";
 
 interface foodLoggedParams{
-    foodName: string;
-    calories: number;
-    protein: number;
-    carbohydrates: number;
-    fiber: number;
-    fat: number;
+    mealName: string;
+    mealType: string;
+    description?: string;
+    calories: string;
+    protein: string;
+    carbohydrates: string;
+    fiber: string;
+    fat: string;
+    tags?: string[];
 }
 
 const jwtSecret = process.env.JWT_SECRET!;
@@ -18,11 +21,10 @@ const jwtSecret = process.env.JWT_SECRET!;
 export async function POST(req: NextRequest){
     connectToDB()
     try {
-        const { foodName, calories, protein, carbohydrates, fiber, fat }: foodLoggedParams = await req.json()
-        if(!foodName || !calories ||  !protein || !carbohydrates || !fiber || !fat) return ApiResponse(401, "All info is required");
+        const { mealName, mealType, description, calories, protein, carbohydrates, fiber, fat, tags }: foodLoggedParams = await req.json()
+        if(!mealName || !mealType || !calories ||  !protein || !carbohydrates || !fiber || !fat ) return ApiResponse(401, "All info is required");
 
         const accessToken = req.cookies.get("accessToken")?.value;
-
         if(!accessToken) return ApiResponse(401, "Access token is missing");
 
         let payload;
@@ -36,20 +38,34 @@ export async function POST(req: NextRequest){
         const user = await User.findById(payload.userId);
         if(!user) return ApiResponse(400, "User not found");
 
-        user.foodsLogged.push({
-            foodName,
+        const newMeal = {
+            mealName,
+            mealType,
+            description,
             calories,
             protein,
             carbohydrates,
             fiber,
             fat,
-        });
+            tags,
+        };
+
+        user.foodsLogged.push(newMeal)
 
         await user.save();
 
-        return ApiResponse(200, "Food logged")
+        return new Response(
+            JSON.stringify(newMeal),
+            {
+              status: 200,
+              headers: {
+                "Content-Type": "application/json",
+              },
+            }
+          );
 
     } catch (error) {
-        
+        console.error(400, "Error in loggin food")
+        return ApiResponse(400, "Error while trying to log food")
     }
 }

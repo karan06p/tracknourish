@@ -1,18 +1,24 @@
-"use client"
+"use client";
 
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { 
-  BarChart as BarChartIcon, 
-  LineChart as LineChartIcon, 
-  TrendingUp, 
+import {
+  BarChart as BarChartIcon,
+  LineChart as LineChartIcon,
+  TrendingUp,
   TrendingDown,
   Utensils,
   Activity,
   Droplet,
-  PieChart
+  PieChart,
 } from "lucide-react";
 import {
   BarChart,
@@ -26,20 +32,26 @@ import {
   ResponsiveContainer,
   PieChart as RechartsPieChart,
   Pie,
-  Cell
+  Cell,
 } from "recharts";
-import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
+import {
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+} from "@/components/ui/chart";
 import { useUser } from "@/hooks/use-user";
 import { toast } from "sonner";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useRouter } from "next/navigation";
 
 const Dashboard = () => {
   const { user, isLoading, isError } = useUser();
+  const router = useRouter()
 
   if (isLoading) return <p>Loading...</p>;
-  if (isError || !user){
-    toast("User not found")
-    return (
-    <p>Error loading user info</p>)
+  if (isError || !user) {
+    toast("User not found");
+    return <p>Error loading user info</p>;
   }
   // Mock data for charts
   const caloriesData = [
@@ -49,9 +61,9 @@ const Dashboard = () => {
     { name: "Thu", calories: 2300 },
     { name: "Fri", calories: 2050 },
     { name: "Sat", calories: 2200 },
-    { name: "Sun", calories: 1900 }
+    { name: "Sun", calories: 1900 },
   ];
-  
+
   const macrosData = [
     { name: "Mon", protein: 85, carbs: 220, fat: 65 },
     { name: "Tue", protein: 92, carbs: 240, fat: 70 },
@@ -59,23 +71,23 @@ const Dashboard = () => {
     { name: "Thu", protein: 95, carbs: 250, fat: 75 },
     { name: "Fri", protein: 88, carbs: 210, fat: 68 },
     { name: "Sat", protein: 90, carbs: 230, fat: 72 },
-    { name: "Sun", protein: 82, carbs: 200, fat: 63 }
+    { name: "Sun", protein: 82, carbs: 200, fat: 63 },
   ];
-  
+
   const pieData = [
     { name: "Protein", value: 82, color: "#8884d8" },
     { name: "Carbs", value: 200, color: "#82ca9d" },
-    { name: "Fat", value: 63, color: "#ffc658" }
+    { name: "Fat", value: 63, color: "#ffc658" },
   ];
-  
+
   // Chart config
   const chartConfig = {
     calories: { label: "Calories", color: "#FF6384" },
     protein: { label: "Protein", color: "#8884d8" },
     carbs: { label: "Carbs", color: "#82ca9d" },
-    fat: { label: "Fat", color: "#ffc658" }
+    fat: { label: "Fat", color: "#ffc658" },
   };
-  
+
   return (
     <div className="min-h-screen bg-gray-50/70">
       {/* Dashboard header with gradient */}
@@ -90,17 +102,17 @@ const Dashboard = () => {
                 Track your nutrition journey and stay healthy
               </p>
             </div>
-            <div className="mt-4 flex md:mt-0 md:ml-4 space-x-3">
-              <Link href="/meals">
-                <Button variant="secondary" className="flex items-center gap-2 shadow-sm">
-                  <Utensils className="h-4 w-4" />
-                  Track New Meal
-                </Button>
-              </Link>
-              <Button className="bg-white text-blue-600 hover:bg-blue-50 flex items-center gap-2 shadow-sm">
+            <div className="mt-4 flex md:mt-0 md:ml-4 space-x-5 justify-center items-center">
+              <Button className="bg-white text-blue-600 hover:bg-blue-50 flex items-center gap-2 shadow-sm" onClick={() => router.push("/meals")}>
                 <PieChart className="h-4 w-4" />
                 View Reports
               </Button>
+              <Link href={"/profile"}>
+              <Avatar className="hover:shadow-2xl hover:shadow-accent">
+                {/* <AvatarImage src="https://github.com/shadcn.png" /> */}
+                <AvatarFallback>K</AvatarFallback>
+              </Avatar>
+              </Link>
             </div>
           </div>
         </div>
@@ -123,12 +135,13 @@ const Dashboard = () => {
                 <div className="flex items-center">
                   <TrendingUp className="mr-1 h-4 w-4 text-green-500" />
                   <p className="text-xs text-muted-foreground">
-                    <span className="text-green-500 font-medium">+12%</span> from last week
+                    <span className="text-green-500 font-medium">+12%</span>{" "}
+                    from last week
                   </p>
                 </div>
               </CardContent>
             </Card>
-            
+
             <Card className="overflow-hidden transition-all duration-300 hover:shadow-md">
               <CardHeader className="pb-2 flex flex-row items-start justify-between space-y-0">
                 <div>
@@ -141,12 +154,13 @@ const Dashboard = () => {
                 <div className="flex items-center">
                   <TrendingDown className="mr-1 h-4 w-4 text-rose-500" />
                   <p className="text-xs text-muted-foreground">
-                    <span className="text-rose-500 font-medium">+3%</span> from last week
+                    <span className="text-rose-500 font-medium">+3%</span> from
+                    last week
                   </p>
                 </div>
               </CardContent>
             </Card>
-            
+
             <Card className="overflow-hidden transition-all duration-300 hover:shadow-md">
               <CardHeader className="pb-2 flex flex-row items-start justify-between space-y-0">
                 <div>
@@ -161,12 +175,13 @@ const Dashboard = () => {
                 <div className="flex items-center">
                   <TrendingUp className="mr-1 h-4 w-4 text-green-500" />
                   <p className="text-xs text-muted-foreground">
-                    <span className="text-green-500 font-medium">+7%</span> from last week
+                    <span className="text-green-500 font-medium">+7%</span> from
+                    last week
                   </p>
                 </div>
               </CardContent>
             </Card>
-            
+
             <Card className="overflow-hidden transition-all duration-300 hover:shadow-md">
               <CardHeader className="pb-2 flex flex-row items-start justify-between space-y-0">
                 <div>
@@ -179,7 +194,8 @@ const Dashboard = () => {
                 <div className="flex items-center">
                   <TrendingUp className="mr-1 h-4 w-4 text-green-500" />
                   <p className="text-xs text-muted-foreground">
-                    <span className="text-green-500 font-medium">+2%</span> from last week
+                    <span className="text-green-500 font-medium">+2%</span> from
+                    last week
                   </p>
                 </div>
               </CardContent>
@@ -214,40 +230,79 @@ const Dashboard = () => {
                     Breakdown
                   </TabsTrigger>
                 </TabsList>
-                
+
                 <TabsContent value="calories" className="space-y-4">
                   <ChartContainer config={chartConfig} className="h-[300px]">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <BarChart data={caloriesData} margin={{ top: 10, right: 10, left: 10, bottom: 20 }}>
-                        <CartesianGrid strokeDasharray="3 3" vertical={false} opacity={0.3} />
+                    <ResponsiveContainer>
+                      <BarChart
+                        data={caloriesData}
+                        margin={{ top: 10, right: 10, left: 10, bottom: 20 }}
+                      >
+                        <CartesianGrid
+                          strokeDasharray="3 3"
+                          vertical={false}
+                          opacity={0.3}
+                        />
                         <XAxis dataKey="name" tick={{ fontSize: 12 }} />
                         <YAxis tick={{ fontSize: 12 }} />
                         <ChartTooltip content={<ChartTooltipContent />} />
-                        <Bar dataKey="calories" fill="#FF6384" radius={[4, 4, 0, 0]} />
+                        <Bar
+                          dataKey="calories"
+                          fill="#FF6384"
+                          radius={[4, 4, 0, 0]}
+                        />
                       </BarChart>
                     </ResponsiveContainer>
                   </ChartContainer>
                 </TabsContent>
-                
+
                 <TabsContent value="macros" className="space-y-4">
                   <ChartContainer config={chartConfig} className="h-[300px]">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <LineChart data={macrosData} margin={{ top: 10, right: 10, left: 10, bottom: 20 }}>
-                        <CartesianGrid strokeDasharray="3 3" vertical={false} opacity={0.3} />
+                    <ResponsiveContainer>
+                      <LineChart
+                        data={macrosData}
+                        margin={{ top: 10, right: 10, left: 10, bottom: 20 }}
+                      >
+                        <CartesianGrid
+                          strokeDasharray="3 3"
+                          vertical={false}
+                          opacity={0.3}
+                        />
                         <XAxis dataKey="name" tick={{ fontSize: 12 }} />
                         <YAxis tick={{ fontSize: 12 }} />
                         <ChartTooltip content={<ChartTooltipContent />} />
-                        <Line type="monotone" dataKey="protein" stroke="#8884d8" strokeWidth={2} dot={{ r: 4 }} activeDot={{ r: 6 }} />
-                        <Line type="monotone" dataKey="carbs" stroke="#82ca9d" strokeWidth={2} dot={{ r: 4 }} activeDot={{ r: 6 }} />
-                        <Line type="monotone" dataKey="fat" stroke="#ffc658" strokeWidth={2} dot={{ r: 4 }} activeDot={{ r: 6 }} />
+                        <Line
+                          type="monotone"
+                          dataKey="protein"
+                          stroke="#8884d8"
+                          strokeWidth={2}
+                          dot={{ r: 4 }}
+                          activeDot={{ r: 6 }}
+                        />
+                        <Line
+                          type="monotone"
+                          dataKey="carbs"
+                          stroke="#82ca9d"
+                          strokeWidth={2}
+                          dot={{ r: 4 }}
+                          activeDot={{ r: 6 }}
+                        />
+                        <Line
+                          type="monotone"
+                          dataKey="fat"
+                          stroke="#ffc658"
+                          strokeWidth={2}
+                          dot={{ r: 4 }}
+                          activeDot={{ r: 6 }}
+                        />
                       </LineChart>
                     </ResponsiveContainer>
                   </ChartContainer>
                 </TabsContent>
-                
+
                 <TabsContent value="breakdown" className="space-y-4">
                   <div className="h-[300px] flex items-center justify-center">
-                    <ResponsiveContainer width="100%" height="100%">
+                    <ResponsiveContainer>
                       <RechartsPieChart>
                         <Pie
                           data={pieData}
@@ -257,7 +312,9 @@ const Dashboard = () => {
                           outerRadius={100}
                           fill="#8884d8"
                           dataKey="value"
-                          label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                          label={({ name, percent }) =>
+                            `${name} ${(percent * 100).toFixed(0)}%`
+                          }
                         >
                           {pieData.map((entry, index) => (
                             <Cell key={`cell-${index}`} fill={entry.color} />
@@ -283,7 +340,9 @@ const Dashboard = () => {
                   </CardDescription>
                 </div>
                 <Link href="/meals">
-                  <Button variant="outline" size="sm">View All</Button>
+                  <Button variant="outline" size="sm">
+                    View All
+                  </Button>
                 </Link>
               </div>
             </CardHeader>
@@ -300,7 +359,9 @@ const Dashboard = () => {
                     </div>
                     <div className="text-right">
                       <p className="font-medium text-blue-600">520 kcal</p>
-                      <p className="text-sm text-gray-500">P: 24g | C: 68g | F: 16g</p>
+                      <p className="text-sm text-gray-500">
+                        P: 24g | C: 68g | F: 16g
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -312,11 +373,15 @@ const Dashboard = () => {
                         <span className="w-2 h-2 rounded-full bg-yellow-500"></span>
                         Lunch
                       </h3>
-                      <p className="text-sm text-gray-500">Yesterday, 12:15 PM</p>
+                      <p className="text-sm text-gray-500">
+                        Yesterday, 12:15 PM
+                      </p>
                     </div>
                     <div className="text-right">
                       <p className="font-medium text-blue-600">680 kcal</p>
-                      <p className="text-sm text-gray-500">P: 32g | C: 78g | F: 22g</p>
+                      <p className="text-sm text-gray-500">
+                        P: 32g | C: 78g | F: 22g
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -328,11 +393,15 @@ const Dashboard = () => {
                         <span className="w-2 h-2 rounded-full bg-purple-500"></span>
                         Dinner
                       </h3>
-                      <p className="text-sm text-gray-500">Yesterday, 6:45 PM</p>
+                      <p className="text-sm text-gray-500">
+                        Yesterday, 6:45 PM
+                      </p>
                     </div>
                     <div className="text-right">
                       <p className="font-medium text-blue-600">750 kcal</p>
-                      <p className="text-sm text-gray-500">P: 38g | C: 65g | F: 29g</p>
+                      <p className="text-sm text-gray-500">
+                        P: 38g | C: 65g | F: 29g
+                      </p>
                     </div>
                   </div>
                 </div>

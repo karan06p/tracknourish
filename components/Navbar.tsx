@@ -1,7 +1,6 @@
 "use client"
 import React, { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";    
-import { Button } from "./ui/button";
     
 const Navbar = () => {
     const [isScrolled, setIsScrolled] = useState(false);
@@ -51,7 +50,7 @@ const Navbar = () => {
               />
             </svg>
           </div>
-          <span className="text-xl font-display font-medium">NutriTrack</span>
+          <span className="text-xl font-display font-medium">MealTracker</span>
         </div>
 
         <nav className="hidden md:flex items-center gap-8">

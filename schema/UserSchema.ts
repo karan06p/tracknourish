@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import { foodLoggedSchema } from "./FoodLoggedSchema";
 
 const userSchema = new mongoose.Schema({
     firstName: {
@@ -24,6 +25,10 @@ const userSchema = new mongoose.Schema({
     },
     refreshToken: {
         type: String,
+    },
+    foodsLogged:{
+        type: [foodLoggedSchema],
+        default: []
     }
 }, {
     timestamps: true

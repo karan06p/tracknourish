@@ -6,8 +6,7 @@ const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET!);
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const accessToken = request.cookies.get("accessToken")?.value;
-  const refreshToken = request.cookies.get("refreshToken")?.value;
-
+  
   // If it's a public route
   if (publicRoutes.includes(pathname)) {
     if (accessToken) {
@@ -22,6 +21,7 @@ export async function middleware(request: NextRequest) {
   }
   // For protected routes
   if (!accessToken) {
+    const refreshToken = request.cookies.get("refreshToken")?.value;
     if (!refreshToken) {
       return NextResponse.redirect(new URL("/landing", request.url));
     }
