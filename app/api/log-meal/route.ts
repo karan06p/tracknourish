@@ -65,7 +65,7 @@ export async function POST(req: NextRequest){
           );
 
     } catch (error) {
-        console.error(400, "Error in loggin food")
+        console.error("Error in logging food")
         return ApiResponse(400, "Error while trying to log food")
     }
 }

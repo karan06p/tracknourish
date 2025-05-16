@@ -61,64 +61,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { useUser } from "@/hooks/use-user";
-
-// Meal type definition
-interface Nutrient {
-  name: string;
-  amount: number;
-  unit: string;
-  percentOfDailyNeeds?: number;
-}
-
-interface Id {
-  $oid: string
-}
-
-interface eachMeal{
-    mealName: string
-    mealType: string
-    description: string
-    calories: string
-    protein: string
-    carbohydrates: string
-    fiber: string
-    fat: string
-    tags: string[]
-    _id: Id
-}
-  
-
-interface Meal {
-  id: string;
-  name: string;
-  description?: string;
-  calories: number;
-  mealType: string;
-  dateAdded: Date;
-  nutrients: Nutrient[];
-  tags?: string[];
-}
-
-interface SearchResults {
-  id: number;
-  title: string;
-  image: string;
-}
-
-interface MicroNutrients {
-  calories: string;
-  protein: string;
-  carbohydrates: string;
-  fat: string;
-  fiber: string;
-}
-
-interface NutrientItem {
-  amount: string;
-  indented: boolean;
-  title: string;
-  percentOfDailyNeeds: number;
-}
+import { eachMeal, Id, NutrientItem, SearchResults } from "@/types/Meal";
 
 const baseUrl = process.env.NEXT_PUBLIC_BASE_URL!;
 
@@ -150,7 +93,7 @@ const trackMealformSchema = z.object({
 });
 
 const MealsPage = () => {
-  const { user, isError } = useUser();
+  const { user, isError, mutate } = useUser();
   const router = useRouter();
   const [showAddMealForm, setShowAddMealForm] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
@@ -158,17 +101,12 @@ const MealsPage = () => {
   const [sortBy, setSortBy] = useState("newest");
   const [searchQuery, setSearchQuery] = useState("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [recentMeals, setRecentMeals] = useState<eachMeal[]>([])
   const [isPopoverOpen, setIsPopoverOpen] = useState<boolean>();
   const [searchResults, setSearchResults] = useState<SearchResults[]>([]);
 
   if(isError) return <div>Error Loading Component, Please Refresh</div>
 
-  useEffect(() => {
-    if (user) {
-      setRecentMeals(user.foodsLogged || []);
-    }
-  }, [user]);
+  const recentMeals = user?.foodsLogged;
 
   const form = useForm<z.infer<typeof trackMealformSchema>>({
     resolver: zodResolver(trackMealformSchema),
@@ -205,14 +143,19 @@ const MealsPage = () => {
       })
       if(res.status === 200){
         toast.success("New meal added");
-        const newMeal = await res.json();
-        setRecentMeals((prev) => [...prev, newMeal]);
+        mutate()
       }
     } catch (error) {
       console.error("Error while adding new meal", error)
     } finally{
       setIsLoading(false);
       setShowAddMealForm(false);
+      form.setValue("mealName", "");   
+      form.setValue("calories", "");
+      form.setValue("protein", "");
+      form.setValue("carbohydrates", "");
+      form.setValue("fat", "");
+      form.setValue("fiber", "");
     }
   };
 
@@ -228,12 +171,10 @@ const MealsPage = () => {
         })
       });
       if(res.status === 200) {
+        mutate();
        toast.success("Meal deleted successfully");
-        setRecentMeals((prev) => 
-          prev.filter((meal): meal is eachMeal => (meal as eachMeal)._id.$oid !== id.$oid)
-        )
       }else{
-        toast.warning("Meal deletion failed")
+        toast.error(res.statusText)
       }
       return;
     } catch (error) {
@@ -711,7 +652,7 @@ const MealsPage = () => {
             )}
           </div>
 
-          {recentMeals.length === 0 ? (
+          {recentMeals && recentMeals.length === 0 ? (
             <div className="flex flex-col items-center justify-center bg-white p-12 rounded-lg border border-dashed border-gray-300">
               <div className="text-6xl mb-4">🍽️</div>
               <h3 className="text-xl font-medium mb-2 text-center">
@@ -728,7 +669,7 @@ const MealsPage = () => {
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {recentMeals.map((meal: eachMeal, index: number) => {
+              {recentMeals?.map((meal: eachMeal, index: number) => {
                 const nutrients = [
                   {
                     name: "Protein",
@@ -802,7 +743,7 @@ const MealsPage = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {recentMeals.map((meal: eachMeal, index: number) => {
+                  {recentMeals?.map((meal: eachMeal, index: number) => {
                     const nutrients = [
                       {
                         name: "Protein",

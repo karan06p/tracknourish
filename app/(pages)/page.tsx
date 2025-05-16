@@ -19,6 +19,7 @@ import {
   Activity,
   Droplet,
   PieChart,
+  ForkKnife,
 } from "lucide-react";
 import {
   BarChart,
@@ -43,16 +44,58 @@ import { useUser } from "@/hooks/use-user";
 import { toast } from "sonner";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useRouter } from "next/navigation";
+import { eachMeal } from "@/types/Meal";
+import { useEffect, useState } from "react";
 
 const Dashboard = () => {
-  const { user, isLoading, isError } = useUser();
-  const router = useRouter()
+  const { user, firstLetter, isLoading, isError } = useUser();
+  const [avgCalories, setAvgCalories] = useState<number | undefined>()
+  const [protein, setProtein] = useState<number | undefined>();
+  const [fiber, setFiber] = useState<number | undefined>();
+  const router = useRouter();
+
+  const recentMeals = user?.foodsLogged;
+  let mostRecentMeals = recentMeals?.toReversed().splice(0,3);
+  
+  useEffect(() => {
+    if(user?.foodsLogged){
+      let totalCalories = 0;
+      let totalProtein = 0;
+      let totalFiber = 0;
+      user.foodsLogged.forEach((item: eachMeal) => {
+        const calories = parseFloat(item.calories);
+        const protein = parseFloat(item.protein);
+        const fiber = parseFloat(item.fiber);
+        if(!isNaN(calories)){
+          totalCalories += calories;
+        }
+        if(!isNaN(protein)){
+          totalProtein += protein;
+        }
+        if(!isNaN(fiber)){
+          totalFiber += fiber;
+        }
+      })
+      if(user.foodsLogged.length > 0){
+        let calculatedAvgCalories = (totalCalories / user.foodsLogged.length).toFixed(2)
+        setAvgCalories(Number(calculatedAvgCalories));
+      }else {
+        setAvgCalories(0)
+      }
+      setProtein(totalProtein);
+      setFiber(totalFiber)
+    }
+  }, [user])
 
   if (isLoading) return <p>Loading...</p>;
   if (isError || !user) {
     toast("User not found");
     return <p>Error loading user info</p>;
-  }
+  };
+
+
+  // Real data calculations
+
   // Mock data for charts
   const caloriesData = [
     { name: "Mon", calories: 1950 },
@@ -103,14 +146,14 @@ const Dashboard = () => {
               </p>
             </div>
             <div className="mt-4 flex md:mt-0 md:ml-4 space-x-5 justify-center items-center">
-              <Button className="bg-white text-blue-600 hover:bg-blue-50 flex items-center gap-2 shadow-sm" onClick={() => router.push("/meals")}>
-                <PieChart className="h-4 w-4" />
-                View Reports
+              <Button className="hover:bg-black hover:text-white bg-white text-black flex items-center gap-2 shadow-sm" onClick={() => router.push("/meals")}>
+                <ForkKnife className="h-4 w-4" />
+                Track Meal 
               </Button>
               <Link href={"/profile"}>
               <Avatar className="hover:shadow-2xl hover:shadow-accent">
                 {/* <AvatarImage src="https://github.com/shadcn.png" /> */}
-                <AvatarFallback>K</AvatarFallback>
+                <AvatarFallback>{firstLetter}</AvatarFallback>
               </Avatar>
               </Link>
             </div>
@@ -127,7 +170,7 @@ const Dashboard = () => {
               <CardHeader className="pb-2 flex flex-row items-start justify-between space-y-0">
                 <div>
                   <CardDescription>Meals tracked</CardDescription>
-                  <CardTitle className="text-3xl">24</CardTitle>
+                  <CardTitle className="text-3xl">{user?.foodsLogged.length}</CardTitle>
                 </div>
                 <Utensils className="h-5 w-5 text-blue-500" />
               </CardHeader>
@@ -146,7 +189,7 @@ const Dashboard = () => {
               <CardHeader className="pb-2 flex flex-row items-start justify-between space-y-0">
                 <div>
                   <CardDescription>Average calories</CardDescription>
-                  <CardTitle className="text-3xl">2,140</CardTitle>
+                  <CardTitle className="text-3xl">{avgCalories ? avgCalories : 0}</CardTitle>
                 </div>
                 <Activity className="h-5 w-5 text-rose-500" />
               </CardHeader>
@@ -165,7 +208,7 @@ const Dashboard = () => {
               <CardHeader className="pb-2 flex flex-row items-start justify-between space-y-0">
                 <div>
                   <CardDescription>Protein intake (g)</CardDescription>
-                  <CardTitle className="text-3xl">82</CardTitle>
+                  <CardTitle className="text-3xl">{protein}</CardTitle>
                 </div>
                 <div className="h-5 w-5 rounded-full bg-indigo-100 flex items-center justify-center">
                   <span className="text-xs font-bold text-indigo-600">P</span>
@@ -183,12 +226,14 @@ const Dashboard = () => {
             </Card>
 
             <Card className="overflow-hidden transition-all duration-300 hover:shadow-md">
-              <CardHeader className="pb-2 flex flex-row items-start justify-between space-y-0">
+            <CardHeader className="pb-2 flex flex-row items-start justify-between space-y-0">
                 <div>
-                  <CardDescription>Water intake (oz)</CardDescription>
-                  <CardTitle className="text-3xl">64</CardTitle>
+                  <CardDescription>Fiber intake (g)</CardDescription>
+                  <CardTitle className="text-3xl">{fiber}</CardTitle>
                 </div>
-                <Droplet className="h-5 w-5 text-blue-400" />
+                <div className="h-5 w-5 rounded-full bg-indigo-100 flex items-center justify-center">
+                  <span className="text-xs font-bold text-green-600">F</span>
+                </div>
               </CardHeader>
               <CardContent>
                 <div className="flex items-center">
@@ -348,71 +393,34 @@ const Dashboard = () => {
             </CardHeader>
             <CardContent>
               <div className="rounded-md border">
-                <div className="p-4 border-b hover:bg-gray-50 transition-colors">
+                {mostRecentMeals?.map((item: eachMeal, idx: number) => (
+                  <div className="p-4 border-b hover:bg-gray-50 transition-colors" key={idx}>
                   <div className="flex justify-between items-center">
                     <div>
                       <h3 className="font-medium flex items-center gap-2">
-                        <span className="w-2 h-2 rounded-full bg-green-500"></span>
-                        Breakfast
+                        <span className={`w-2 h-2 rounded-full 
+                          ${item.mealType === "breakfast" ? "bg-green-500": ""}
+                          ${item.mealType === "lunch" ? "bg-yellow-500": ""}
+                          ${item.mealType === "snack" ? "bg-blue-600": ""}
+                          ${item.mealType === "dinner" ? "bg-purple-500": ""}
+                          `}></span>
+                        {item.mealType.charAt(0).toUpperCase() + item.mealType.slice(1)}
                       </h3>
-                      <p className="text-sm text-gray-500">Today, 7:30 AM</p>
+                      <p className="text-sm text-gray-500">
+                        {item.mealName}
+                      </p>
                     </div>
                     <div className="text-right">
-                      <p className="font-medium text-blue-600">520 kcal</p>
+                      <p className="font-medium text-blue-600">{item.calories} kcal</p>
                       <p className="text-sm text-gray-500">
-                        P: 24g | C: 68g | F: 16g
+                        P: {item.protein} | C: {item.carbohydrates} | F: {item.fat}
                       </p>
                     </div>
                   </div>
                 </div>
-
-                <div className="p-4 border-b hover:bg-gray-50 transition-colors">
-                  <div className="flex justify-between items-center">
-                    <div>
-                      <h3 className="font-medium flex items-center gap-2">
-                        <span className="w-2 h-2 rounded-full bg-yellow-500"></span>
-                        Lunch
-                      </h3>
-                      <p className="text-sm text-gray-500">
-                        Yesterday, 12:15 PM
-                      </p>
-                    </div>
-                    <div className="text-right">
-                      <p className="font-medium text-blue-600">680 kcal</p>
-                      <p className="text-sm text-gray-500">
-                        P: 32g | C: 78g | F: 22g
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="p-4 hover:bg-gray-50 transition-colors">
-                  <div className="flex justify-between items-center">
-                    <div>
-                      <h3 className="font-medium flex items-center gap-2">
-                        <span className="w-2 h-2 rounded-full bg-purple-500"></span>
-                        Dinner
-                      </h3>
-                      <p className="text-sm text-gray-500">
-                        Yesterday, 6:45 PM
-                      </p>
-                    </div>
-                    <div className="text-right">
-                      <p className="font-medium text-blue-600">750 kcal</p>
-                      <p className="text-sm text-gray-500">
-                        P: 38g | C: 65g | F: 29g
-                      </p>
-                    </div>
-                  </div>
-                </div>
+                ))}
               </div>
               <div className="flex justify-center mt-4">
-                <Link href="/meals">
-                  <Button variant="default" className="w-full sm:w-auto">
-                    <Utensils className="mr-2 h-4 w-4" />
-                    Track New Meal
-                  </Button>
-                </Link>
               </div>
             </CardContent>
           </Card>

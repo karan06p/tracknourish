@@ -29,9 +29,15 @@ const baseUrl = process.env.NEXT_PUBLIC_BASE_URL!;
 
 const Profile = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const { user, isError } = useUser();
+  const { user, firstLetter, isError } = useUser();
   const router = useRouter()
   
+  if (isLoading) return <p>Loading...</p>;
+  if (isError || !user) {
+    toast("User not found");
+    return <p>Error loading user info</p>;
+  };
+
   const handleSignOut = async () => {
     setIsLoading(true)
     try {
@@ -41,9 +47,9 @@ const Profile = () => {
           toast.success("Signed Out")
         }
       })
-
     } catch (error) {
-      
+      console.error("Sign out failed", error);
+      toast.error("Sign Out failed :(")
     } finally{
       setIsLoading(false)
     }
@@ -68,8 +74,8 @@ const Profile = () => {
           <div className="flex flex-col items-center sm:flex-row sm:gap-6">
             <div className="relative">
               <Avatar className="h-32 w-32 border-4 border-background">
-                <AvatarImage src="/placeholder.svg" alt="User profile" />
-                <AvatarFallback className="text-2xl">JD</AvatarFallback>
+                {/* <AvatarImage src="/placeholder.svg" alt="User profile" /> */}
+                <AvatarFallback className="text-2xl">{firstLetter}</AvatarFallback>
               </Avatar>
               <Button 
                 size="icon" 
@@ -81,7 +87,7 @@ const Profile = () => {
             
             <div className="mt-4 flex-1 text-center sm:mt-0 sm:text-left">
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
-                <h1 className="text-2xl font-bold text-foreground">Jane Doe</h1>
+                <h1 className="text-2xl font-bold text-foreground">{`${user.firstName} ${user.lastName}`}</h1>
                 <Button variant="outline" size="sm" className="mt-2 sm:mt-0">
                   <Edit className="mr-2 h-3.5 w-3.5" />
                   Edit Profile
@@ -90,11 +96,11 @@ const Profile = () => {
               <div className="mt-1 flex flex-wrap items-center justify-center gap-3 text-sm text-muted-foreground sm:justify-start">
                 <div className="flex items-center">
                   <User className="mr-1 h-3.5 w-3.5" />
-                  31 years
+                  Young
                 </div>
                 <div className="flex items-center">
                   <Scale className="mr-1 h-3.5 w-3.5" />
-                  154 lbs (70kg)
+                  60kg
                 </div>
                 <div className="flex items-center">
                   <Calendar className="mr-1 h-3.5 w-3.5" />
