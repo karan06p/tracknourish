@@ -1,7 +1,7 @@
 "use client"
 
 import React, { useState } from "react";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -55,7 +55,7 @@ const Profile = () => {
     }
   }
   return (
-    <div className="min-h-screen bg-background pt-16 pb-12">
+    <div className="min-h-screen bg-background pb-12">
       {/* Header with profile banner */}
       <div className="relative h-48 w-full bg-gradient-to-r from-green-50 to-teal-100">
         <Button 

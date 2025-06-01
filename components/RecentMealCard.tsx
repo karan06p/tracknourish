@@ -25,6 +25,7 @@ interface MealCardProps{
     description?: string;
     tags: string[] | undefined;
     nutrients: Nutrient[];
+    day: string;
     onDelete: (id: Id) => void;
 };
 
@@ -47,7 +48,7 @@ const RecentMealCard = ({...props}: MealCardProps) => {
   return (
     <Card key={String(props.id)} className="overflow-hidden hover:shadow-md transition-shadow">
                   <CardHeader className={`py-4 rounded-xl  ${props.mealTypeColor}`}>
-                    <div className="flex justify-between items-start">
+                    <div className="flex justify-between items-center gap-2">
                       <div>
                         <CardTitle className="flex items-center gap-2">
                           <span>{props.mealTypeIcon}</span>
@@ -55,19 +56,20 @@ const RecentMealCard = ({...props}: MealCardProps) => {
                         </CardTitle>
                         <CardDescription className="mt-2">
                           <span className="capitalize">{props.mealTypeLabel}</span> • {props.mealCalories} kcal • 
+                          <p>{props.day}</p>
                         </CardDescription>
                       </div>
                       <Button 
                         variant="outline" 
                         size="sm"
-                        className="h-8 text-xs bg-white/70 hover:bg-white"
+                        className="hover:cursor-pointer h-8 text-xs bg-white/70 hover:bg-white"
                         onClick={() => props.onDelete(props.id)}
                       >
                         Delete
                       </Button>
                     </div>
                   </CardHeader>
-                  <CardContent className="pt-6">
+                  <CardContent className="pt-4">
                     {props.description && <p className="text-sm text-gray-600 mb-4">{props.description}</p>}
                     
                     {props.tags && props.tags.length > 0 && (

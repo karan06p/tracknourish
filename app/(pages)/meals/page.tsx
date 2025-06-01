@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo, memo, useCallback } from "react";
 import { useRouter } from "next/navigation";
+import { useVirtualizer } from "@tanstack/react-virtual"
 import {
   ArrowLeft,
   Plus,
@@ -47,14 +48,12 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { format } from "date-fns";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -62,8 +61,21 @@ import {
 } from "@/components/ui/form";
 import { useUser } from "@/hooks/use-user";
 import { eachMeal, Id, NutrientItem, SearchResults } from "@/types/Meal";
+import TableRowComponent from "@/components/TableRow";
 
 const baseUrl = process.env.NEXT_PUBLIC_BASE_URL!;
+
+const MemoizedMealCard = memo(RecentMealCard);
+
+const MemoizedTableRow = memo(TableRowComponent)
+
+function debounce<T extends (...args: any[]) => void>(func: T , wait: number){
+    let timeout: ReturnType<typeof setTimeout>;
+    return (...args: Parameters<T>) => {
+      clearTimeout(timeout);
+      timeout = setTimeout(() => func(...args), wait);
+    }
+}
 
 // Meal categories with their respective colors
 const MEAL_CATEGORIES = {
@@ -96,17 +108,141 @@ const MealsPage = () => {
   const { user, isError, mutate } = useUser();
   const router = useRouter();
   const [showAddMealForm, setShowAddMealForm] = useState(false);
+  const [recentMeals, setRecentMeals] = useState<eachMeal[] | undefined>([]);
   const [showFilters, setShowFilters] = useState(false);
   const [filterMealType, setFilterMealType] = useState("all");
   const [sortBy, setSortBy] = useState("newest");
   const [searchQuery, setSearchQuery] = useState("");
+  const [debouncedQuery, setDebouncedQuery] = useState("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isPopoverOpen, setIsPopoverOpen] = useState<boolean>();
   const [searchResults, setSearchResults] = useState<SearchResults[]>([]);
+  const [isAddTagOpen, setIsAddTagOpen] = useState<boolean>(false);
+  const [totalCalories, setTotalCalories] = useState<number | undefined>();
+  const [totalProtein, setTotalProtein] = useState<number | undefined>();
+  const [totalCarbohydratess, setTotalCarbohydrates] = useState<number | undefined>();
+  const [showNutritionalSummary, setShowNutritionalSummary] = useState<boolean>(false);
+  const [mealsLength, setMealsLength] = useState<number | undefined>();
 
   if(isError) return <div>Error Loading Component, Please Refresh</div>
+  
+  useEffect(() => {
+     if(user?.foodsLogged){
+      let totalCalories = 0;
+      let totalProtein = 0;
+      let totalCarbohydratess = 0;
+      const totalMeals = user?.foodsLogged;
+      const totalMealsLength = totalMeals.length;
+      user.foodsLogged.forEach((item: eachMeal) => {
+        const calories = parseFloat(item.calories);
+        const protein = parseFloat(item.protein);
+        const carbohydrates = parseFloat(item.carbohydrates)
+        if(!isNaN(calories)){
+          totalCalories += calories;
+        }
+        if(!isNaN(protein)){
+          totalProtein += protein;
+        }
+        if(!isNaN(carbohydrates)){
+          totalCarbohydratess += carbohydrates;
+        }
+      })
+      setTotalCalories(totalCalories);
+      setTotalProtein(totalProtein);
+      setTotalCarbohydrates(totalCarbohydratess);
+      setMealsLength(totalMealsLength);
+      setShowNutritionalSummary(true);
+    }
+  }, [user])
 
-  const recentMeals = user?.foodsLogged;
+useEffect(() => {
+  if (!user?.foodsLogged) {
+    setRecentMeals([]);
+    return;
+  }
+  let meals = [...user.foodsLogged];
+
+  // Filter by meal type if not "all"
+  if (filterMealType !== "all") {
+    meals = meals.filter(meal => meal.mealType === filterMealType);
+  }
+
+  // Sort by newest/oldest
+  if (sortBy === "newest") meals = meals.toReversed();
+
+  setRecentMeals(meals);
+}, [user, sortBy, filterMealType]);
+
+const processedMeals = useMemo(() => {
+    if (!user?.foodsLogged) return [];
+    
+    let meals = [...user.foodsLogged];
+    
+    // Apply filters
+    if (filterMealType !== "all") {
+      meals = meals.filter(meal => meal.mealType === filterMealType);
+    }
+    
+    if (debouncedQuery) {
+      const query = debouncedQuery.toLowerCase();
+      meals = meals.filter(meal => 
+        meal.mealName.toLowerCase().includes(query) ||
+        (meal.description && meal.description.toLowerCase().includes(query))
+      );
+    }
+    
+    // Apply sorting
+    if (sortBy === "newest") {
+      meals = meals.toReversed();
+    }
+    
+    return meals;
+  }, [user?.foodsLogged, filterMealType, debouncedQuery, sortBy]);
+
+  // Memoize nutrient calculations
+  const calculateNutrients = useCallback((meal: eachMeal) => [
+    {
+      name: "Protein",
+      amount: parseFloat(meal.protein),
+      unit: "g"
+    },
+    {
+      name: "Carbohydrates",
+      amount: parseFloat(meal.carbohydrates),
+      unit: "g"
+    },
+    {
+      name: "Fiber",
+      amount: parseFloat(meal.fiber),
+      unit: "g"
+    },
+    {
+      name: "Fat",
+      amount: parseFloat(meal.fat),
+      unit: "g"
+    }
+  ], []);
+
+  const debouncedSetQuery = useMemo(
+    () => debounce((val: string) => setDebouncedQuery(val), 300),
+    []
+  );
+  
+   // Optimize search input handler
+  const handleSearchInput = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(e.target.value);
+    debouncedSetQuery(e.target.value);
+  }, [debouncedSetQuery]);
+
+  // Virtualize the table for better performance
+  const rowVirtualizer = useVirtualizer({
+    count: processedMeals.length,
+    getScrollElement: () => document.querySelector('#table-container'),
+    estimateSize: () => 50, // approximate row height
+    overscan: 5
+  });
+
+  const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
   const form = useForm<z.infer<typeof trackMealformSchema>>({
     resolver: zodResolver(trackMealformSchema),
@@ -119,7 +255,7 @@ const MealsPage = () => {
       carbohydrates: "",
       fat: "",
       fiber: "",
-      tags: [""],
+      tags: [],
     },
   });
 
@@ -139,7 +275,8 @@ const MealsPage = () => {
           fiber: values.fiber,
           fat: values.fat,
           tags: values.tags,
-        })
+        }),
+        credentials: "include",
       })
       if(res.status === 200){
         toast.success("New meal added");
@@ -148,14 +285,29 @@ const MealsPage = () => {
     } catch (error) {
       console.error("Error while adding new meal", error)
     } finally{
+      const mealTime = new Date();
+      const mealHour:number = mealTime.getHours();
+      if(mealHour >= 4 && mealHour <= 13){
+        form.setValue("mealType", "breakfast");  
+      }else if(mealHour >= 13 && mealHour <= 17){
+        form.setValue("mealType", "lunch");  
+      }else if(mealHour > 17 && mealHour <= 19){
+        form.setValue("mealType", "snack");  
+      }else if(mealHour > 19 && mealHour < 4){
+        form.setValue("mealType", "dinner");  
+      }else{
+        form.setValue("mealType", "breakfast");  
+      }
       setIsLoading(false);
       setShowAddMealForm(false);
-      form.setValue("mealName", "");   
+      form.setValue("mealName", "");    
+      form.setValue("description", "");   
       form.setValue("calories", "");
       form.setValue("protein", "");
       form.setValue("carbohydrates", "");
       form.setValue("fat", "");
       form.setValue("fiber", "");
+      setSearchResults([]);
     }
   };
 
@@ -205,11 +357,15 @@ const MealsPage = () => {
   };
 
   const handleInputValue = async (searchTerm: string) => {
-    setIsPopoverOpen(true);
     setIsLoading(true);
     // Send API request
     try {
       const res = await fetch(`${baseUrl}/api/search-meal?query=${searchTerm}`);
+      if(res.status !== 200){
+        toast.error("Error while fetching meals");
+        setSearchResults([]);
+        return;
+      }
       const data = await res.json();
       if (!data) return;
       setSearchResults(data.results);
@@ -217,8 +373,17 @@ const MealsPage = () => {
       console.error("Failed to fetch:", err);
     } finally {
       setIsLoading(false);
+      setIsPopoverOpen(true);
     }
   };
+
+const filteredMeals = useMemo(() =>
+  (recentMeals ?? []).filter(meal =>
+    meal.mealName.toLowerCase().includes(debouncedQuery.toLowerCase()) ||
+    (meal.description && meal.description.toLowerCase().includes(debouncedQuery.toLowerCase()))
+  ),
+  [recentMeals, debouncedQuery]
+);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -248,17 +413,19 @@ const MealsPage = () => {
               onClick={() => setShowAddMealForm(true)}
               className="bg-gradient-to-r from-primary to-primary/80"
             >
-              <Plus className="mr-2 h-4 w-4" /> Track New Meal
+              <Plus className=" h-4 w-4" />Track New Meal
             </Button>
           </div>
         </div>
-
-        {/* <NutritionalSummary
-          totalsMeals={meals.length}
-          totalCalories={nutritionalSummary.totalCalories}
-          totalProtein={nutritionalSummary.totalProtein}
-          totalCarbs={nutritionalSummary.totalCarbs}
-        /> */}
+      {showNutritionalSummary && (
+        <NutritionalSummary
+          totalsMeals={mealsLength}
+          totalCalories={totalCalories}
+          totalProtein={totalProtein}
+          totalCarbs={totalCarbohydratess  }
+        />
+      )}
+        
 
         {/* Filter Section */}
         {showFilters && (
@@ -274,15 +441,15 @@ const MealsPage = () => {
                     value={filterMealType}
                     onValueChange={setFilterMealType}
                   >
-                    <SelectTrigger>
+                    <SelectTrigger className="cursor-pointer">
                       <SelectValue placeholder="Select meal type" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="all">All Meals</SelectItem>
-                      <SelectItem value="breakfast">Breakfast</SelectItem>
-                      <SelectItem value="lunch">Lunch</SelectItem>
-                      <SelectItem value="dinner">Dinner</SelectItem>
-                      <SelectItem value="snack">Snack</SelectItem>
+                      <SelectItem  className="hover:cursor-pointer" value="all">All Meals</SelectItem>
+                      <SelectItem  className="hover:cursor-pointer" value="breakfast">Breakfast</SelectItem>
+                      <SelectItem  className="hover:cursor-pointer" value="lunch">Lunch</SelectItem>
+                      <SelectItem  className="hover:cursor-pointer" value="dinner">Dinner</SelectItem>
+                      <SelectItem  className="hover:cursor-pointer" value="snack">Snack</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -290,18 +457,14 @@ const MealsPage = () => {
                 <div className="space-y-2">
                   <Label htmlFor="sortBy">Sort By</Label>
                   <Select value={sortBy} onValueChange={setSortBy}>
-                    <SelectTrigger>
+                    <SelectTrigger className="cursor-pointer">
                       <SelectValue placeholder="Sort by" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="newest">Newest First</SelectItem>
-                      <SelectItem value="oldest">Oldest First</SelectItem>
-                      <SelectItem value="calories-high">
-                        Calories (High to Low)
-                      </SelectItem>
-                      <SelectItem value="calories-low">
-                        Calories (Low to High)
-                      </SelectItem>
+                      <SelectItem
+                      className="hover:cursor-pointer" value="newest">Newest First</SelectItem>
+                      <SelectItem
+                      className="hover:cursor-pointer" value="oldest">Oldest First</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -313,7 +476,10 @@ const MealsPage = () => {
                     <Input
                       id="search"
                       value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
+                      onChange={(e) => {
+                        setSearchQuery(e.target.value)
+                        debouncedSetQuery(e.target.value);
+                      }}
                       className="pl-10"
                       placeholder="Search for a meal..."
                     />
@@ -327,7 +493,7 @@ const MealsPage = () => {
         {/* Add Meal Form */}
         {showAddMealForm && (
           <Card className="mb-8 animate-fade-in">
-            <CardHeader className="bg-gradient-to-r from-green-50 to-blue-50">
+            <CardHeader className="bg-gradient-to-r from-green-50 to-blue-50 py-4 rounded">
               <CardTitle>Track a New Meal</CardTitle>
               <CardDescription>
                 Enter the details of your meal to track its nutrients
@@ -358,6 +524,8 @@ const MealsPage = () => {
                                           <Input
                                           {...field}
                                             className="pl-10"
+                                            autoComplete="false"
+                                            placeholder="Type and click the search button ->"
                                           />
                                           {isLoading ? (
                                             <Loader className="absolute right-3 top-3 h-4 w-4 text-muted-foreground" />
@@ -565,60 +733,67 @@ const MealsPage = () => {
                     {/* Tags */}
                     <div className="space-y-2">
                       <FormField
-                        control={form.control}
-                        name="tags"
-                        render={({ field }) => (
-                          <FormItem>
-                            <div className="flex-col space-y-2">
-                              <FormLabel>Tags</FormLabel>
-                              {(field.value ?? []).map((tag, index) => (
-                                <div
-                                  key={index}
-                                  className="flex items-center gap-2"
-                                >
-                                  <Input
-                                    placeholder="e.g. high-protein, vegetarian"
-                                    className="flex-1"
-                                    value={tag}
-                                    onChange={(e) => {
-                                      const newTags = [...(field.value ?? [])];
-                                      newTags[index] = e.target.value;
-                                      field.onChange(newTags);
-                                    }}
-                                  />
-                                  {index > 0 && (
-                                    <Button
-                                      variant="outline"
-                                      size="icon"
-                                      type="button"
-                                      onClick={() => {
-                                        const newTags = [
-                                          ...(field.value ?? []),
-                                        ];
-                                        newTags.splice(index, 1);
-                                        field.onChange(newTags);
-                                      }}
-                                      className="h-8 w-8 flex-shrink-0"
-                                    >
-                                      ×
-                                    </Button>
-                                  )}
-                                </div>
-                              ))}
-                              <Button
-                                type="button"
-                                variant="outline"
-                                size="sm"
-                                onClick={() => {
-                                  field.onChange([...(field.value ?? []), ""]);
-                                }}
-                              >
-                                Add Tag
-                              </Button>
-                            </div>
-                          </FormItem>
-                        )}
-                      />
+  control={form.control}
+  name="tags"
+  render={({ field }) => (
+    <FormItem>
+      <div className="flex-col space-y-2 my-2">
+        {(field.value ?? []).length === 0 ? (
+          <div className="flex justify-start">
+          <Button
+            className="hover:cursor-pointer"
+            type="button"
+            variant="secondary"
+            size="sm"
+            onClick={() => field.onChange([""])}
+          >
+            <Plus />Add Tag
+          </Button>
+          </div>
+        ) : (
+          <>
+          <FormLabel>Tags</FormLabel>
+            {(field.value ?? []).map((tag, index) => (
+              <div key={index} className="flex items-center gap-2">
+                <Input
+                  placeholder="e.g. high-protein, vegetarian"
+                  className="flex-1"
+                  value={tag}
+                  onChange={(e) => {
+                    const newTags = [...(field.value ?? [])];
+                    newTags[index] = e.target.value;
+                    field.onChange(newTags);
+                  }}
+                />
+                <Button
+                  variant="outline"
+                  size="icon"
+                  type="button"
+                  onClick={() => {
+                    const newTags = [...(field.value ?? [])];
+                    newTags.splice(index, 1);
+                    field.onChange(newTags);
+                  }}
+                  className="h-8 w-8 flex-shrink-0"
+                >
+                  ×
+                </Button>
+              </div>
+            ))}
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => field.onChange([...(field.value ?? []), ""])}
+            >
+              Add Tag
+            </Button>
+          </>
+        )}
+      </div>
+    </FormItem>
+  )}
+/>
                     </div>
                   </div>
                   <CardFooter className="flex justify-between">
@@ -638,21 +813,8 @@ const MealsPage = () => {
 
         {/* Recent Meals Section */}
         <div className="mb-8">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-semibold">Recent Meals</h2>
-            {!showAddMealForm && (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setShowAddMealForm(true)}
-                className="text-xs"
-              >
-                <Plus className="h-3 w-3 mr-1" /> Quick Add
-              </Button>
-            )}
-          </div>
-
-          {recentMeals && recentMeals.length === 0 ? (
+            <h2 className="text-xl font-semibold mb-4">Recent Meals</h2>
+          {filteredMeals.length === 0 ? (
             <div className="flex flex-col items-center justify-center bg-white p-12 rounded-lg border border-dashed border-gray-300">
               <div className="text-6xl mb-4">🍽️</div>
               <h3 className="text-xl font-medium mb-2 text-center">
@@ -669,31 +831,13 @@ const MealsPage = () => {
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {recentMeals?.map((meal: eachMeal, index: number) => {
-                const nutrients = [
-                  {
-                    name: "Protein",
-                    amount: parseFloat(meal.protein.slice(0, -1)),
-                    unit: "g"
-                  },
-                  {
-                    name: "Carbohydrates",
-                    amount: parseFloat(meal.carbohydrates.slice(0, -1)),
-                    unit: "g"
-                  },
-                  {
-                    name: "Fiber",
-                    amount: parseFloat(meal.fiber.slice(0, -1)),
-                    unit: "g"
-                  },
-                  {
-                    name: "Fat",
-                    amount: parseFloat(meal.fat.slice(0, -1)),
-                    unit: "g"
-                  }
-                ];
-                return <RecentMealCard
-                  key={index}
+              {processedMeals.slice(0,6).map((meal: eachMeal, index: number) => {
+                const date = new Date(meal.createdAt);
+                const day = date.getDay();
+                const dayName = days[day];
+                return (
+                  <MemoizedMealCard
+                    key={index}
                   id={meal._id}
                   mealTypeColor={
                     MEAL_CATEGORIES[
@@ -712,12 +856,14 @@ const MealsPage = () => {
                     ].label
                   }
                   mealCalories={meal.calories}
-                  description={meal.description}
-                  tags={meal.tags}
-                  nutrients={nutrients}
+                  description={meal.description || ""}
+                  tags={meal.tags || []}
+                  nutrients={calculateNutrients(meal)}
+                  day={dayName}
                   onDelete={handleDeleteMeal}
-                />
-                })}
+                  />
+                )
+              })}
             </div>
           )}
         </div>
@@ -737,13 +883,14 @@ const MealsPage = () => {
                   <TableRow>
                     <TableHead>Meal</TableHead>
                     <TableHead>Type</TableHead>
+                    <TableHead>Date Added</TableHead>
                     <TableHead>Calories</TableHead>
                     <TableHead>Protein</TableHead>
                     <TableHead>Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {recentMeals?.map((meal: eachMeal, index: number) => {
+                  {filteredMeals?.map((meal: eachMeal, index: number) => {
                     const nutrients = [
                       {
                         name: "Protein",
@@ -767,36 +914,19 @@ const MealsPage = () => {
                       }
                     ];
                     return (
-                    <TableRow key={index}>
-                      <TableCell className="font-medium">{meal.mealName}</TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-1">
-                          <span>
-                            {
-                              MEAL_CATEGORIES[
+                      <TableRowComponent
+                        key={index}
+                        mealName={meal.mealName}
+                        mealType={meal.mealType}
+                        mealIcon={MEAL_CATEGORIES[
                                 meal.mealType as keyof typeof MEAL_CATEGORIES
-                              ].icon
-                            }
-                          </span>
-                          <span className="capitalize">{meal.mealType}</span>
-                        </div>
-                      </TableCell>
-                      <TableCell>{meal.calories} kcal</TableCell>
-                      <TableCell>
-                        {nutrients.find((item) => item.name === "Protein")?.amount}
-                        g
-                      </TableCell>
-                      <TableCell>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="h-8 text-xs"
-                          onClick={() => handleDeleteMeal(meal._id)}
-                        >
-                          Delete
-                        </Button>
-                      </TableCell>
-                    </TableRow>
+                              ].icon}
+                        mealId={meal._id}
+                        createdAt={meal.createdAt.slice(0,10)}
+                        handleDeleteFunction={handleDeleteMeal}
+                        protein={nutrients.find((item) => item.name === "Protein")?.amount}
+                        calories={meal.calories}
+                      />
                   )})}
                 </TableBody>
               </Table>

@@ -37,4 +37,6 @@ export const foodLoggedSchema = new mongoose.Schema({
     tags: {
         type: [String]
     }
+},{
+    timestamps: true
 });

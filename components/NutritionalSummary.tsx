@@ -1,10 +1,10 @@
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
 
 interface NutritionalSummaryProps{
-    totalsMeals: number;
-    totalCalories: number;
-    totalProtein: number;
-    totalCarbs: number
+    totalsMeals: number | undefined;
+    totalCalories: number | undefined;
+    totalProtein: number | undefined;
+    totalCarbs: number | undefined;
 }
 
 export const NutritionalSummary = ({totalsMeals, totalCalories, totalProtein, totalCarbs}: NutritionalSummaryProps) => {

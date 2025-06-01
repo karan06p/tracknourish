@@ -2,6 +2,10 @@ export interface Id {
     $oid: string
 }
 
+export interface DateAdded{
+        $date: string
+}
+
 export interface eachMeal{
     mealName: string
     mealType: string
@@ -13,6 +17,7 @@ export interface eachMeal{
     fat: string
     tags: string[]
     _id: Id
+    createdAt: string
 }
 
 export interface Nutrient {

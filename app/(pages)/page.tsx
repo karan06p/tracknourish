@@ -17,7 +17,6 @@ import {
   TrendingDown,
   Utensils,
   Activity,
-  Droplet,
   PieChart,
   ForkKnife,
 } from "lucide-react";
@@ -42,7 +41,7 @@ import {
 } from "@/components/ui/chart";
 import { useUser } from "@/hooks/use-user";
 import { toast } from "sonner";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useRouter } from "next/navigation";
 import { eachMeal } from "@/types/Meal";
 import { useEffect, useState } from "react";
@@ -53,9 +52,11 @@ const Dashboard = () => {
   const [protein, setProtein] = useState<number | undefined>();
   const [fiber, setFiber] = useState<number | undefined>();
   const router = useRouter();
+  
+  const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
-  const recentMeals = user?.foodsLogged;
-  let mostRecentMeals = recentMeals?.toReversed().splice(0,3);
+  const allMeals = user?.foodsLogged;
+  let mostRecentMeals = allMeals?.toReversed().splice(0,3);
   
   useEffect(() => {
     if(user?.foodsLogged){
@@ -93,42 +94,111 @@ const Dashboard = () => {
     return <p>Error loading user info</p>;
   };
 
+  const getCaloriesPerDay = (foodsLogged: eachMeal[]) => {
+    const caloriesByDay: { [date: string]: number } = {};
+    days.forEach(day => {
+      caloriesByDay[day] = 0;
+    })
+    foodsLogged.forEach((meal: eachMeal) => {
+      const date = new Date(meal.createdAt);
+      const dayNumber = date.getDay();
+      const actualDay = days[dayNumber];
 
-  // Real data calculations
+      const calories = parseFloat(meal.calories);
+      if(!isNaN(calories)){
+        caloriesByDay[actualDay] = (caloriesByDay[actualDay] || 0) + calories;
+      }
+    });
 
-  // Mock data for charts
-  const caloriesData = [
-    { name: "Mon", calories: 1950 },
-    { name: "Tue", calories: 2100 },
-    { name: "Wed", calories: 1850 },
-    { name: "Thu", calories: 2300 },
-    { name: "Fri", calories: 2050 },
-    { name: "Sat", calories: 2200 },
-    { name: "Sun", calories: 1900 },
-  ];
+    return Object.entries(caloriesByDay).map(([name, calories]) => ({
+      name,
+      calories,
+    }))
+  }
 
-  const macrosData = [
-    { name: "Mon", protein: 85, carbs: 220, fat: 65 },
-    { name: "Tue", protein: 92, carbs: 240, fat: 70 },
-    { name: "Wed", protein: 78, carbs: 190, fat: 60 },
-    { name: "Thu", protein: 95, carbs: 250, fat: 75 },
-    { name: "Fri", protein: 88, carbs: 210, fat: 68 },
-    { name: "Sat", protein: 90, carbs: 230, fat: 72 },
-    { name: "Sun", protein: 82, carbs: 200, fat: 63 },
-  ];
+  const getMacrosData = (foodsLogged: eachMeal[]) => {
+    const macrosByDay: { [name: string]: { protein: number, carbs: number, fat: number, fiber: number }} = {};
+    days.forEach(day => {
+      macrosByDay[day] = { protein: 0 , carbs: 0, fat: 0, fiber: 0}
+    });
 
-  const pieData = [
-    { name: "Protein", value: 82, color: "#8884d8" },
-    { name: "Carbs", value: 200, color: "#82ca9d" },
-    { name: "Fat", value: 63, color: "#ffc658" },
-  ];
+    foodsLogged.forEach((meal: eachMeal) => {
+      const date = new Date(meal.createdAt);
+      const dayNumber = date.getDay();
+      const actualDay = days[dayNumber];
+
+      const protein = parseFloat(meal.protein);
+      const carbs = parseFloat(meal.carbohydrates);
+      const fat = parseFloat(meal.fat);
+      const fiber = parseFloat(meal.fiber);
+
+      if(!isNaN(protein)) macrosByDay[actualDay].protein += protein;
+      if(!isNaN(carbs)) macrosByDay[actualDay].carbs += carbs;
+      if(!isNaN(fat)) macrosByDay[actualDay].fat += fat;
+      if(!isNaN(fiber)) macrosByDay[actualDay].fiber += fiber;
+    });
+
+    return days.map(day => ({
+      name: day,
+      protein: macrosByDay[day].protein,
+      carbs: macrosByDay[day].carbs,
+      fat: macrosByDay[day].fat,
+      fiber: macrosByDay[day].fiber,
+    }))
+  }
+
+  const getPieData = (foodLogged: eachMeal[]) => {
+    const today = new Date();
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(today.getDate() - 6);
+
+    let totalCarbs = 0;
+    let totalProtein = 0;
+    let totalFat = 0;
+    let totalFiber = 0;
+
+    const recentMeals = foodLogged.filter(meal => {
+    const mealDate = new Date(meal.createdAt);
+    return mealDate >= sevenDaysAgo && mealDate <= today;
+  });
+
+  if (recentMeals.length > 0) {
+    recentMeals.forEach((meal: eachMeal) => {
+      const carbs = parseFloat(meal.carbohydrates);
+      const protein = parseFloat(meal.protein);
+      const fat = parseFloat(meal.fat);
+      const fiber = parseFloat(meal.fiber);
+
+      if (!isNaN(carbs)) totalCarbs += carbs;
+      if (!isNaN(protein)) totalProtein += protein;
+      if (!isNaN(fat)) totalFat += fat;
+      if (!isNaN(fiber)) totalFiber += fiber;
+    });
+
+    return [
+      { name: "Carbs", value: totalCarbs, color: "#e6564c" },
+      { name: "Protein", value: totalProtein, color: "#8884d8" },
+      { name: "Fat", value: totalFat, color: "#ffc658" },
+      { name: "Fiber", value: totalFiber, color: "#82ca9d" }
+    ].filter(macro => macro.value > 0);
+  }
+
+  return [];
+};
+
+  const caloriesData = getCaloriesPerDay(user?.foodsLogged || []);
+
+  const macrosData = getMacrosData(user?.foodsLogged || [])
+
+  const pieData = getPieData(user?.foodsLogged || [])
 
   // Chart config
   const chartConfig = {
     calories: { label: "Calories", color: "#FF6384" },
     protein: { label: "Protein", color: "#8884d8" },
-    carbs: { label: "Carbs", color: "#82ca9d" },
+    carbs: { label: "Carbs", color: "#e6564c" },
     fat: { label: "Fat", color: "#ffc658" },
+    fiber: { label: "Fiber", color: "#82ca9d" },
   };
 
   return (
@@ -254,7 +324,7 @@ const Dashboard = () => {
                 <div>
                   <CardTitle>Nutrition Trends</CardTitle>
                   <CardDescription>
-                    Track your nutrition patterns over the past week
+                    Track your nutrition patterns over the <b>past</b>  week
                   </CardDescription>
                 </div>
               </div>
@@ -309,7 +379,7 @@ const Dashboard = () => {
                         margin={{ top: 10, right: 10, left: 10, bottom: 20 }}
                       >
                         <CartesianGrid
-                          strokeDasharray="3 3"
+                          strokeDasharray="4 4"
                           vertical={false}
                           opacity={0.3}
                         />
@@ -327,11 +397,19 @@ const Dashboard = () => {
                         <Line
                           type="monotone"
                           dataKey="carbs"
-                          stroke="#82ca9d"
+                          stroke="#e6564c"
                           strokeWidth={2}
                           dot={{ r: 4 }}
                           activeDot={{ r: 6 }}
                         />
+                          <Line
+                            type="monotone"
+                            dataKey="fiber"
+                            stroke="#82ca9d"
+                            strokeWidth={2}
+                            dot={{ r: 4 }}
+                            activeDot={{ r: 6 }}
+                          />
                         <Line
                           type="monotone"
                           dataKey="fat"
@@ -349,7 +427,8 @@ const Dashboard = () => {
                   <div className="h-[300px] flex items-center justify-center">
                     <ResponsiveContainer>
                       <RechartsPieChart>
-                        <Pie
+                        {pieData && pieData.length > 0 ? (
+                          <Pie
                           data={pieData}
                           cx="50%"
                           cy="50%"
@@ -365,6 +444,12 @@ const Dashboard = () => {
                             <Cell key={`cell-${index}`} fill={entry.color} />
                           ))}
                         </Pie>
+                        ): (
+                          <text x="50%" y="50%" textAnchor="middle" dominantBaseline="middle">
+                            Track New Meals!
+                          </text>
+                        )}
+                        
                         <Tooltip />
                       </RechartsPieChart>
                     </ResponsiveContainer>
