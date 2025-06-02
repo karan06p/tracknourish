@@ -41,7 +41,7 @@ import {
 } from "@/components/ui/chart";
 import { useUser } from "@/hooks/use-user";
 import { toast } from "sonner";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useRouter } from "next/navigation";
 import { eachMeal } from "@/types/Meal";
 import { useEffect, useState } from "react";
@@ -51,19 +51,20 @@ const Dashboard = () => {
   const [avgCalories, setAvgCalories] = useState<number | undefined>()
   const [protein, setProtein] = useState<number | undefined>();
   const [fiber, setFiber] = useState<number | undefined>();
+  const [profilePicUrl, setProfilePicUrl] = useState<string | undefined>();
   const router = useRouter();
   
   const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
-  const allMeals = user?.foodsLogged;
+  const allMeals = user?.userDetails?.foodsLogged;
   let mostRecentMeals = allMeals?.toReversed().splice(0,3);
   
   useEffect(() => {
-    if(user?.foodsLogged){
+    if(user?.userDetails?.foodsLogged){
       let totalCalories = 0;
       let totalProtein = 0;
       let totalFiber = 0;
-      user.foodsLogged.forEach((item: eachMeal) => {
+      user?.userDetails?.foodsLogged.forEach((item: eachMeal) => {
         const calories = parseFloat(item.calories);
         const protein = parseFloat(item.protein);
         const fiber = parseFloat(item.fiber);
@@ -77,14 +78,17 @@ const Dashboard = () => {
           totalFiber += fiber;
         }
       })
-      if(user.foodsLogged.length > 0){
-        let calculatedAvgCalories = (totalCalories / user.foodsLogged.length).toFixed(2)
+      if(user.userDetails?.foodsLogged.length > 0){
+        let calculatedAvgCalories = (totalCalories / user.userDetails?.foodsLogged.length).toFixed(2)
         setAvgCalories(Number(calculatedAvgCalories));
       }else {
         setAvgCalories(0)
       }
       setProtein(totalProtein);
       setFiber(totalFiber)
+    }
+    if(user?.userDetails?.profilePicUrl){
+      setProfilePicUrl(user?.userDetails?.profilePicUrl)
     }
   }, [user])
 
@@ -186,11 +190,11 @@ const Dashboard = () => {
   return [];
 };
 
-  const caloriesData = getCaloriesPerDay(user?.foodsLogged || []);
+  const caloriesData = getCaloriesPerDay(user?.userDetails?.foodsLogged || []);
 
-  const macrosData = getMacrosData(user?.foodsLogged || [])
+  const macrosData = getMacrosData(user?.userDetails?.foodsLogged || [])
 
-  const pieData = getPieData(user?.foodsLogged || [])
+  const pieData = getPieData(user?.userDetails?.foodsLogged || [])
 
   // Chart config
   const chartConfig = {
@@ -209,7 +213,7 @@ const Dashboard = () => {
           <div className="py-8 md:flex md:items-center md:justify-between">
             <div className="flex-1 min-w-0">
               <h1 className="text-2xl font-bold leading-7 text-white sm:text-3xl">
-                Welcome back, {user.firstName}
+                Welcome back, {user.userDetails?.firstName}
               </h1>
               <p className="mt-2 text-sm text-blue-100">
                 Track your nutrition journey and stay healthy
@@ -222,7 +226,7 @@ const Dashboard = () => {
               </Button>
               <Link href={"/profile"}>
               <Avatar className="hover:shadow-2xl hover:shadow-accent">
-                {/* <AvatarImage src="https://github.com/shadcn.png" /> */}
+                <AvatarImage src={profilePicUrl} />
                 <AvatarFallback>{firstLetter}</AvatarFallback>
               </Avatar>
               </Link>
@@ -235,87 +239,88 @@ const Dashboard = () => {
       <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
         <div className="px-4 py-6 sm:px-0">
           {/* Stats overview with subtle animations */}
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mb-6">
-            <Card className="overflow-hidden transition-all duration-300 hover:shadow-md">
-              <CardHeader className="pb-2 flex flex-row items-start justify-between space-y-0">
-                <div>
-                  <CardDescription>Meals tracked</CardDescription>
-                  <CardTitle className="text-3xl">{user?.foodsLogged.length}</CardTitle>
-                </div>
-                <Utensils className="h-5 w-5 text-blue-500" />
-              </CardHeader>
-              <CardContent>
-                <div className="flex items-center">
-                  <TrendingUp className="mr-1 h-4 w-4 text-green-500" />
-                  <p className="text-xs text-muted-foreground">
-                    <span className="text-green-500 font-medium">+12%</span>{" "}
-                    from last week
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
+          <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 mb-6">
+  {/* Card 1 */}
+  <Card className="overflow-hidden transition-all duration-300 hover:shadow-md">
+    <CardHeader className="pb-2 flex flex-row items-start justify-between space-y-0">
+      <div>
+        <CardDescription>Meals tracked</CardDescription>
+        <CardTitle className="text-3xl">{user?.userDetails?.foodsLogged.length}</CardTitle>
+      </div>
+      <Utensils className="h-5 w-5 text-blue-500" />
+    </CardHeader>
+    <CardContent>
+      <div className="flex items-center">
+        <TrendingUp className="mr-1 h-4 w-4 text-green-500" />
+        <p className="text-xs text-muted-foreground">
+          <span className="text-green-500 font-medium">+12%</span> from last week
+        </p>
+      </div>
+    </CardContent>
+  </Card>
 
-            <Card className="overflow-hidden transition-all duration-300 hover:shadow-md">
-              <CardHeader className="pb-2 flex flex-row items-start justify-between space-y-0">
-                <div>
-                  <CardDescription>Average calories</CardDescription>
-                  <CardTitle className="text-3xl">{avgCalories ? avgCalories : 0}</CardTitle>
-                </div>
-                <Activity className="h-5 w-5 text-rose-500" />
-              </CardHeader>
-              <CardContent>
-                <div className="flex items-center">
-                  <TrendingDown className="mr-1 h-4 w-4 text-rose-500" />
-                  <p className="text-xs text-muted-foreground">
-                    <span className="text-rose-500 font-medium">+3%</span> from
-                    last week
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
+  {/* Card 2 */}
+  <Card className="overflow-hidden transition-all duration-300 hover:shadow-md">
+    <CardHeader className="pb-2 flex flex-row items-start justify-between space-y-0">
+      <div>
+        <CardDescription>Average calories</CardDescription>
+        <CardTitle className="text-3xl">{avgCalories || 0}</CardTitle>
+      </div>
+      <Activity className="h-5 w-5 text-rose-500" />
+    </CardHeader>
+    <CardContent>
+      <div className="flex items-center">
+        <TrendingDown className="mr-1 h-4 w-4 text-rose-500" />
+        <p className="text-xs text-muted-foreground">
+          <span className="text-rose-500 font-medium">+3%</span> from last week
+        </p>
+      </div>
+    </CardContent>
+  </Card>
 
-            <Card className="overflow-hidden transition-all duration-300 hover:shadow-md">
-              <CardHeader className="pb-2 flex flex-row items-start justify-between space-y-0">
-                <div>
-                  <CardDescription>Protein intake (g)</CardDescription>
-                  <CardTitle className="text-3xl">{protein}</CardTitle>
-                </div>
-                <div className="h-5 w-5 rounded-full bg-indigo-100 flex items-center justify-center">
-                  <span className="text-xs font-bold text-indigo-600">P</span>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="flex items-center">
-                  <TrendingUp className="mr-1 h-4 w-4 text-green-500" />
-                  <p className="text-xs text-muted-foreground">
-                    <span className="text-green-500 font-medium">+7%</span> from
-                    last week
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
+  {/* Card 3 */}
+  <Card className="overflow-hidden transition-all duration-300 hover:shadow-md">
+    <CardHeader className="pb-2 flex flex-row items-start justify-between space-y-0">
+      <div>
+        <CardDescription>Protein intake (g)</CardDescription>
+        <CardTitle className="text-3xl">{protein}</CardTitle>
+      </div>
+      <div className="h-5 w-5 rounded-full bg-indigo-100 flex items-center justify-center">
+        <span className="text-xs font-bold text-indigo-600">P</span>
+      </div>
+    </CardHeader>
+    <CardContent>
+      <div className="flex items-center">
+        <TrendingUp className="mr-1 h-4 w-4 text-green-500" />
+        <p className="text-xs text-muted-foreground">
+          <span className="text-green-500 font-medium">+7%</span> from last week
+        </p>
+      </div>
+    </CardContent>
+  </Card>
 
-            <Card className="overflow-hidden transition-all duration-300 hover:shadow-md">
-            <CardHeader className="pb-2 flex flex-row items-start justify-between space-y-0">
-                <div>
-                  <CardDescription>Fiber intake (g)</CardDescription>
-                  <CardTitle className="text-3xl">{fiber}</CardTitle>
-                </div>
-                <div className="h-5 w-5 rounded-full bg-indigo-100 flex items-center justify-center">
-                  <span className="text-xs font-bold text-green-600">F</span>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="flex items-center">
-                  <TrendingUp className="mr-1 h-4 w-4 text-green-500" />
-                  <p className="text-xs text-muted-foreground">
-                    <span className="text-green-500 font-medium">+2%</span> from
-                    last week
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
+  {/* Card 4 */}
+  <Card className="overflow-hidden transition-all duration-300 hover:shadow-md">
+    <CardHeader className="pb-2 flex flex-row items-start justify-between space-y-0">
+      <div>
+        <CardDescription>Fiber intake (g)</CardDescription>
+        <CardTitle className="text-3xl">{fiber}</CardTitle>
+      </div>
+      <div className="h-5 w-5 rounded-full bg-indigo-100 flex items-center justify-center">
+        <span className="text-xs font-bold text-green-600">F</span>
+      </div>
+    </CardHeader>
+    <CardContent>
+      <div className="flex items-center">
+        <TrendingUp className="mr-1 h-4 w-4 text-green-500" />
+        <p className="text-xs text-muted-foreground">
+          <span className="text-green-500 font-medium">+2%</span> from last week
+        </p>
+      </div>
+    </CardContent>
+  </Card>
+</div>
+
 
           {/* Nutrition trends with real charts */}
           <Card className="mb-6">

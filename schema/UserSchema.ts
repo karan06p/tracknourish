@@ -1,37 +1,51 @@
 import mongoose from "mongoose";
+import { userDetailsSchema } from "./UserDetailsSchema";
 import { foodLoggedSchema } from "./FoodLoggedSchema";
 
-const userSchema = new mongoose.Schema({
-    firstName: {
-        type: String,
-        required: true,
-    },
-    lastName: {
-        type: String,
-        required: true,
-    },
+const userSchema = new mongoose.Schema(
+  {
     email: {
-        type: String,
-        required: true,
-        unique: true,
+      type: String,
+      required: true,
+      unique: true,
     },
     hashedPassword: {
-        type: String,
-        required: true,
+      type: String,
+      required: true,
     },
-    isEmailVerified:{
-        type: Boolean,
-        default: false
+    isEmailVerified: {
+      type: Boolean,
+      default: false,
     },
     refreshToken: {
-        type: String,
+      type: String,
     },
-    foodsLogged:{
+    userDetails: {
+      firstName: {
+        type: String,
+        required: true,
+      },
+      lastName: {
+        type: String,
+        required: true,
+      },
+      coverBgUrl: {
+        type: String,
+        required: false,
+      },
+      profilePicUrl: {
+        type: String,
+        required: false,
+      },
+      foodsLogged: {
         type: [foodLoggedSchema],
-        default: []
-    }
-}, {
-    timestamps: true
-})
+        default: [],
+      },
+    },
+  },
+  {
+    timestamps: true,
+  }
+);
 
 export const User = mongoose.models.User || mongoose.model("User", userSchema);

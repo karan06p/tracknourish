@@ -39,10 +39,12 @@ export async function POST(req: Request) {
   
       // Create the user in DB
       const newUser = new User({
-        firstName,
-        lastName,
         email,
         hashedPassword,
+        userDetails: {
+          firstName,
+          lastName,
+        }
       });
       await newUser.save();
   

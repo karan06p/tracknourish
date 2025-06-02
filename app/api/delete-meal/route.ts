@@ -3,23 +3,7 @@ import { ApiResponse } from "@/lib/utils";
 import { User } from "@/schema/UserSchema";
 import { NextRequest } from "next/server";
 import jwt from "jsonwebtoken";
-
-interface Id {
-  $oid: string;
-}
-
-interface eachMeal {
-  mealName: string;
-  mealType: string;
-  description: string;
-  calories: string;
-  protein: string;
-  carbohydrates: string;
-  fiber: string;
-  fat: string;
-  tags: string[];
-  _id: Id;
-}
+import { eachMeal } from "@/types/Meal";
 
 const jwtSecret = process.env.JWT_SECRET!;
 
@@ -39,8 +23,8 @@ export async function POST(req: NextRequest) {
     if (!user) return ApiResponse(404, "User not found");
 
     // Find the index of the meal to delete
-    const mealIndex = user.foodsLogged.findIndex(
-      (food: any) => food._id.toString() === mealId
+    const mealIndex = user.userDetails.foodsLogged.findIndex(
+      (food: eachMeal) => food._id.toString() === mealId
     );
 
     if (mealIndex === -1) {
@@ -48,7 +32,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Remove the meal from the foodsLogged array
-    user.foodsLogged.splice(mealIndex, 1);
+    user.userDetails.foodsLogged.splice(mealIndex, 1);
 
     // Save the updated user document
     await user.save();

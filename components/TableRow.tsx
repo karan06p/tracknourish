@@ -16,7 +16,7 @@ interface TableRowProps{
 
 function TableRowComponent(props: TableRowProps) {
   return (
-     <TableRow key={props.mealId.$oid}>
+     <TableRow key={props.mealId.$oid} style={{ height: '50px' }}>
                       <TableCell className="font-medium">{props.mealName}</TableCell>
                       <TableCell>
                         <div className="flex items-center gap-1">

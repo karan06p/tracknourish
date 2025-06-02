@@ -19,7 +19,7 @@ const fetcher = async ( url: string ) => {
 export const useUser = () => {
     const { data, error, isLoading, mutate } = useSWR(`${baseUrl}/api/user-info`, fetcher);
 
-    const firstLetter = data?.firstName.slice(0,1);
+    const firstLetter = data?.userDetails?.firstName.slice(0,1);
 
     return {
         user: data,

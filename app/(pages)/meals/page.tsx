@@ -127,13 +127,13 @@ const MealsPage = () => {
   if(isError) return <div>Error Loading Component, Please Refresh</div>
   
   useEffect(() => {
-     if(user?.foodsLogged){
+     if(user?.userDetails?.foodsLogged){
       let totalCalories = 0;
       let totalProtein = 0;
       let totalCarbohydratess = 0;
-      const totalMeals = user?.foodsLogged;
+      const totalMeals = user?.userDetails?.foodsLogged;
       const totalMealsLength = totalMeals.length;
-      user.foodsLogged.forEach((item: eachMeal) => {
+      user.userDetails?.foodsLogged.forEach((item: eachMeal) => {
         const calories = parseFloat(item.calories);
         const protein = parseFloat(item.protein);
         const carbohydrates = parseFloat(item.carbohydrates)
@@ -156,11 +156,11 @@ const MealsPage = () => {
   }, [user])
 
 useEffect(() => {
-  if (!user?.foodsLogged) {
+  if (!user?.userDetails?.foodsLogged) {
     setRecentMeals([]);
     return;
   }
-  let meals = [...user.foodsLogged];
+  let meals = [...user.userDetails?.foodsLogged];
 
   // Filter by meal type if not "all"
   if (filterMealType !== "all") {
@@ -174,9 +174,9 @@ useEffect(() => {
 }, [user, sortBy, filterMealType]);
 
 const processedMeals = useMemo(() => {
-    if (!user?.foodsLogged) return [];
+    if (!user?.userDetails?.foodsLogged) return [];
     
-    let meals = [...user.foodsLogged];
+    let meals = [...user.userDetails?.foodsLogged];
     
     // Apply filters
     if (filterMealType !== "all") {
@@ -197,7 +197,7 @@ const processedMeals = useMemo(() => {
     }
     
     return meals;
-  }, [user?.foodsLogged, filterMealType, debouncedQuery, sortBy]);
+  }, [user?.userDetails?.foodsLogged, filterMealType, debouncedQuery, sortBy]);
 
   // Memoize nutrient calculations
   const calculateNutrients = useCallback((meal: eachMeal) => [
@@ -234,13 +234,6 @@ const processedMeals = useMemo(() => {
     debouncedSetQuery(e.target.value);
   }, [debouncedSetQuery]);
 
-  // Virtualize the table for better performance
-  const rowVirtualizer = useVirtualizer({
-    count: processedMeals.length,
-    getScrollElement: () => document.querySelector('#table-container'),
-    estimateSize: () => 50, // approximate row height
-    overscan: 5
-  });
 
   const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
@@ -476,10 +469,7 @@ const filteredMeals = useMemo(() =>
                     <Input
                       id="search"
                       value={searchQuery}
-                      onChange={(e) => {
-                        setSearchQuery(e.target.value)
-                        debouncedSetQuery(e.target.value);
-                      }}
+                      onChange={handleSearchInput}
                       className="pl-10"
                       placeholder="Search for a meal..."
                     />
@@ -523,9 +513,8 @@ const filteredMeals = useMemo(() =>
                                         <div className="relative w-full">
                                           <Input
                                           {...field}
-                                            className="pl-10"
                                             autoComplete="false"
-                                            placeholder="Type and click the search button ->"
+                                            placeholder="cheesecake"
                                           />
                                           {isLoading ? (
                                             <Loader className="absolute right-3 top-3 h-4 w-4 text-muted-foreground" />

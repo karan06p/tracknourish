@@ -4,16 +4,8 @@ import { Card, CardHeader, CardDescription, CardTitle, CardContent } from '@/com
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart'
 import { Cell, Pie, PieChart } from 'recharts'
 import { Button } from '@/components/ui/button'
+import { Id, Nutrient } from '@/types/Meal'
 
-interface Nutrient {
-    name: string;
-    amount: number;
-    unit: string;
-  }
-
-interface Id {
-    $oid: string
-}
 
 interface MealCardProps{
     id: Id;

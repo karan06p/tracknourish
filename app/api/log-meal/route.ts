@@ -50,7 +50,7 @@ export async function POST(req: NextRequest){
             tags,
         };
 
-        user.foodsLogged.push(newMeal)
+        user.userDetails.foodsLogged.push(newMeal)
 
         await user.save();
 
