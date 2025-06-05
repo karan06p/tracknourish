@@ -17,7 +17,14 @@ const fetcher = async ( url: string ) => {
 };
 
 export const useUser = () => {
-    const { data, error, isLoading, mutate } = useSWR(`${baseUrl}/api/user-info`, fetcher);
+    const { data, error, isLoading, mutate } = useSWR(`${baseUrl}/api/user-info`, fetcher, {
+        revalidateOnFocus: false,
+        revalidateIfStale: false,     
+        revalidateOnReconnect: false,
+        dedupingInterval: 60000,       
+        shouldRetryOnError: false,    
+        focusThrottleInterval: 5000,   
+    });
 
     const firstLetter = data?.userDetails?.firstName.slice(0,1);
 

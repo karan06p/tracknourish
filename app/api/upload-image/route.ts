@@ -22,6 +22,7 @@ interface CloudinaryUploadResults {
   secure_url: string;
   created_at: string;
   original_filename: string;
+  signature: string;
 }
 
 export async function POST(req: NextRequest, res: NextResponse) {
@@ -52,8 +53,6 @@ export async function POST(req: NextRequest, res: NextResponse) {
       }
     );
 
-    const imageUrl = result.secure_url;
-
     let payload;
     try {
       payload = jwt.verify(accessToken, jwtSecret) as { userId: string };
@@ -65,11 +64,13 @@ export async function POST(req: NextRequest, res: NextResponse) {
     if (!user) return ApiResponse(400, "User not found");
 
     if(type === "profile"){
-      user.userDetails.profilePicUrl = imageUrl;
+      user.userDetails.profilePicUrl = result.secure_url;
+      user.userDetails.profilePicId = result.public_id;
     }else{
-      user.userDetails.coverBgUrl = imageUrl;
+      user.userDetails.coverBgUrl = result.secure_url;
+      user.userDetails.coverBgId = result.public_id;
     }
-    user.save()
+    await user.save()
     return NextResponse.json({ result }, { status: 200 });
   } catch (error) {
     console.log("Upload image failed", error);

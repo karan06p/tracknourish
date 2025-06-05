@@ -213,7 +213,7 @@ const Dashboard = () => {
           <div className="py-8 md:flex md:items-center md:justify-between">
             <div className="flex-1 min-w-0">
               <h1 className="text-2xl font-bold leading-7 text-white sm:text-3xl">
-                Welcome back, {user.userDetails?.firstName}
+                Welcome {user.userDetails?.firstName}
               </h1>
               <p className="mt-2 text-sm text-blue-100">
                 Track your nutrition journey and stay healthy

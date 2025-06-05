@@ -9,7 +9,6 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Progress } from "@/components/ui/progress";
 import {
-  Camera,
   Edit,
   User,
   Calendar,
@@ -20,7 +19,7 @@ import {
   Timer,
   Scale,
   LineChart,
-  ArrowLeft,
+  Trash,
 } from "lucide-react";
 import { useUser } from "@/hooks/use-user";
 import { toast } from "sonner";
@@ -36,10 +35,9 @@ const Profile = () => {
   const [avgCalories, setAvgCalories] = useState<number | undefined>();
   const [profilePicUrl, setProfilePicUrl] = useState<string | undefined>();
   const [coverPicUrl, setCoverPicUrl] = useState<string | undefined>();
-  const { user, firstLetter, isError } = useUser();
+  const [isEditingProfile, setIsEditingProfile] = useState<boolean>(false);
+  const { user, firstLetter, isError, mutate } = useUser();
   const router = useRouter();
-
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (user?.userDetails?.foodsLogged) {
@@ -89,8 +87,9 @@ const Profile = () => {
   const handleSignOut = async () => {
     setIsLoading(true);
     try {
-      await fetch(`${baseUrl}/api/sign-out`).then((res) => {
+      const res = await fetch(`${baseUrl}/api/sign-out`).then((res) => {
         if (res.status === 200) {
+          mutate();
           router.refresh();
           toast.success("Signed Out");
         }
@@ -111,7 +110,7 @@ const Profile = () => {
     <div 
       className="absolute inset-0 bg-cover bg-center bg-no-repeat"
       style={{ 
-        backgroundImage: `url(${user.userDetails.coverBgUrl})`,
+        backgroundImage: `url(${coverPicUrl})`,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
       }}
@@ -129,18 +128,17 @@ const Profile = () => {
           <div className="flex flex-col items-center sm:flex-row sm:gap-6">
             <div className="relative">
               <Avatar className="h-32 w-32 border-4 border-background">
-                <AvatarImage src={user?.userDetails?.profilePicUrl} alt="Profile Pic"/>
+                <AvatarImage src={profilePicUrl} alt="Profile Pic"/>
                 <AvatarFallback className="text-2xl">
                   {firstLetter}
                 </AvatarFallback>
               </Avatar>
                 <ImageUploader type="profile"/>
             </div>
-
             <div className="mt-4 flex-1 text-center sm:mt-0 sm:text-left">
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
                 <h1 className="text-2xl font-bold text-foreground">{`${user?.userDetails?.firstName} ${user?.userDetails?.lastName}`}</h1>
-                <Button variant="outline" size="sm" className="mt-2 sm:mt-0">
+                <Button variant="outline" size="sm" className="mt-2 sm:mt-0" onClick={() => setIsEditingProfile(!isEditingProfile)}>
                   <Edit className="mr-2 h-3.5 w-3.5" />
                   Edit Profile
                 </Button>

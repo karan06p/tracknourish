@@ -29,7 +29,6 @@ const SearchInput = () => {
   const handleInputValue = async () => {
     setIsPopoverOpen(true);
     setIsLoading(true);
-    // Send API request
     try {
       const res = await fetch(`${baseUrl}/api/search-meal?query=${inputValue}`);
       const data = await res.json();
@@ -40,69 +39,6 @@ const SearchInput = () => {
       console.error("Failed to fetch:", err);
     }
   };
-
-  const mockSearchResults = [
-    {
-      id: 1095889,
-      title: "Creamy Homemade Tomato Soup",
-      image: "https://img.spoonacular.com/recipes/1095889-312x231.jpg",
-      imageType: "jpg",
-    },
-    {
-      id: 642583,
-      title: "Farfalle with Peas, Ham and Cream",
-      image: "https://img.spoonacular.com/recipes/642583-312x231.jpg",
-      imageType: "jpg",
-    },
-    {
-      id: 637184,
-      title: "Carrot Cake Pancakes",
-      image: "https://img.spoonacular.com/recipes/637184-312x231.jpg",
-      imageType: "jpg",
-    },
-    {
-      id: 660185,
-      title: "Singapore Curry",
-      image: "https://img.spoonacular.com/recipes/660185-312x231.jpg",
-      imageType: "jpg",
-    },
-    {
-      id: 652497,
-      title: "Mouthwatering Mushroom Pie",
-      image: "https://img.spoonacular.com/recipes/652497-312x231.jpg",
-      imageType: "jpg",
-    },
-    {
-      id: 653886,
-      title: "Orange Honey Madeleines",
-      image: "https://img.spoonacular.com/recipes/653886-312x231.jpg",
-      imageType: "jpg",
-    },
-    {
-      id: 636177,
-      title: "Broccoli Cheddar Soup",
-      image: "https://img.spoonacular.com/recipes/636177-312x231.jpg",
-      imageType: "jpg",
-    },
-    {
-      id: 638893,
-      title: "Chocolate Cherry Cheesecake",
-      image: "https://img.spoonacular.com/recipes/638893-312x231.jpg",
-      imageType: "jpg",
-    },
-    {
-      id: 635217,
-      title: "Blackberry Grilled Cheese Sandwich",
-      image: "https://img.spoonacular.com/recipes/635217-312x231.jpg",
-      imageType: "jpg",
-    },
-    {
-      id: 651140,
-      title: "Marshmallow S'mores Bites",
-      image: "https://img.spoonacular.com/recipes/651140-312x231.jpg",
-      imageType: "jpg",
-    },
-  ];
 
   return (
       <div className="flex flex-col md:flex-row gap-4">
@@ -135,6 +71,7 @@ const SearchInput = () => {
                     <div className="font-medium">{food.title}</div>
                   </button>
                 ))}
+                <p>powered by Spoonacular Api.</p>
               </div>
             </PopoverContent>
           </Popover>

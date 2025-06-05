@@ -67,8 +67,6 @@ const baseUrl = process.env.NEXT_PUBLIC_BASE_URL!;
 
 const MemoizedMealCard = memo(RecentMealCard);
 
-const MemoizedTableRow = memo(TableRowComponent)
-
 function debounce<T extends (...args: any[]) => void>(func: T , wait: number){
     let timeout: ReturnType<typeof setTimeout>;
     return (...args: Parameters<T>) => {
@@ -234,7 +232,6 @@ const processedMeals = useMemo(() => {
     debouncedSetQuery(e.target.value);
   }, [debouncedSetQuery]);
 
-
   const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
   const form = useForm<z.infer<typeof trackMealformSchema>>({
@@ -301,6 +298,7 @@ const processedMeals = useMemo(() => {
       form.setValue("fat", "");
       form.setValue("fiber", "");
       setSearchResults([]);
+      mutate();
     }
   };
 
@@ -325,10 +323,13 @@ const processedMeals = useMemo(() => {
     } catch (error) {
       console.error("Meal deletion unsuccessfull", error)
       toast.error("Meal deletion failed")
-    } 
+    } finally{
+      mutate();
+    }
   };
 
   const onSelectFood = async (food: SearchResults) => {
+    setIsLoading(true)
     setIsPopoverOpen(false);
     try {
       const res = await fetch(`${baseUrl}/api/food-nutrients/${food.id}`);
@@ -346,6 +347,8 @@ const processedMeals = useMemo(() => {
       form.setValue("fiber", fiber || "");
     } catch (error) {
       console.error("Error in fetching nutrients of the selected food", error);
+    }finally{
+      setIsLoading(false)
     }
   };
 
@@ -531,17 +534,25 @@ const filteredMeals = useMemo(() =>
                                         align="start"
                                       >
                                         <div className="max-h-[300px] overflow-y-auto rounded-b-md bg-white">
-                                          {searchResults.map((food) => (
-                                            <button
-                                              key={food.id}
-                                              onClick={() => onSelectFood(food)}
-                                              className="w-full cursor-pointer items-center justify-between px-4 py-3 text-left hover:bg-gray-100 focus:bg-gray-100 focus:outline-none"
-                                            >
-                                              <div className="font-medium">
-                                                {food.title}
-                                              </div>
-                                            </button>
-                                          ))}
+                                          <div className="flex items-center justify-start"><p className="font-light text-sm px-2">powered by Spoonacular</p></div>
+                                         
+                                          {searchResults.length > 0 ? (
+                                            <div>
+                                            {searchResults.map((food) => (
+                                              <button
+                                                key={food.id}
+                                                onClick={() => onSelectFood(food)}
+                                                className="w-full cursor-pointer items-center justify-between px-4 py-3 text-left hover:bg-gray-100 focus:bg-gray-100 focus:outline-none"
+                                              >
+                                                <div className="font-medium">
+                                                  {food.title}
+                                                </div>
+                                              </button>
+                                            ))}
+                                            </div>
+                                          ) : (
+                                            <p className="text-center p-2">No results</p>
+                                          )}
                                         </div>
                                       </PopoverContent>
                                     </Popover>

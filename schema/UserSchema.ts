@@ -1,5 +1,4 @@
 import mongoose from "mongoose";
-import { userDetailsSchema } from "./UserDetailsSchema";
 import { foodLoggedSchema } from "./FoodLoggedSchema";
 
 const userSchema = new mongoose.Schema(
@@ -33,7 +32,15 @@ const userSchema = new mongoose.Schema(
         type: String,
         required: false,
       },
+      coverBgId: {
+        type: String,
+        required: false,
+      },
       profilePicUrl: {
+        type: String,
+        required: false,
+      },
+      profilePicId: {
         type: String,
         required: false,
       },
