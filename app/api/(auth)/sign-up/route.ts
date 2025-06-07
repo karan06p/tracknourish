@@ -60,9 +60,9 @@ export async function POST(req: Request) {
       // Send the verification email
       try {
         await resend.emails.send({
-          from: "Meal Tracker <onboarding@resend.dev>",
+          from: "Mealivo <onboarding@resend.dev>",
           to: email,
-          subject: "Meal Tracker Email Verification",
+          subject: "Mealivo Email Verification",
           react: EmailTemplate({
             firstName,
             verificationLink,

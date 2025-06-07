@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Meal Tracker",
+  title: "Mealivo",
   description: "A simple app to track your meal's macros to get a described view into your food.",
   icons: {
     icon:"favicon.svg"
