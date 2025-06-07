@@ -22,7 +22,7 @@ export const VerificationEmail = ({
   firstName,
   verificationLink,
 }: VerificationEmailProps) => {
-  const previewText = `Verify your NutriTrack account`;
+  const previewText = `Verify your Mealivo account`;
 
   return (
     <Html>
@@ -31,7 +31,7 @@ export const VerificationEmail = ({
       <Body style={styles.body}>
         <Container style={styles.container}>
           <Section style={styles.logoContainer}>
-            <Text style={styles.logo}>NutriTrack</Text>
+            <Text style={styles.logo}>Mealivo</Text>
           </Section>
           
           <Section style={styles.content}>
@@ -40,7 +40,7 @@ export const VerificationEmail = ({
             <Text style={styles.paragraph}>Hi {firstName},</Text>
             
             <Text style={styles.paragraph}>
-              Thanks for signing up for NutriTrack! Please verify your email address 
+              Thanks for signing up for Mealivo! Please verify your email address 
               to get started tracking your nutrition journey.
             </Text>
             
@@ -51,7 +51,7 @@ export const VerificationEmail = ({
             </Section>
             
             <Text style={styles.paragraph}>
-              If you didn't create an account with NutriTrack, you can safely ignore this email.
+              If you didn't create an account with Mealivo, you can safely ignore this email.
             </Text>
             
             <Text style={styles.paragraph}>
@@ -71,7 +71,7 @@ export const VerificationEmail = ({
           
           <Section style={styles.footer}>
             <Text style={styles.footerText}>
-              © {new Date().getFullYear()} MealTracker. All rights reserved.
+              © {new Date().getFullYear()} Mealivo. All rights reserved.
             </Text>
             <Text style={styles.footerText}>
               <Link style={styles.footerLink} href="#">Privacy Policy</Link> • 

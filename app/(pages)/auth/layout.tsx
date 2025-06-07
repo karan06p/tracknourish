@@ -3,7 +3,7 @@ import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = {
     title: "Authentication",
-    description: "Sign Up to Meal tracker",
+    description: "Sign Up to Mealivo",
 };
 
 

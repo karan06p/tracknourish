@@ -32,7 +32,7 @@ const Footer = () => {
                   />
                 </svg>
               </div>
-              <span className="text-xl font-display font-medium">NutriTrack</span>
+              <span className="text-xl font-display font-medium">Mealivo</span>
             </div>
             <p className="text-gray-600 mb-6">
               Simplifying nutrition tracking for a healthier lifestyle.
@@ -204,7 +204,7 @@ const Footer = () => {
         
         <div className="pt-8 border-t border-gray-200 flex flex-col md:flex-row justify-between items-center">
           <p className="text-gray-500 text-sm">
-            © {new Date().getFullYear()} NutriTrack. All rights reserved.
+            © {new Date().getFullYear()} Mealivo. All rights reserved.
           </p>
           <div className="flex gap-6 mt-4 md:mt-0">
             <a href="#" className="text-gray-500 hover:text-primary transition-colors text-sm">
