@@ -43,8 +43,8 @@ export default function ImageUploader(props: ImageUploaderProps) {
 
       const data = await res.json();
 
-      if (res.ok) {
-        await mutate();
+      if(res.ok) {
+        mutate();
         setOpen(false);
         toast.success('Image uploaded successfully');
       } else {
@@ -67,8 +67,8 @@ export default function ImageUploader(props: ImageUploaderProps) {
         body: JSON.stringify({ type: props.type }),
       });
 
-      if (res.ok) {
-        await mutate();
+      if(res.ok) {
+        mutate();
         setOpen(false);
         toast.success('Image deleted successfully');
       } else {

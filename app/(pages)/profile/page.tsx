@@ -66,10 +66,10 @@ const Profile = () => {
       } else {
         setAvgCalories(0);
       }
-      if(user?.userDetails?.profilePicUrl){
+      if (user?.userDetails?.profilePicUrl) {
         setProfilePicUrl(user.userDetails.profilePicUrl);
       }
-      if(user?.userDetails?.coverBgUrl){
+      if (user?.userDetails?.coverBgUrl) {
         setCoverPicUrl(user.userDetails.coverBgUrl);
       }
     }
@@ -105,45 +105,59 @@ const Profile = () => {
   return (
     <div className="min-h-screen bg-background pb-12">
       {/* Header with profile banner */}
-      <div className="relative h-48 w-full">
-  {user?.userDetails?.coverBgUrl ? (
-    <div 
-      className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-      style={{ 
-        backgroundImage: `url(${coverPicUrl})`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-      }}
-    />
-  ) : (
-    <div className="absolute inset-0 bg-gradient-to-r from-green-50 to-teal-100" />
-  )}
-  <ImageUploader type="cover"/>
-</div>
+      <div className="relative h-52 w-full">
+        {user?.userDetails?.coverBgUrl ? (
+          <div
+            className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+            style={{
+              backgroundImage: `url(${coverPicUrl})`,
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+            }}
+          />
+        ) : (
+          <div className="absolute inset-0 bg-gradient-to-r from-green-50 to-teal-100" />
+        )}
+        <ImageUploader type="cover" />
+      </div>
 
       {/* Main content container */}
       <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
-        <div className="relative -mt-16 flex flex-col gap-6">
+        <div className="relative -mt-18 flex flex-col gap-6">
           {/* Profile header with avatar */}
           <div className="flex flex-col items-center sm:flex-row sm:gap-6">
             <div className="relative">
-              <Avatar className="h-32 w-32 border-4 border-background">
-                <AvatarImage src={profilePicUrl} alt="Profile Pic"/>
-                <AvatarFallback className="text-2xl">
-                  {firstLetter}
-                </AvatarFallback>
-              </Avatar>
-                <ImageUploader type="profile"/>
+              <div className="relative h-32 w-32 sm:h-36 sm:w-36 md:h-36 md:w-36 rounded-full border-4 border-background overflow-hidden shadow-lg bg-muted flex items-center justify-center">
+                {user?.userDetails?.profilePicUrl ? (
+                  <img
+                    src={profilePicUrl}
+                    alt="Profile Picture"
+                    className="h-full w-[136px] rounded-full object-cover transition-transform duration-300 hover:scale-105"
+                  />
+                ) : (
+                  <div className="h-full w-full bg-muted flex items-center justify-center">
+                    <span className="text-2xl font-semibold text-muted-foreground">
+                      {firstLetter}
+                    </span>
+                  </div>
+                )}
+              </div>
+              <ImageUploader type="profile" />
             </div>
-            <div className="mt-4 flex-1 text-center sm:mt-0 sm:text-left">
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+            <div className="mt-2 flex-1 text-center sm:mt-0 sm:text-left">
+              <div className="sm:mt-18 flex flex-col sm:flex-row sm:items-center sm:justify-between">
                 <h1 className="text-2xl font-bold text-foreground">{`${user?.userDetails?.firstName} ${user?.userDetails?.lastName}`}</h1>
-                <Button variant="outline" size="sm" className="mt-2 sm:mt-0" onClick={() => setIsEditingProfile(!isEditingProfile)}>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="mt-2 sm:mt-1"
+                  onClick={() => setIsEditingProfile(!isEditingProfile)}
+                >
                   <Edit className="mr-2 h-3.5 w-3.5" />
                   Edit Profile
                 </Button>
               </div>
-              <div className="mt-1 flex flex-wrap items-center justify-center gap-3 text-sm text-muted-foreground sm:justify-start">
+              <div className="mt-0 flex flex-wrap items-center justify-center gap-3 text-sm text-muted-foreground sm:justify-start">
                 <div className="flex items-center">
                   <User className="mr-1 h-3.5 w-3.5" />
                   Young

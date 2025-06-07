@@ -21,7 +21,7 @@ export const useUser = () => {
         revalidateOnFocus: false,
         revalidateIfStale: false,     
         revalidateOnReconnect: false,
-        dedupingInterval: 60000,       
+        dedupingInterval: 1000,       
         shouldRetryOnError: false,    
         focusThrottleInterval: 5000,   
     });

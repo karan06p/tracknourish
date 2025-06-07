@@ -25,6 +25,23 @@ interface CloudinaryUploadResults {
   signature: string;
 }
 
+const handleDeleteImage = async (publicId: string) => {
+   try {
+      const res = await cloudinary.uploader.destroy(publicId);
+      if (res.result !== "ok"){
+        console.log("Clouinary problem maybe")
+        return ApiResponse(400, "Image deletion in cloudinary failed");
+}
+      // todo: WE CAN RETRY THE DELETION HERE AND IF STILL IT FAILS THEN RETURN
+    } catch (error) {
+      console.error("Error occured in deleting image from cloudinary", error);
+      return ApiResponse(
+        500,
+        "Error occured in deleting image from cloudinary"
+      );
+    }
+}
+
 export async function POST(req: NextRequest, res: NextResponse) {
   connectToDB();
   try {
@@ -40,6 +57,30 @@ export async function POST(req: NextRequest, res: NextResponse) {
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
 
+    let payload;
+    try {
+      payload = jwt.verify(accessToken, jwtSecret) as { userId: string };
+    } catch {
+      return ApiResponse(401, "Invalid or expired token");
+    }    
+    const user = await User.findById(payload.userId);
+    if (!user) return ApiResponse(400, "User not found");
+
+    //Check before uploading if there is already a image uploaded for the given type
+    let publicId;
+    if(type === "profile" && user.userDetails.profilePicUrl !== null){
+        publicId = user.userDetails.profilePicId;
+        await handleDeleteImage(publicId);
+        user.userDetails.profilePicUrl = null;
+        user.userDetails.profilePicId = null;
+    };
+    if(type === "cover" && user.userDetails.coverBgUrl !== null){
+        publicId = user.userDetails.coverBgId;
+        await handleDeleteImage(publicId);
+        user.userDetails.coverBgUrl = null;
+        user.userDetails.coverBgId = null;
+    };
+
     const result = await new Promise<CloudinaryUploadResults>(
       (resolve, reject) => {
         const uploadStream = cloudinary.uploader.upload_stream(
@@ -53,17 +94,7 @@ export async function POST(req: NextRequest, res: NextResponse) {
       }
     );
 
-    let payload;
-    try {
-      payload = jwt.verify(accessToken, jwtSecret) as { userId: string };
-    } catch {
-      return ApiResponse(401, "Invalid or expired token");
-    }
-
-    const user = await User.findById(payload.userId);
-    if (!user) return ApiResponse(400, "User not found");
-
-    if(type === "profile"){
+    if(type === "profile"){   
       user.userDetails.profilePicUrl = result.secure_url;
       user.userDetails.profilePicId = result.public_id;
     }else{
