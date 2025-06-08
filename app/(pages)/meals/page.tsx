@@ -2,13 +2,10 @@
 
 import React, { useEffect, useState, useMemo, memo, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { useVirtualizer } from "@tanstack/react-virtual"
 import {
   ArrowLeft,
   Plus,
   Filter,
-  ChevronLeft,
-  ChevronRight,
   Search,
   Loader,
 } from "lucide-react";
@@ -34,7 +31,6 @@ import {
 import {
   Table,
   TableBody,
-  TableCell,
   TableHead,
   TableHeader,
   TableRow,
@@ -115,7 +111,6 @@ const MealsPage = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isPopoverOpen, setIsPopoverOpen] = useState<boolean>();
   const [searchResults, setSearchResults] = useState<SearchResults[]>([]);
-  const [isAddTagOpen, setIsAddTagOpen] = useState<boolean>(false);
   const [totalCalories, setTotalCalories] = useState<number | undefined>();
   const [totalProtein, setTotalProtein] = useState<number | undefined>();
   const [totalCarbohydratess, setTotalCarbohydrates] = useState<number | undefined>();
@@ -386,31 +381,32 @@ const filteredMeals = useMemo(() =>
       <main className="container mx-auto py-10 px-4">
         {/* Page Header */}
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-8 gap-4">
-          <div className="flex items-center gap-4">
+          <div className="w-full flex items-center justify-between gap-4">
             <Button
+              className="hover:cursor-pointer"
               variant="outline"
               size="icon"
               onClick={() => router.replace("/")}
             >
               <ArrowLeft className="h-4 w-4" />
             </Button>
-            <h1 className="text-3xl font-bold">Mealivo</h1>
-          </div>
+          
           <div className="flex items-center gap-3">
             <Button
               variant="outline"
               onClick={() => setShowFilters(!showFilters)}
-              className="flex items-center gap-2"
+              className="hidden sm:flex items-center gap-2 hover:cursor-pointer"
             >
               <Filter className="h-4 w-4" />
               Filters
             </Button>
             <Button
               onClick={() => setShowAddMealForm(true)}
-              className="bg-gradient-to-r from-primary to-primary/80"
+              className="bg-gradient-to-r from-primary to-primary/80 hover:cursor-pointer"
             >
               <Plus className=" h-4 w-4" />Track New Meal
             </Button>
+          </div>
           </div>
         </div>
       {showNutritionalSummary && (
@@ -497,7 +493,7 @@ const filteredMeals = useMemo(() =>
               <Form {...form}>
                 <form onSubmit={form.handleSubmit(trackNewMeal)}>
                   <div className="grid grid-cols-1 gap-4 mb-4">
-                    <div className="flex gap-4">
+                    <div className="flex flex-col sm:flex-row gap-4">
                       <div className="flex-1">
                         <FormField
                           control={form.control}
@@ -508,47 +504,48 @@ const filteredMeals = useMemo(() =>
                               <FormControl>
                                 <div className="flex flex-col md:flex-row gap-4">
                                   <div className="relative flex-1">
-                                    <Popover
-                                      open={isPopoverOpen}
-                                      onOpenChange={setIsPopoverOpen}
-                                    >
+                                    <Popover open={isPopoverOpen}>
                                       <PopoverTrigger asChild>
                                         <div className="relative w-full">
                                           <Input
-                                          {...field}
-                                            autoComplete="false"
+                                            {...field}
+                                            autoComplete="off"
                                             placeholder="cheesecake"
                                           />
                                           {isLoading ? (
                                             <Loader className="absolute right-3 top-3 h-4 w-4 text-muted-foreground" />
                                           ) : (
-                                            <Search
-                                              className="absolute right-3 top-3 h-4 w-4 text-muted-foreground hover:cursor-pointer"
-                                              onClick={() => handleInputValue(field.value)}
-                                            />
+                                            <div className="absolute right-3 top-2.5 h-5 w-5 flex items-center">
+                                              <span className="group relative">
+                                                <Search
+                                                  className="h-5 w-5 text-primary cursor-pointer group-hover:scale-110 transition-transform"
+                                                  onClick={() => handleInputValue(field.value)}
+                                                />
+                                                <span className="absolute z-10 left-1/2 -translate-x-1/2 mt-2 px-2 py-1 rounded bg-gray-800 text-white text-xs opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+                                                  Click to search
+                                                </span>
+                                              </span>
+                                            </div>
                                           )}
                                         </div>
                                       </PopoverTrigger>
-                                      <PopoverContent
-                                        className="w-full p-0"
-                                        align="start"
-                                      >
+                                      <PopoverContent className="w-full p-0" align="start">
                                         <div className="max-h-[300px] overflow-y-auto rounded-b-md bg-white">
                                           <div className="flex items-center justify-start"><p className="font-light text-sm px-2">powered by Spoonacular</p></div>
                                          
                                           {searchResults.length > 0 ? (
                                             <div>
-                                            {searchResults.map((food) => (
-                                              <button
-                                                key={food.id}
-                                                onClick={() => onSelectFood(food)}
-                                                className="w-full cursor-pointer items-center justify-between px-4 py-3 text-left hover:bg-gray-100 focus:bg-gray-100 focus:outline-none"
-                                              >
-                                                <div className="font-medium">
-                                                  {food.title}
-                                                </div>
-                                              </button>
-                                            ))}
+                                              {searchResults.map((food) => (
+                                                <button
+                                                  key={food.id}
+                                                  onClick={() => onSelectFood(food)}
+                                                  className="w-full cursor-pointer items-center justify-between px-4 py-3 text-left hover:bg-gray-100 focus:bg-gray-100 focus:outline-none"
+                                                >
+                                                  <div className="font-medium">
+                                                    {food.title}
+                                                  </div>
+                                                </button>
+                                              ))}
                                             </div>
                                           ) : (
                                             <p className="text-center p-2">No results</p>
@@ -577,10 +574,10 @@ const filteredMeals = useMemo(() =>
                                   defaultValue={field.value}
                                   onValueChange={field.onChange}
                                 >
-                                  <SelectTrigger id="mealType">
+                                  <SelectTrigger id="mealType" className="w-56 sm:w-fit">
                                     <SelectValue />
                                   </SelectTrigger>
-                                  <SelectContent>
+                                  <SelectContent className="w-56 sm:w-fit">
                                     <SelectItem value="breakfast">
                                       <div className="flex items-center gap-2">
                                         <span>
@@ -813,7 +810,16 @@ const filteredMeals = useMemo(() =>
 
         {/* Recent Meals Section */}
         <div className="mb-8">
-            <h2 className="text-xl font-semibold mb-4">Recent Meals</h2>
+          <div className="w-full flex items-center justify-between mb-4">
+            <h2 className="text-xl font-semibold ">Recent Meals</h2>
+            <Button
+              variant="outline"
+              onClick={() => setShowFilters(!showFilters)}
+              className="flex items-center sm:hidden gap-2"
+            >
+              <Filter className="h-4 w-4" />
+            </Button>
+          </div>
           {filteredMeals.length === 0 ? (
             <div className="flex flex-col items-center justify-center bg-white p-12 rounded-lg border border-dashed border-gray-300">
               <div className="text-6xl mb-4">🍽️</div>

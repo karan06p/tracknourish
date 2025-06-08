@@ -60,12 +60,6 @@ const Navbar = () => {
             Features
           </a>
           <a
-            href="#testimonials"
-            className="text-sm font-medium text-gray-600 hover:text-primary transition-colors"
-          >
-            Testimonials
-          </a>
-          <a
             href="#pricing"
             className="text-sm font-medium text-gray-600 hover:text-primary transition-colors"
           >

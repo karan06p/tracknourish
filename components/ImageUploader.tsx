@@ -97,7 +97,7 @@ export default function ImageUploader(props: ImageUploaderProps) {
             variant="outline"
             size="icon"
             className={cn(
-              "absolute right-4 bg-white/70 backdrop-blur-sm hover:bg-white/90",
+              "hover:cursor-pointer absolute right-4 bg-white/70 backdrop-blur-sm hover:bg-white/90",
               props.type === "cover" ? "top-4" : "bottom-1"
             )}
           >

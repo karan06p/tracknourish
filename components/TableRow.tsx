@@ -36,7 +36,7 @@ function TableRowComponent(props: TableRowProps) {
                         <Button
                           variant="outline"
                           size="sm"
-                          className="h-8 text-xs"
+                          className="h-8 text-xs hover:cursor-pointer"
                           onClick={() => props.handleDeleteFunction(props.mealId)}
                         >
                           Delete

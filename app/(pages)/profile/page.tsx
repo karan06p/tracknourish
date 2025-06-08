@@ -1,25 +1,17 @@
 "use client";
 
-import React, { useEffect, useState, useRef } from "react";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import React, { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Separator } from "@/components/ui/separator";
-import { Progress } from "@/components/ui/progress";
 import {
-  Edit,
-  User,
   Calendar,
   Apple,
   Salad,
   Trophy,
   Flame,
   Timer,
-  Scale,
   LineChart,
-  Trash,
+  LogOut,
 } from "lucide-react";
 import { useUser } from "@/hooks/use-user";
 import { toast } from "sonner";
@@ -27,6 +19,8 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { eachMeal } from "@/types/Meal";
 import ImageUploader from "@/components/ImageUploader";
+import DailyNutritionalProgress from "@/components/DailyNutritionalProgress";
+import NutritionalPreferences from "@/components/NutritionalPreferences";
 
 const baseUrl = process.env.NEXT_PUBLIC_BASE_URL!;
 
@@ -35,11 +29,22 @@ const Profile = () => {
   const [avgCalories, setAvgCalories] = useState<number | undefined>();
   const [profilePicUrl, setProfilePicUrl] = useState<string | undefined>();
   const [coverPicUrl, setCoverPicUrl] = useState<string | undefined>();
-  const [isEditingProfile, setIsEditingProfile] = useState<boolean>(false);
-  const { user, firstLetter, isError, mutate } = useUser();
+  const [month, setMonth] = useState<string | undefined>();
+  const [year, setYear] = useState<string | undefined>();
+  const { user, firstLetter, isError } = useUser();
   const router = useRouter();
 
+  const months = ["Jan", "Feb","Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+  
   useEffect(() => {
+    const createdAt: string = user?.createdAt;
+    const joinedDate = new Date(createdAt);
+    const month = joinedDate.getMonth();
+    const year = joinedDate.getFullYear();
+    if (joinedDate){
+      setMonth(months[month]);
+      setYear(year.toString());
+    }
     if (user?.userDetails?.foodsLogged) {
       let totalCalories = 0;
       let totalProtein = 0;
@@ -79,17 +84,16 @@ const Profile = () => {
     toast("User not found");
     return <p>Error loading user info</p>;
   }
-
+  
   const recentMeals: [eachMeal] = user?.userDetails?.foodsLogged
-    .slice(0, 3)
-    .toReversed();
-
+  .slice(0, 3)
+  .toReversed();
+  
   const handleSignOut = async () => {
     setIsLoading(true);
     try {
-      const res = await fetch(`${baseUrl}/api/sign-out`).then((res) => {
+      await fetch(`${baseUrl}/api/sign-out`).then((res) => {
         if (res.status === 200) {
-          mutate();
           router.refresh();
           toast.success("Signed Out");
         }
@@ -105,7 +109,7 @@ const Profile = () => {
   return (
     <div className="min-h-screen bg-background pb-12">
       {/* Header with profile banner */}
-      <div className="relative h-52 w-full">
+      <div className="relative h-40 sm:h-52 w-full">
         {user?.userDetails?.coverBgUrl ? (
           <div
             className="absolute inset-0 bg-cover bg-center bg-no-repeat"
@@ -122,17 +126,17 @@ const Profile = () => {
       </div>
 
       {/* Main content container */}
-      <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
-        <div className="relative -mt-18 flex flex-col gap-6">
+      <div className="mx-auto max-w-3xl md:max-w-5xl px-2 sm:px-4 lg:px-8">
+        <div className="relative -mt-16 flex flex-col gap-6">
           {/* Profile header with avatar */}
           <div className="flex flex-col items-center sm:flex-row sm:gap-6">
             <div className="relative">
-              <div className="relative h-32 w-32 sm:h-36 sm:w-36 md:h-36 md:w-36 rounded-full border-4 border-background overflow-hidden shadow-lg bg-muted flex items-center justify-center">
+              <div className="relative h-24 w-24 sm:h-32 sm:w-32 md:h-36 md:w-36 rounded-full border-4 border-background overflow-hidden shadow-lg bg-muted flex items-center justify-center">
                 {user?.userDetails?.profilePicUrl ? (
                   <img
                     src={profilePicUrl}
                     alt="Profile Picture"
-                    className="h-full w-[136px] rounded-full object-cover transition-transform duration-300 hover:scale-105"
+                    className="h-full w-full rounded-full object-cover transition-transform duration-300 hover:scale-105"
                   />
                 ) : (
                   <div className="h-full w-full bg-muted flex items-center justify-center">
@@ -146,113 +150,48 @@ const Profile = () => {
             </div>
             <div className="mt-2 flex-1 text-center sm:mt-0 sm:text-left">
               <div className="sm:mt-18 flex flex-col sm:flex-row sm:items-center sm:justify-between">
-                <h1 className="text-2xl font-bold text-foreground">{`${user?.userDetails?.firstName} ${user?.userDetails?.lastName}`}</h1>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="mt-2 sm:mt-1"
-                  onClick={() => setIsEditingProfile(!isEditingProfile)}
-                >
-                  <Edit className="mr-2 h-3.5 w-3.5" />
-                  Edit Profile
-                </Button>
+                <h1 className="text-xl sm:text-2xl font-bold text-foreground">{user?.userDetails ? (`${user.userDetails.firstName} ${user.userDetails.lastName}`) : ("")}</h1>
               </div>
-              <div className="mt-0 flex flex-wrap items-center justify-center gap-3 text-sm text-muted-foreground sm:justify-start">
-                <div className="flex items-center">
-                  <User className="mr-1 h-3.5 w-3.5" />
-                  Young
-                </div>
-                <div className="flex items-center">
-                  <Scale className="mr-1 h-3.5 w-3.5" />
-                  60kg
-                </div>
-                <div className="flex items-center">
-                  <Calendar className="mr-1 h-3.5 w-3.5" />
-                  Member since Jan 2025
-                </div>
+              <div className="mt-0 flex flex-wrap items-center justify-center gap-3 text-xs sm:text-sm text-muted-foreground sm:justify-start">
+                {year && (
+                  <div className="flex items-center">
+                    <Calendar className="mr-1 h-3.5 w-3.5" />
+                    {`Member since  ${month} ${year}`}
+                  </div>
+                )}
               </div>
             </div>
           </div>
 
           {/* Daily Nutritional Goals Progress */}
-          <Card>
-            <CardHeader className="pb-3">
-              <h2 className="text-lg font-medium">Today's Nutrition Goals</h2>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm font-medium">Calories</span>
-                    <span className="text-sm text-muted-foreground">
-                      1,200 / 2,000 kcal
-                    </span>
-                  </div>
-                  <Progress value={60} className="h-2" />
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div className="space-y-2">
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm font-medium">Protein</span>
-                      <span className="text-sm text-muted-foreground">
-                        45 / 75g
-                      </span>
-                    </div>
-                    <Progress value={60} className="h-2 bg-blue-100" />
-                  </div>
-
-                  <div className="space-y-2">
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm font-medium">Carbs</span>
-                      <span className="text-sm text-muted-foreground">
-                        120 / 250g
-                      </span>
-                    </div>
-                    <Progress value={48} className="h-2 bg-amber-100" />
-                  </div>
-
-                  <div className="space-y-2">
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm font-medium">Fat</span>
-                      <span className="text-sm text-muted-foreground">
-                        30 / 55g
-                      </span>
-                    </div>
-                    <Progress value={54} className="h-2 bg-green-100" />
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          <DailyNutritionalProgress />
 
           {/* Profile content cards */}
-          <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+          <div className="mt-5 grid grid-cols-1 gap-6 lg:grid-cols-3">
             {/* Recent meals card */}
             <Card className="lg:col-span-2">
               <CardHeader className="pb-3">
-                <div className="flex items-center justify-between">
-                  <h2 className="text-lg font-medium flex items-center">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                  <h2 className="text-base sm:text-lg font-medium flex items-center">
                     <Salad className="h-5 w-5 mr-2" />
                     Recent Meals
                   </h2>
-                  <Button variant="ghost" size="sm" className="h-8 px-2">
+                  <Button variant="ghost" size="sm" className="h-8 px-2 w-full sm:w-auto">
                     <Link href={"/meals"}>View All</Link>
                   </Button>
                 </div>
               </CardHeader>
               <CardContent className="space-y-4">
-                {/* Breakfast */}
                 {recentMeals?.map((meal: eachMeal, index) => (
                   <div
                     key={index}
-                    className="flex items-center justify-between p-3 rounded-lg bg-muted/50"
+                    className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-3 rounded-lg bg-muted/50 gap-2"
                   >
                     <div className="flex items-center">
-                      <div className="h-12 w-12 rounded-md bg-primary/10 flex items-center justify-center text-primary">
-                        <Apple className="h-6 w-6" />
+                      <div className="h-10 w-10 sm:h-12 sm:w-12 rounded-md bg-primary/10 flex items-center justify-center text-primary">
+                        <Apple className="h-5 w-5 sm:h-6 sm:w-6" />
                       </div>
-                      <div className="ml-4">
+                      <div className="ml-3 sm:ml-4">
                         <p className="text-sm font-medium">
                           {meal.mealType.charAt(0).toUpperCase() +
                             meal.mealType.slice(1)}
@@ -262,12 +201,12 @@ const Profile = () => {
                         </p>
                       </div>
                     </div>
-                    <div className="text-right">
+                    <div className="text-left sm:text-right">
                       <p className="text-sm font-medium">
                         {meal.calories} kcal
                       </p>
-                      <p className="text-xs text-muted-foreground">
-                        {meal.createdAt}
+                      <p className="text-xs text-muted-foreground break-all">
+                        {meal.createdAt.slice(0,10)}
                       </p>
                     </div>
                   </div>
@@ -278,54 +217,54 @@ const Profile = () => {
             {/* Stats card */}
             <Card>
               <CardHeader className="pb-3">
-                <h2 className="text-lg font-medium flex items-center">
+                <h2 className="text-base sm:text-lg font-medium flex items-center">
                   <Trophy className="h-5 w-5 mr-2" />
                   Progress Stats
                 </h2>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="flex flex-col items-center justify-center rounded-lg bg-muted p-3">
+                <div className="grid grid-cols-2 gap-3 sm:gap-4">
+                  <div className="flex flex-col items-center justify-center rounded-lg bg-muted p-2 sm:p-3">
                     <div className="flex items-center text-primary mb-1">
                       <Flame className="h-4 w-4 mr-1" />
                     </div>
-                    <span className="text-2xl font-medium text-primary">
+                    <span className="text-lg sm:text-2xl font-medium text-primary">
                       {avgCalories}
                     </span>
-                    <span className="text-xs text-muted-foreground">
+                    <span className="text-xs text-muted-foreground text-center">
                       Avg. Daily Calories
                     </span>
                   </div>
-                  <div className="flex flex-col items-center justify-center rounded-lg bg-muted p-3">
+                  <div className="flex flex-col items-center justify-center rounded-lg bg-muted p-2 sm:p-3">
                     <div className="flex items-center text-primary mb-1">
                       <Salad className="h-4 w-4 mr-1" />
                     </div>
-                    <span className="text-2xl font-medium text-primary">
+                    <span className="text-lg sm:text-2xl font-medium text-primary">
                       {user?.userDetails?.foodsLogged.length || ""}
                     </span>
-                    <span className="text-xs text-muted-foreground">
+                    <span className="text-xs text-muted-foreground text-center">
                       Meals Tracked
                     </span>
                   </div>
-                  <div className="flex flex-col items-center justify-center rounded-lg bg-muted p-3">
+                  <div className="hover:cursor-not-allowed flex flex-col items-center justify-center rounded-lg bg-muted p-2 sm:p-3">
                     <div className="flex items-center text-primary mb-1">
                       <Timer className="h-4 w-4 mr-1" />
                     </div>
-                    <span className="text-2xl font-medium text-primary">
+                    <span className="text-lg sm:text-2xl font-medium text-primary">
                       21
                     </span>
-                    <span className="text-xs text-muted-foreground">
+                    <span className="text-xs text-muted-foreground text-center">
                       Days Streak
                     </span>
                   </div>
-                  <div className="flex flex-col items-center justify-center rounded-lg bg-muted p-3">
+                  <div className="hover:cursor-not-allowed flex flex-col items-center justify-center rounded-lg bg-muted p-2 sm:p-3">
                     <div className="flex items-center text-primary mb-1">
                       <LineChart className="h-4 w-4 mr-1" />
                     </div>
-                    <span className="text-2xl font-medium text-primary">
+                    <span className="text-lg sm:text-2xl font-medium text-primary">
                       -3.5
                     </span>
-                    <span className="text-xs text-muted-foreground">
+                    <span className="text-xs text-muted-foreground text-center">
                       lbs This Month
                     </span>
                   </div>
@@ -334,58 +273,15 @@ const Profile = () => {
             </Card>
 
             {/* Personal nutrition preferences */}
-            <Card className="lg:col-span-3">
-              <CardHeader className="pb-3">
-                <div className="flex items-center justify-between">
-                  <h2 className="text-lg font-medium">Nutrition Preferences</h2>
-                  <Button variant="ghost" size="sm" className="h-8 px-2">
-                    <Edit className="h-3.5 w-3.5" />
-                  </Button>
-                </div>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="grid grid-cols-1 gap-x-6 gap-y-4 sm:grid-cols-2">
-                  <div className="space-y-2">
-                    <Label htmlFor="dietPlan">Diet Plan</Label>
-                    <Input id="dietPlan" value="Balanced" readOnly />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="dailyCalories">Daily Calorie Goal</Label>
-                    <Input id="dailyCalories" value="2,000 kcal" readOnly />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="allergies">Allergies & Intolerances</Label>
-                    <Input id="allergies" value="Lactose, Peanuts" readOnly />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="goal">Primary Goal</Label>
-                    <Input id="goal" value="Weight Loss" readOnly />
-                  </div>
-                </div>
-                <Separator />
-                <div className="grid grid-cols-1 gap-x-6 gap-y-4 sm:grid-cols-3">
-                  <div className="space-y-2">
-                    <Label htmlFor="protein">Protein Split</Label>
-                    <Input id="protein" value="30%" readOnly />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="carbs">Carbs Split</Label>
-                    <Input id="carbs" value="45%" readOnly />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="fats">Fats Split</Label>
-                    <Input id="fats" value="25%" readOnly />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+            <NutritionalPreferences />
           </div>
-          <div className="w-full text-center">
+          <div className="w-full text-center mt-6">
             <Button
-              className="w-80 hover:cursor-pointer"
+              className="w-full sm:w-80 hover:cursor-pointer"
               variant={"destructive"}
               onClick={handleSignOut}
             >
+              <LogOut />
               Sign Out
             </Button>
           </div>

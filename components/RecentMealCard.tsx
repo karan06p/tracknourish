@@ -91,8 +91,7 @@ const RecentMealCard = ({...props}: MealCardProps) => {
                       </div>
                       
                       <div className="w-full md:w-1/2">
-                        <ChartContainer
-                          className=""
+                        <ChartContainer                        
                           config={{
                             protein: { color: NUTRIENT_COLORS.protein },
                             carbs: { color: NUTRIENT_COLORS.carbs },
