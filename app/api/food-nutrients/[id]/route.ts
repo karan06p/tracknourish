@@ -1,19 +1,49 @@
 import { ApiResponse } from "@/lib/utils";
 import { NextRequest, NextResponse } from "next/server";
 
-export async function GET(req: NextRequest, context: { params: { id: string } }){
-    try {
-        const { id } =  await context.params; // using await because of ESlint error only even though not needed
-        if(!id) return ApiResponse(400, "Food Id is required");
-
-        const res = await fetch(`https://api.spoonacular.com/recipes/${id}/nutritionWidget.json?apiKey=${process.env.SPOONACULAR_API}`);
-        if(!res) return ApiResponse(400, "Error fetching nutrient data");
-
-        const data = await res.json()
-
-        return NextResponse.json(data, { status: 200 });
-    } catch (error) {
-        console.error("Error fetching recipie info", error);
-        return ApiResponse(400, "Error fetching recipie info")
+export async function GET(
+  req: NextRequest,
+  context: { params: { id: string } }
+) {
+  try {
+    const { id } = await context.params; // using await because of ESlint error only even though not needed
+    if (!id) {
+      console.error("Food ID parameter missing");
+      return ApiResponse(400, "Food ID is required");
     }
+
+    const spoonUrl = `https://api.spoonacular.com/recipes/${id}/nutritionWidget.json?apiKey=${process.env.SPOONACULAR_API}`;
+    const res = await fetch(spoonUrl, { method: "GET" });
+
+    if (res.status === 402) {
+      console.error("Daily API limit reached");
+      return ApiResponse(
+        402,
+        "Daily API limit reached, please try again tomorrow"
+      );
+    }
+
+    if (res.status === 429) {
+      console.error("Rate limit exceeded");
+      return ApiResponse(
+        429,
+        "Rate limit exceeded, please try again after a minute"
+      );
+    }
+
+    if (!res.ok) {
+      console.error(`Spoonacular API error: ${res.statusText}`);
+      return ApiResponse(
+        500,
+        "Error fetching nutrient data from Spoonacular API"
+      );
+    }
+
+    const data = await res.json();
+
+    return NextResponse.json(data, { status: 200 });
+  } catch (error) {
+    console.error("Unexpected error in food-nutrients route", error);
+    return ApiResponse(500, "Unexpected error occurred while fetching nutrient data");
+  }
 }

@@ -109,6 +109,7 @@ const SignIn = () => {
                           className="pl-10 pr-10"
                           placeholder="••••••••"
                           {...field}
+                          autoComplete="off"
                         />
                         <Button
                           type="button"

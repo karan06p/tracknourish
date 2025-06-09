@@ -1,17 +1,17 @@
-"use client"
+"use client";
 
-import React, { useRef, useState } from 'react';
-import { Button } from './ui/button';
-import { useRouter } from 'next/navigation';
-import { ArrowLeft, Camera, Upload, Trash2, ImagePlus } from 'lucide-react';
-import { cn } from '@/lib/utils';
-import { useUser } from '@/hooks/use-user';
+import React, { useRef, useState } from "react";
+import { Button } from "./ui/button";
+import { useRouter } from "next/navigation";
+import { ArrowLeft, Camera, Upload, Trash2, ImagePlus } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { useUser } from "@/hooks/use-user";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/components/ui/popover"
-import { toast } from 'sonner';
+} from "@/components/ui/popover";
+import { toast } from "sonner";
 
 interface ImageUploaderProps {
   type: "cover" | "profile";
@@ -37,21 +37,21 @@ export default function ImageUploader(props: ImageUploaderProps) {
     setUploading(true);
     try {
       const res = await fetch(`${baseUrl}/api/upload-image`, {
-        method: 'POST',
+        method: "POST",
         body: formData,
       });
 
       const data = await res.json();
 
-      if(res.ok) {
+      if (res.ok) {
         mutate();
         setOpen(false);
-        toast.success('Image uploaded successfully');
+        toast.success("Image uploaded successfully");
       } else {
-        toast.error('Upload failed: ' + data.error);
+        toast.error("Upload failed: " + data.error);
       }
     } catch (e) {
-      toast.error('Upload failed');
+      toast.error("Upload failed");
     } finally {
       setUploading(false);
     }
@@ -60,32 +60,34 @@ export default function ImageUploader(props: ImageUploaderProps) {
   const handleDelete = async () => {
     try {
       const res = await fetch(`${baseUrl}/api/delete-image`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({ type: props.type }),
       });
+      const data = await res.json();
 
-      if(res.ok) {
+      if (res.ok) {
         mutate();
         setOpen(false);
-        toast.success('Image deleted successfully');
+        toast.success("Image deleted successfully");
       } else {
-        toast.error('Delete failed');
+        toast.error(data.error || "Delete failed");
       }
     } catch (e) {
-      toast.error('Delete failed');
+      toast.error("Unexpected error occurred during deletion");
     }
   };
-
   return (
     <>
       <Button
         variant="outline"
         size="icon"
-        className={cn("cursor-pointer absolute left-4 top-4 bg-white/70 backdrop-blur-sm hover:bg-white/90", 
-          props.type === "cover" ? "" : "hidden")}
+        className={cn(
+          "cursor-pointer absolute left-4 top-4 bg-white/70 backdrop-blur-sm hover:bg-white/90",
+          props.type === "cover" ? "" : "hidden"
+        )}
         onClick={() => router.back()}
       >
         <ArrowLeft className="h-4 w-4" />
@@ -98,28 +100,36 @@ export default function ImageUploader(props: ImageUploaderProps) {
             size="icon"
             className={cn(
               "hover:cursor-pointer absolute right-4 bg-white/70 backdrop-blur-sm hover:bg-white/90",
-              props.type === "cover" ? "top-4" : "bottom-1"
+              props.type === "cover"
+                ? "top-4"
+                : "bottom-[-12px] right-0 sm:bottom-0"
             )}
           >
             <Camera className="h-4 w-4" />
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-72" align='center' sideOffset={5} alignOffset={0} >
-          <div className='gap-4 flex flex-col'>
-          <h4>Update {props.type} image</h4>            
+        <PopoverContent
+          className="w-72"
+          align="center"
+          sideOffset={5}
+          alignOffset={0}
+        >
+          <div className="gap-4 flex flex-col">
+            <h4>Update {props.type} image</h4>
             <div className="space-y-4">
-              <Button 
-                className="w-full justify-start" 
+              <Button
+                className="w-full justify-start"
                 variant="outline"
                 onClick={() => inputRef.current?.click()}
               >
                 <ImagePlus className="mr-2 h-4 w-4" />
                 Choose from gallery
               </Button>
-              {((props.type === 'profile' && user?.userDetails?.profilePicUrl) || 
-                (props.type === 'cover' && user?.userDetails?.coverBgUrl)) && (
-                <Button 
-                  className="w-full justify-start" 
+              {((props.type === "profile" &&
+                user?.userDetails?.profilePicUrl) ||
+                (props.type === "cover" && user?.userDetails?.coverBgUrl)) && (
+                <Button
+                  className="w-full justify-start"
                   variant="destructive"
                   onClick={handleDelete}
                 >

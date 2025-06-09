@@ -54,6 +54,7 @@ const Dashboard = () => {
   const [avgCalories, setAvgCalories] = useState<number | undefined>()
   const [protein, setProtein] = useState<number | undefined>();
   // const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [userProfilePopup, setUserProfilePopup] = useState<boolean>(false);
   const [fiber, setFiber] = useState<number | undefined>();
   const [profilePicUrl, setProfilePicUrl] = useState<string | undefined>();
   const router = useRouter();
@@ -233,7 +234,7 @@ const Dashboard = () => {
       {/* Dashboard header with matching gradient and improved responsiveness */}
       <div className="bg-gradient-to-r from-primary/90 to-rose-400/80 shadow-md">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="py-6 flex items-center justify-between md:flex-row md:items-center md:justify-between gap-4">
+          <div className="py-6 flex items-center justify-between md:flex-row md:items-center md:justify-between gap-8">
             <div className="flex-1 min-w-0 text-start md:text-left">
               <h1 className="text-2xl sm:text-2xl md:text-3xl font-bold leading-7 text-white">
                 Welcome {user.userDetails?.firstName}
@@ -249,8 +250,8 @@ const Dashboard = () => {
                   <ForkKnife className="h-4 w-4" />
                   Track Meal 
                 </Button>
-                <HoverCard openDelay={100} closeDelay={100}>
-                  <HoverCardTrigger asChild>
+                <HoverCard open={userProfilePopup} openDelay={100} closeDelay={100}>
+                  <HoverCardTrigger asChild onClick={() => setUserProfilePopup(!userProfilePopup)}>
                     {user?.userDetails?.profilePicUrl ? (
                       <img
                         src={profilePicUrl}
@@ -265,7 +266,7 @@ const Dashboard = () => {
                       </div>
                     )}
                   </HoverCardTrigger>
-                  <HoverCardContent className="w-40 p-2 flex flex-col gap-2 items-baseline"> 
+                  <HoverCardContent className="w-40 mt-3 p-2 flex flex-col gap-2 items-baseline"> 
                     <Button
                       variant="outline"
                       className="w-full justify-start"

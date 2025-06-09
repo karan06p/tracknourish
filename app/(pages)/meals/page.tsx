@@ -2,13 +2,7 @@
 
 import React, { useEffect, useState, useMemo, memo, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import {
-  ArrowLeft,
-  Plus,
-  Filter,
-  Search,
-  Loader,
-} from "lucide-react";
+import { ArrowLeft, Plus, Filter, Search, Loader, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -58,17 +52,18 @@ import {
 import { useUser } from "@/hooks/use-user";
 import { eachMeal, Id, NutrientItem, SearchResults } from "@/types/Meal";
 import TableRowComponent from "@/components/TableRow";
+import { LineWave } from "react-loader-spinner";
 
 const baseUrl = process.env.NEXT_PUBLIC_BASE_URL!;
 
 const MemoizedMealCard = memo(RecentMealCard);
 
-function debounce<T extends (...args: any[]) => void>(func: T , wait: number){
-    let timeout: ReturnType<typeof setTimeout>;
-    return (...args: Parameters<T>) => {
-      clearTimeout(timeout);
-      timeout = setTimeout(() => func(...args), wait);
-    }
+function debounce<T extends (...args: any[]) => void>(func: T, wait: number) {
+  let timeout: ReturnType<typeof setTimeout>;
+  return (...args: Parameters<T>) => {
+    clearTimeout(timeout);
+    timeout = setTimeout(() => func(...args), wait);
+  };
 }
 
 // Meal categories with their respective colors
@@ -113,14 +108,17 @@ const MealsPage = () => {
   const [searchResults, setSearchResults] = useState<SearchResults[]>([]);
   const [totalCalories, setTotalCalories] = useState<number | undefined>();
   const [totalProtein, setTotalProtein] = useState<number | undefined>();
-  const [totalCarbohydratess, setTotalCarbohydrates] = useState<number | undefined>();
-  const [showNutritionalSummary, setShowNutritionalSummary] = useState<boolean>(false);
+  const [totalCarbohydratess, setTotalCarbohydrates] = useState<
+    number | undefined
+  >();
+  const [showNutritionalSummary, setShowNutritionalSummary] =
+    useState<boolean>(false);
   const [mealsLength, setMealsLength] = useState<number | undefined>();
 
-  if(isError) return <div>Error Loading Component, Please Refresh</div>
-  
+  if (isError) return <div>Error Loading Component, Please Refresh</div>;
+
   useEffect(() => {
-     if(user?.userDetails?.foodsLogged){
+    if (user?.userDetails?.foodsLogged) {
       let totalCalories = 0;
       let totalProtein = 0;
       let totalCarbohydratess = 0;
@@ -129,105 +127,120 @@ const MealsPage = () => {
       user.userDetails?.foodsLogged.forEach((item: eachMeal) => {
         const calories = parseFloat(item.calories);
         const protein = parseFloat(item.protein);
-        const carbohydrates = parseFloat(item.carbohydrates)
-        if(!isNaN(calories)){
+        const carbohydrates = parseFloat(item.carbohydrates);
+        if (!isNaN(calories)) {
           totalCalories += calories;
         }
-        if(!isNaN(protein)){
+        if (!isNaN(protein)) {
           totalProtein += protein;
         }
-        if(!isNaN(carbohydrates)){
+        if (!isNaN(carbohydrates)) {
           totalCarbohydratess += carbohydrates;
         }
-      })
+      });
       setTotalCalories(totalCalories);
       setTotalProtein(totalProtein);
       setTotalCarbohydrates(totalCarbohydratess);
       setMealsLength(totalMealsLength);
       setShowNutritionalSummary(true);
     }
-  }, [user])
+  }, [user]);
 
-useEffect(() => {
-  if (!user?.userDetails?.foodsLogged) {
-    setRecentMeals([]);
-    return;
-  }
-  let meals = [...user.userDetails?.foodsLogged];
-
-  // Filter by meal type if not "all"
-  if (filterMealType !== "all") {
-    meals = meals.filter(meal => meal.mealType === filterMealType);
-  }
-
-  // Sort by newest/oldest
-  if (sortBy === "newest") meals = meals.toReversed();
-
-  setRecentMeals(meals);
-}, [user, sortBy, filterMealType]);
-
-const processedMeals = useMemo(() => {
-    if (!user?.userDetails?.foodsLogged) return [];
-    
+  useEffect(() => {
+    if (!user?.userDetails?.foodsLogged) {
+      setRecentMeals([]);
+      return;
+    }
     let meals = [...user.userDetails?.foodsLogged];
-    
+
+    // Filter by meal type if not "all"
+    if (filterMealType !== "all") {
+      meals = meals.filter((meal) => meal.mealType === filterMealType);
+    }
+
+    // Sort by newest/oldest
+    if (sortBy === "newest") meals = meals.toReversed();
+
+    setRecentMeals(meals);
+  }, [user, sortBy, filterMealType]);
+
+  const processedMeals = useMemo(() => {
+    if (!user?.userDetails?.foodsLogged) return [];
+
+    let meals = [...user.userDetails?.foodsLogged];
+
     // Apply filters
     if (filterMealType !== "all") {
-      meals = meals.filter(meal => meal.mealType === filterMealType);
+      meals = meals.filter((meal) => meal.mealType === filterMealType);
     }
-    
+
     if (debouncedQuery) {
       const query = debouncedQuery.toLowerCase();
-      meals = meals.filter(meal => 
-        meal.mealName.toLowerCase().includes(query) ||
-        (meal.description && meal.description.toLowerCase().includes(query))
+      meals = meals.filter(
+        (meal) =>
+          meal.mealName.toLowerCase().includes(query) ||
+          (meal.description && meal.description.toLowerCase().includes(query))
       );
     }
-    
+
     // Apply sorting
     if (sortBy === "newest") {
       meals = meals.toReversed();
     }
-    
+
     return meals;
   }, [user?.userDetails?.foodsLogged, filterMealType, debouncedQuery, sortBy]);
 
   // Memoize nutrient calculations
-  const calculateNutrients = useCallback((meal: eachMeal) => [
-    {
-      name: "Protein",
-      amount: parseFloat(meal.protein),
-      unit: "g"
-    },
-    {
-      name: "Carbohydrates",
-      amount: parseFloat(meal.carbohydrates),
-      unit: "g"
-    },
-    {
-      name: "Fiber",
-      amount: parseFloat(meal.fiber),
-      unit: "g"
-    },
-    {
-      name: "Fat",
-      amount: parseFloat(meal.fat),
-      unit: "g"
-    }
-  ], []);
+  const calculateNutrients = useCallback(
+    (meal: eachMeal) => [
+      {
+        name: "Protein",
+        amount: parseFloat(meal.protein),
+        unit: "g",
+      },
+      {
+        name: "Carbohydrates",
+        amount: parseFloat(meal.carbohydrates),
+        unit: "g",
+      },
+      {
+        name: "Fiber",
+        amount: parseFloat(meal.fiber),
+        unit: "g",
+      },
+      {
+        name: "Fat",
+        amount: parseFloat(meal.fat),
+        unit: "g",
+      },
+    ],
+    []
+  );
 
   const debouncedSetQuery = useMemo(
     () => debounce((val: string) => setDebouncedQuery(val), 300),
     []
   );
-  
-   // Optimize search input handler
-  const handleSearchInput = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchQuery(e.target.value);
-    debouncedSetQuery(e.target.value);
-  }, [debouncedSetQuery]);
 
-  const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+  // Optimize search input handler
+  const handleSearchInput = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      setSearchQuery(e.target.value);
+      debouncedSetQuery(e.target.value);
+    },
+    [debouncedSetQuery]
+  );
+
+  const days = [
+    "Sunday",
+    "Monday",
+    "Tuesday",
+    "Wednesday",
+    "Thursday",
+    "Friday",
+    "Saturday",
+  ];
 
   const form = useForm<z.infer<typeof trackMealformSchema>>({
     resolver: zodResolver(trackMealformSchema),
@@ -245,48 +258,41 @@ const processedMeals = useMemo(() => {
   });
 
   const trackNewMeal = async (values: z.infer<typeof trackMealformSchema>) => {
-    setIsLoading(true)
+    setIsLoading(true);
     try {
       const res = await fetch(`${baseUrl}/api/log-meal`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          mealName: values.mealName,
-          mealType: values.mealType,
-          description: values.description,
-          calories: values.calories,
-          protein: values.protein,
-          carbohydrates: values.carbohydrates,
-          fiber: values.fiber,
-          fat: values.fat,
-          tags: values.tags,
-        }),
+        body: JSON.stringify(values),
         credentials: "include",
-      })
-      if(res.status === 200){
-        toast.success("New meal added");
-        mutate()
+      });
+      if (res.status === 200) {
+        toast.success("New meal added successfully.");
+        mutate();
+      } else {
+        toast.error(`Error while adding new meal: ${res.statusText}`);
       }
     } catch (error) {
-      console.error("Error while adding new meal", error)
-    } finally{
+      toast.error("Unexpected error occurred while adding new meal.");
+      console.error("Error while adding new meal:", error);
+    } finally {
       const mealTime = new Date();
-      const mealHour:number = mealTime.getHours();
-      if(mealHour >= 4 && mealHour <= 13){
-        form.setValue("mealType", "breakfast");  
-      }else if(mealHour >= 13 && mealHour <= 17){
-        form.setValue("mealType", "lunch");  
-      }else if(mealHour > 17 && mealHour <= 19){
-        form.setValue("mealType", "snack");  
-      }else if(mealHour > 19 && mealHour < 4){
-        form.setValue("mealType", "dinner");  
-      }else{
-        form.setValue("mealType", "breakfast");  
+      const mealHour: number = mealTime.getHours();
+      if (mealHour >= 4 && mealHour <= 13) {
+        form.setValue("mealType", "breakfast");
+      } else if (mealHour >= 13 && mealHour <= 17) {
+        form.setValue("mealType", "lunch");
+      } else if (mealHour > 17 && mealHour <= 19) {
+        form.setValue("mealType", "snack");
+      } else if (mealHour > 19 && mealHour < 4) {
+        form.setValue("mealType", "dinner");
+      } else {
+        form.setValue("mealType", "breakfast");
       }
       setIsLoading(false);
       setShowAddMealForm(false);
-      form.setValue("mealName", "");    
-      form.setValue("description", "");   
+      form.setValue("mealName", "");
+      form.setValue("description", "");
       form.setValue("calories", "");
       form.setValue("protein", "");
       form.setValue("carbohydrates", "");
@@ -305,76 +311,109 @@ const processedMeals = useMemo(() => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          mealId: id
-        })
+          mealId: id,
+        }),
       });
-      if(res.status === 200) {
+      if (res.status === 200) {
         mutate();
-       toast.success("Meal deleted successfully");
-      }else{
-        toast.error(res.statusText)
+        toast.success("Meal deleted successfully");
+      } else {
+        toast.error(res.statusText);
       }
       return;
     } catch (error) {
-      console.error("Meal deletion unsuccessfull", error)
-      toast.error("Meal deletion failed")
-    } finally{
+      console.error("Meal deletion unsuccessfull", error);
+      toast.error("Meal deletion failed");
+    } finally {
       mutate();
     }
   };
 
   const onSelectFood = async (food: SearchResults) => {
-    setIsLoading(true)
+    setIsLoading(true);
     setIsPopoverOpen(false);
     try {
       const res = await fetch(`${baseUrl}/api/food-nutrients/${food.id}`);
+      if (res.status === 402) {
+        toast.error("Daily API limit reached. Please try again tomorrow.");
+        return;
+      }
+      if (res.status === 429) {
+        toast.error("Rate limit exceeded. Please try again after a minute.");
+        return;
+      }
+      if (!res.ok) {
+        toast.error(`Error while fetching nutrients: ${res.statusText}`);
+        return;
+      }
       const data = await res.json();
       const { calories, protein, carbs, fat, good } = data;
-      const fiberEntry = good.find((item: NutrientItem) => item.title.toLowerCase() === "fiber");
+      const fiberEntry = good.find(
+        (item: NutrientItem) => item.title.toLowerCase() === "fiber"
+      );
       const fiber = fiberEntry ? fiberEntry.amount : "";
 
-          // Set values in react-hook-form
-      form.setValue("mealName", food.title || "");   
+      // Set values in react-hook-form
+      form.setValue("mealName", food.title || "");
       form.setValue("calories", calories || "");
       form.setValue("protein", protein || "");
       form.setValue("carbohydrates", carbs || "");
       form.setValue("fat", fat || "");
       form.setValue("fiber", fiber || "");
     } catch (error) {
-      console.error("Error in fetching nutrients of the selected food", error);
-    }finally{
-      setIsLoading(false)
+      toast.error("Unexpected error occurred while fetching nutrients.");
+      console.error("Error in fetching nutrients of the selected food:", error);
+    } finally {
+      setIsLoading(false);
+      setSearchResults([]);
     }
   };
 
   const handleInputValue = async (searchTerm: string) => {
+    setIsPopoverOpen(true);
     setIsLoading(true);
-    // Send API request
     try {
       const res = await fetch(`${baseUrl}/api/search-meal?query=${searchTerm}`);
-      if(res.status !== 200){
-        toast.error("Error while fetching meals");
+      if (res.status === 402) {
+        toast.error("Daily API limit reached. Please try again tomorrow.");
+        return;
+      }
+      if (res.status === 429) {
+        toast.error("Rate limit exceeded. Please try again after a minute.");
+        return;
+      }
+      if (!res.ok) {
+        toast.error(`Error while fetching meals: ${res.statusText}`);
         setSearchResults([]);
         return;
       }
       const data = await res.json();
-      if (!data) return;
+      if (!data || !data.results) {
+        toast.error("No meals found for the given search term.");
+        setSearchResults([]);
+        return;
+      }
       setSearchResults(data.results);
     } catch (err) {
-      console.error("Failed to fetch:", err);
+      toast.error("Unexpected error occurred while fetching meals.");
+      console.error("Failed to fetch meals:", err);
     } finally {
       setIsLoading(false);
-      setIsPopoverOpen(true);
     }
   };
 
-const filteredMeals = useMemo(() =>
-  (recentMeals ?? []).filter(meal =>
-    meal.mealName.toLowerCase().includes(debouncedQuery.toLowerCase()) ||
-    (meal.description && meal.description.toLowerCase().includes(debouncedQuery.toLowerCase()))
-  ),
-  [recentMeals, debouncedQuery]
-);
+  const filteredMeals = useMemo(
+    () =>
+      (recentMeals ?? []).filter(
+        (meal) =>
+          meal.mealName.toLowerCase().includes(debouncedQuery.toLowerCase()) ||
+          (meal.description &&
+            meal.description
+              .toLowerCase()
+              .includes(debouncedQuery.toLowerCase()))
+      ),
+    [recentMeals, debouncedQuery]
+  );
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -390,34 +429,34 @@ const filteredMeals = useMemo(() =>
             >
               <ArrowLeft className="h-4 w-4" />
             </Button>
-          
-          <div className="flex items-center gap-3">
-            <Button
-              variant="outline"
-              onClick={() => setShowFilters(!showFilters)}
-              className="hidden sm:flex items-center gap-2 hover:cursor-pointer"
-            >
-              <Filter className="h-4 w-4" />
-              Filters
-            </Button>
-            <Button
-              onClick={() => setShowAddMealForm(true)}
-              className="bg-gradient-to-r from-primary to-primary/80 hover:cursor-pointer"
-            >
-              <Plus className=" h-4 w-4" />Track New Meal
-            </Button>
-          </div>
+
+            <div className="flex items-center gap-3">
+              <Button
+                variant="outline"
+                onClick={() => setShowFilters(!showFilters)}
+                className="hidden sm:flex items-center gap-2 hover:cursor-pointer"
+              >
+                <Filter className="h-4 w-4" />
+                Filters
+              </Button>
+              <Button
+                onClick={() => setShowAddMealForm(true)}
+                className="bg-gradient-to-r from-primary to-primary/80 hover:cursor-pointer"
+              >
+                <Plus className=" h-4 w-4" />
+                Track New Meal
+              </Button>
+            </div>
           </div>
         </div>
-      {showNutritionalSummary && (
-        <NutritionalSummary
-          totalsMeals={mealsLength}
-          totalCalories={totalCalories}
-          totalProtein={totalProtein}
-          totalCarbs={totalCarbohydratess  }
-        />
-      )}
-        
+        {showNutritionalSummary && (
+          <NutritionalSummary
+            totalsMeals={mealsLength}
+            totalCalories={totalCalories}
+            totalProtein={totalProtein}
+            totalCarbs={totalCarbohydratess}
+          />
+        )}
 
         {/* Filter Section */}
         {showFilters && (
@@ -437,11 +476,33 @@ const filteredMeals = useMemo(() =>
                       <SelectValue placeholder="Select meal type" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem  className="hover:cursor-pointer" value="all">All Meals</SelectItem>
-                      <SelectItem  className="hover:cursor-pointer" value="breakfast">Breakfast</SelectItem>
-                      <SelectItem  className="hover:cursor-pointer" value="lunch">Lunch</SelectItem>
-                      <SelectItem  className="hover:cursor-pointer" value="dinner">Dinner</SelectItem>
-                      <SelectItem  className="hover:cursor-pointer" value="snack">Snack</SelectItem>
+                      <SelectItem className="hover:cursor-pointer" value="all">
+                        All Meals
+                      </SelectItem>
+                      <SelectItem
+                        className="hover:cursor-pointer"
+                        value="breakfast"
+                      >
+                        Breakfast
+                      </SelectItem>
+                      <SelectItem
+                        className="hover:cursor-pointer"
+                        value="lunch"
+                      >
+                        Lunch
+                      </SelectItem>
+                      <SelectItem
+                        className="hover:cursor-pointer"
+                        value="dinner"
+                      >
+                        Dinner
+                      </SelectItem>
+                      <SelectItem
+                        className="hover:cursor-pointer"
+                        value="snack"
+                      >
+                        Snack
+                      </SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -454,9 +515,17 @@ const filteredMeals = useMemo(() =>
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem
-                      className="hover:cursor-pointer" value="newest">Newest First</SelectItem>
+                        className="hover:cursor-pointer"
+                        value="newest"
+                      >
+                        Newest First
+                      </SelectItem>
                       <SelectItem
-                      className="hover:cursor-pointer" value="oldest">Oldest First</SelectItem>
+                        className="hover:cursor-pointer"
+                        value="oldest"
+                      >
+                        Oldest First
+                      </SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -509,8 +578,12 @@ const filteredMeals = useMemo(() =>
                                         <div className="relative w-full">
                                           <Input
                                             {...field}
+                                            className="pl-3 pr-10 truncate"
                                             autoComplete="off"
-                                            placeholder="cheesecake"
+                                            placeholder="pancake"
+                                            onFocus={() =>
+                                              setIsPopoverOpen(false)
+                                            }
                                           />
                                           {isLoading ? (
                                             <Loader className="absolute right-3 top-3 h-4 w-4 text-muted-foreground" />
@@ -519,7 +592,11 @@ const filteredMeals = useMemo(() =>
                                               <span className="group relative">
                                                 <Search
                                                   className="h-5 w-5 text-primary cursor-pointer group-hover:scale-110 transition-transform"
-                                                  onClick={() => handleInputValue(field.value)}
+                                                  onClick={() =>
+                                                    handleInputValue(
+                                                      field.value
+                                                    )
+                                                  }
                                                 />
                                                 <span className="absolute z-10 left-1/2 -translate-x-1/2 mt-2 px-2 py-1 rounded bg-gray-800 text-white text-xs opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
                                                   Click to search
@@ -527,18 +604,54 @@ const filteredMeals = useMemo(() =>
                                               </span>
                                             </div>
                                           )}
+                                          {field.value && (
+                                            <button
+                                              type="button"
+                                              className="bg-white truncate absolute right-10 top-2.5 h-5 w-7 flex items-center justify-end "
+                                              onClick={() => {
+                                                field.onChange("");
+                                                setIsPopoverOpen(false);
+                                              }}
+                                            >
+                                              <X className="h-5 w-5 hover:bg-gray-300 rounded-full" />
+                                            </button>
+                                          )}
                                         </div>
                                       </PopoverTrigger>
-                                      <PopoverContent className="w-full p-0" align="start">
+                                      <PopoverContent
+                                        className="w-full p-0"
+                                        align="start"
+                                      >
                                         <div className="max-h-[300px] overflow-y-auto rounded-b-md bg-white">
-                                          <div className="flex items-center justify-start"><p className="font-light text-sm px-2">powered by Spoonacular</p></div>
-                                         
-                                          {searchResults.length > 0 ? (
+                                          <div className="flex items-center justify-start">
+                                            <p className="font-light text-sm px-2">
+                                              powered by Spoonacular
+                                            </p>
+                                          </div>
+
+                                          {isLoading ? (
+                                            <div className="w-full flex justify-center items-center">
+                                              <LineWave
+                                                visible={true}
+                                                height="100"
+                                                width="100"
+                                                color="#f0fdf4"
+                                                ariaLabel="line-wave-loading"
+                                                wrapperStyle={{}}
+                                                wrapperClass=""
+                                                firstLineColor=""
+                                                middleLineColor=""
+                                                lastLineColor=""
+                                              />
+                                            </div>
+                                          ) : searchResults.length > 0 ? (
                                             <div>
                                               {searchResults.map((food) => (
                                                 <button
                                                   key={food.id}
-                                                  onClick={() => onSelectFood(food)}
+                                                  onClick={() =>
+                                                    onSelectFood(food)
+                                                  }
                                                   className="w-full cursor-pointer items-center justify-between px-4 py-3 text-left hover:bg-gray-100 focus:bg-gray-100 focus:outline-none"
                                                 >
                                                   <div className="font-medium">
@@ -548,7 +661,11 @@ const filteredMeals = useMemo(() =>
                                               ))}
                                             </div>
                                           ) : (
-                                            <p className="text-center p-2">No results</p>
+                                            <div className="w-full flex justify-center items-center">
+                                              <p className="text-center p-2">
+                                                No results found
+                                              </p>
+                                            </div>
                                           )}
                                         </div>
                                       </PopoverContent>
@@ -574,7 +691,10 @@ const filteredMeals = useMemo(() =>
                                   defaultValue={field.value}
                                   onValueChange={field.onChange}
                                 >
-                                  <SelectTrigger id="mealType" className="w-56 sm:w-fit">
+                                  <SelectTrigger
+                                    id="mealType"
+                                    className="w-56 sm:w-fit"
+                                  >
                                     <SelectValue />
                                   </SelectTrigger>
                                   <SelectContent className="w-56 sm:w-fit">
@@ -730,67 +850,80 @@ const filteredMeals = useMemo(() =>
                     {/* Tags */}
                     <div className="space-y-2">
                       <FormField
-  control={form.control}
-  name="tags"
-  render={({ field }) => (
-    <FormItem>
-      <div className="flex-col space-y-2 my-2">
-        {(field.value ?? []).length === 0 ? (
-          <div className="flex justify-start">
-          <Button
-            className="hover:cursor-pointer"
-            type="button"
-            variant="secondary"
-            size="sm"
-            onClick={() => field.onChange([""])}
-          >
-            <Plus />Add Tag
-          </Button>
-          </div>
-        ) : (
-          <>
-          <FormLabel>Tags</FormLabel>
-            {(field.value ?? []).map((tag, index) => (
-              <div key={index} className="flex items-center gap-2">
-                <Input
-                  placeholder="e.g. high-protein, vegetarian"
-                  className="flex-1"
-                  value={tag}
-                  onChange={(e) => {
-                    const newTags = [...(field.value ?? [])];
-                    newTags[index] = e.target.value;
-                    field.onChange(newTags);
-                  }}
-                />
-                <Button
-                  variant="outline"
-                  size="icon"
-                  type="button"
-                  onClick={() => {
-                    const newTags = [...(field.value ?? [])];
-                    newTags.splice(index, 1);
-                    field.onChange(newTags);
-                  }}
-                  className="h-8 w-8 flex-shrink-0"
-                >
-                  ×
-                </Button>
-              </div>
-            ))}
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={() => field.onChange([...(field.value ?? []), ""])}
-            >
-              Add Tag
-            </Button>
-          </>
-        )}
-      </div>
-    </FormItem>
-  )}
-/>
+                        control={form.control}
+                        name="tags"
+                        render={({ field }) => (
+                          <FormItem>
+                            <div className="flex-col space-y-2 my-2">
+                              {(field.value ?? []).length === 0 ? (
+                                <div className="flex justify-start">
+                                  <Button
+                                    className="hover:cursor-pointer"
+                                    type="button"
+                                    variant="secondary"
+                                    size="sm"
+                                    onClick={() => field.onChange([""])}
+                                  >
+                                    <Plus />
+                                    Add Tag
+                                  </Button>
+                                </div>
+                              ) : (
+                                <>
+                                  <FormLabel>Tags</FormLabel>
+                                  {(field.value ?? []).map((tag, index) => (
+                                    <div
+                                      key={index}
+                                      className="flex items-center gap-2"
+                                    >
+                                      <Input
+                                        placeholder="e.g. high-protein, vegetarian"
+                                        className="flex-1"
+                                        value={tag}
+                                        onChange={(e) => {
+                                          const newTags = [
+                                            ...(field.value ?? []),
+                                          ];
+                                          newTags[index] = e.target.value;
+                                          field.onChange(newTags);
+                                        }}
+                                      />
+                                      <Button
+                                        variant="outline"
+                                        size="icon"
+                                        type="button"
+                                        onClick={() => {
+                                          const newTags = [
+                                            ...(field.value ?? []),
+                                          ];
+                                          newTags.splice(index, 1);
+                                          field.onChange(newTags);
+                                        }}
+                                        className="h-8 w-8 flex-shrink-0"
+                                      >
+                                        ×
+                                      </Button>
+                                    </div>
+                                  ))}
+                                  <Button
+                                    type="button"
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() =>
+                                      field.onChange([
+                                        ...(field.value ?? []),
+                                        "",
+                                      ])
+                                    }
+                                  >
+                                    Add Tag
+                                  </Button>
+                                </>
+                              )}
+                            </div>
+                          </FormItem>
+                        )}
+                      />
                     </div>
                   </div>
                   <CardFooter className="flex justify-between">
@@ -837,39 +970,41 @@ const filteredMeals = useMemo(() =>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {processedMeals.slice(0,6).map((meal: eachMeal, index: number) => {
-                const date = new Date(meal.createdAt);
-                const day = date.getDay();
-                const dayName = days[day];
-                return (
-                  <MemoizedMealCard
-                    key={index}
-                  id={meal._id}
-                  mealTypeColor={
-                    MEAL_CATEGORIES[
-                      meal.mealType as keyof typeof MEAL_CATEGORIES
-                    ].color
-                  }
-                  mealTypeIcon={
-                    MEAL_CATEGORIES[
-                      meal.mealType as keyof typeof MEAL_CATEGORIES
-                    ].icon
-                  }
-                  mealName={meal.mealName}
-                  mealTypeLabel={
-                    MEAL_CATEGORIES[
-                      meal.mealType as keyof typeof MEAL_CATEGORIES
-                    ].label
-                  }
-                  mealCalories={meal.calories}
-                  description={meal.description || ""}
-                  tags={meal.tags || []}
-                  nutrients={calculateNutrients(meal)}
-                  day={dayName}
-                  onDelete={handleDeleteMeal}
-                  />
-                )
-              })}
+              {processedMeals
+                .slice(0, 6)
+                .map((meal: eachMeal, index: number) => {
+                  const date = new Date(meal.createdAt);
+                  const day = date.getDay();
+                  const dayName = days[day];
+                  return (
+                    <MemoizedMealCard
+                      key={index}
+                      id={meal._id}
+                      mealTypeColor={
+                        MEAL_CATEGORIES[
+                          meal.mealType as keyof typeof MEAL_CATEGORIES
+                        ].color
+                      }
+                      mealTypeIcon={
+                        MEAL_CATEGORIES[
+                          meal.mealType as keyof typeof MEAL_CATEGORIES
+                        ].icon
+                      }
+                      mealName={meal.mealName}
+                      mealTypeLabel={
+                        MEAL_CATEGORIES[
+                          meal.mealType as keyof typeof MEAL_CATEGORIES
+                        ].label
+                      }
+                      mealCalories={meal.calories}
+                      description={meal.description || ""}
+                      tags={meal.tags || []}
+                      nutrients={calculateNutrients(meal)}
+                      day={dayName}
+                      onDelete={handleDeleteMeal}
+                    />
+                  );
+                })}
             </div>
           )}
         </div>
@@ -901,39 +1036,45 @@ const filteredMeals = useMemo(() =>
                       {
                         name: "Protein",
                         amount: parseFloat(meal.protein),
-                        unit: "g"
+                        unit: "g",
                       },
                       {
                         name: "Carbohydrates",
                         amount: parseFloat(meal.carbohydrates.slice(0, -1)),
-                        unit: "g"
+                        unit: "g",
                       },
                       {
                         name: "Fiber",
                         amount: parseFloat(meal.fiber.slice(0, -1)),
-                        unit: "g"
+                        unit: "g",
                       },
                       {
                         name: "Fat",
                         amount: parseFloat(meal.fat.slice(0, -1)),
-                        unit: "g"
-                      }
+                        unit: "g",
+                      },
                     ];
                     return (
                       <TableRowComponent
                         key={index}
                         mealName={meal.mealName}
                         mealType={meal.mealType}
-                        mealIcon={MEAL_CATEGORIES[
-                                meal.mealType as keyof typeof MEAL_CATEGORIES
-                              ].icon}
+                        mealIcon={
+                          MEAL_CATEGORIES[
+                            meal.mealType as keyof typeof MEAL_CATEGORIES
+                          ].icon
+                        }
                         mealId={meal._id}
-                        createdAt={meal.createdAt.slice(0,10)}
+                        createdAt={meal.createdAt.slice(0, 10)}
                         handleDeleteFunction={handleDeleteMeal}
-                        protein={nutrients.find((item) => item.name === "Protein")?.amount}
+                        protein={
+                          nutrients.find((item) => item.name === "Protein")
+                            ?.amount
+                        }
                         calories={meal.calories}
                       />
-                  )})}
+                    );
+                  })}
                 </TableBody>
               </Table>
             </div>

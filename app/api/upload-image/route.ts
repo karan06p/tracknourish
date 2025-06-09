@@ -42,7 +42,7 @@ const handleDeleteImage = async (publicId: string) => {
     }
 }
 
-export async function POST(req: NextRequest, res: NextResponse) {
+export async function POST(req: NextRequest) {
   connectToDB();
   try {
     const formData = await req.formData();
