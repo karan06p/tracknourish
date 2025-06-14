@@ -4,6 +4,9 @@ import jwt from "jsonwebtoken";
 import { User } from "@/schema/UserSchema";
 import { connectToDB } from "@/db/connectDb";
 import { v2 as cloudinary } from "cloudinary";
+import dotenv from "dotenv"
+
+dotenv.config()
 
 const jwtSecret = process.env.JWT_SECRET!;
 

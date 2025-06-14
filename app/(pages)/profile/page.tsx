@@ -21,27 +21,41 @@ import { eachMeal } from "@/types/Meal";
 import ImageUploader from "@/components/ImageUploader";
 import DailyNutritionalProgress from "@/components/DailyNutritionalProgress";
 import NutritionalPreferences from "@/components/NutritionalPreferences";
+import { Oval } from "react-loader-spinner";
 
 const baseUrl = process.env.NEXT_PUBLIC_BASE_URL!;
 
 const Profile = () => {
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(false);
   const [avgCalories, setAvgCalories] = useState<number | undefined>();
   const [profilePicUrl, setProfilePicUrl] = useState<string | undefined>();
   const [coverPicUrl, setCoverPicUrl] = useState<string | undefined>();
   const [month, setMonth] = useState<string | undefined>();
   const [year, setYear] = useState<string | undefined>();
-  const { user, firstLetter, isError } = useUser();
+  const { user, firstLetter, isLoading, isError } = useUser();
   const router = useRouter();
 
-  const months = ["Jan", "Feb","Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
-  
+  const months = [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+  ];
+
   useEffect(() => {
     const createdAt: string = user?.createdAt;
     const joinedDate = new Date(createdAt);
     const month = joinedDate.getMonth();
     const year = joinedDate.getFullYear();
-    if (joinedDate){
+    if (joinedDate) {
       setMonth(months[month]);
       setYear(year.toString());
     }
@@ -79,18 +93,30 @@ const Profile = () => {
       }
     }
   }, [user]);
-  if (isLoading) return <p>Loading...</p>;
+
+  if (isLoading) return;
+  <div className="w-screen h-screen flex items-center justify-center">
+    <Oval
+      visible={isLoading}
+      height="80"
+      width="80"
+      strokeWidth="5"
+      color="#155dfc"
+      secondaryColor="#155dfc"
+      ariaLabel="oval-loading"
+    />
+  </div>;
   if (isError) {
     toast("User not found");
     return <p>Error loading user info</p>;
   }
-  
+
   const recentMeals: [eachMeal] = user?.userDetails?.foodsLogged
-  .slice(0, 3)
-  .toReversed();
-  
+    .slice(0, 3)
+    .toReversed();
+
   const handleSignOut = async () => {
-    setIsLoading(true);
+    setLoading(true);
     try {
       await fetch(`${baseUrl}/api/sign-out`).then((res) => {
         if (res.status === 200) {
@@ -102,7 +128,7 @@ const Profile = () => {
       console.error("Sign out failed", error);
       toast.error("Sign Out failed :(");
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   };
 
@@ -150,7 +176,11 @@ const Profile = () => {
             </div>
             <div className="mt-2 flex-1 text-center sm:mt-0 sm:text-left">
               <div className="sm:mt-18 flex flex-col sm:flex-row sm:items-center sm:justify-between">
-                <h1 className="text-xl sm:text-2xl font-bold text-foreground">{user?.userDetails ? (`${user.userDetails.firstName} ${user.userDetails.lastName}`) : ("")}</h1>
+                <h1 className="text-xl sm:text-2xl font-bold text-foreground">
+                  {user?.userDetails
+                    ? `${user.userDetails.firstName} ${user.userDetails.lastName}`
+                    : ""}
+                </h1>
               </div>
               <div className="mt-0 flex flex-wrap items-center justify-center gap-3 text-xs sm:text-sm text-muted-foreground sm:justify-start">
                 {year && (
@@ -176,7 +206,11 @@ const Profile = () => {
                     <Salad className="h-5 w-5 mr-2" />
                     Recent Meals
                   </h2>
-                  <Button variant="ghost" size="sm" className="h-8 px-2 w-full sm:w-auto">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-8 px-2 w-full sm:w-auto"
+                  >
                     <Link href={"/meals"}>View All</Link>
                   </Button>
                 </div>
@@ -206,7 +240,7 @@ const Profile = () => {
                         {meal.calories} kcal
                       </p>
                       <p className="text-xs text-muted-foreground break-all">
-                        {meal.createdAt.slice(0,10)}
+                        {meal.createdAt.slice(0, 10)}
                       </p>
                     </div>
                   </div>
@@ -280,9 +314,27 @@ const Profile = () => {
               className="w-full sm:w-80 hover:cursor-pointer"
               variant={"destructive"}
               onClick={handleSignOut}
+              disabled={isLoading}
             >
-              <LogOut />
-              Sign Out
+              {loading ? (
+                <>
+                  Signing Out
+                  <Oval
+                    visible={loading}
+                    height="24"
+                    width="24"
+                    strokeWidth="5"
+                    color="#FFFFFF"
+                    secondaryColor="#FFFFFF"
+                    ariaLabel="oval-loading"
+                  />
+                </>
+              ) : (
+                <>
+                  <LogOut />
+                  Sign Out
+                </>
+              )}
             </Button>
           </div>
         </div>

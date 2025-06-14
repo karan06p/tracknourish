@@ -3,14 +3,13 @@
 import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
-import { CheckCircle, Mail, RefreshCw } from "lucide-react";
+import { CheckCircle, Mail } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 
 const VerifyEmail = () => {
   const [isVerified, setIsVerified] = useState(false);
-  const [isResending, setIsResending] = useState(false);
   const [secondsLeft, setSecondsLeft] = useState(4);
 
   const searchParams = useSearchParams();
@@ -18,33 +17,22 @@ const VerifyEmail = () => {
   const token = searchParams.get("token");
 
   useEffect(() => {
-    const channel = new BroadcastChannel("email-verification");
-
-    channel.onmessage = (event) => {
-      if (event.data === "verified") {
-        if (localStorage.getItem("canSelfClose") === "true") {
-          localStorage.removeItem("canSelfClose");
-          window.close();
-        }
-      }
-    };
-
     const verifyUserEmail = async () => {
       if (!token) return;
-
       try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL!}/api/verify-email`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ token }),
-        });
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_BASE_URL!}/api/verify-email`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ token }),
+          }
+        );
 
-        const data = await res.json();
         if (res.status === 200) {
           setIsVerified(true);
-          channel.postMessage("verified");
+          localStorage.removeItem("userEmail");
 
-          // Countdown starts only after successful verification
           const countdownInterval = setInterval(() => {
             setSecondsLeft((prev) => prev - 1);
           }, 1000);
@@ -65,19 +53,7 @@ const VerifyEmail = () => {
     };
 
     verifyUserEmail();
-
-    return () => channel.close();
   }, [router, token]);
-
-  const handleResendEmail = async () => {
-    setIsResending(true);
-    await fetch(`${process.env.NEXT_PUBLIC_BASE_URL!}/api/resend-email`, {
-      method: "POST",
-      body: JSON.stringify({ token }),
-    });
-    setIsResending(false);
-    toast.success("Verification email resent.");
-  };
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-b from-blue-50 to-white px-4 py-12">
@@ -107,58 +83,59 @@ const VerifyEmail = () => {
                   </div>
                 </div>
                 <p className="text-gray-700">
-                  Your email has been successfully verified! Your account is now active.
+                  Your email has been successfully verified! Your account is now
+                  active.
                 </p>
                 <p className="text-sm text-gray-500">
                   You will be redirected in{" "}
-                  <span className="text-purple-600 font-semibold">{secondsLeft}</span>{" "}
+                  <span className="text-purple-600 font-semibold">
+                    {secondsLeft}
+                  </span>{" "}
                   second{secondsLeft !== 1 && "s"}...
                 </p>
               </div>
             ) : (
               <>
                 <p className="text-gray-600">
-                  We've sent a verification link to your email. Please click the link to activate your account.
+                  We've sent a verification link to your email. Please click the
+                  link in your email to activate your account.
                 </p>
 
                 <div className="py-4 flex justify-center">
-                  <button className="focus:outline-none" aria-label="Check verification status">
+                  <button
+                    className="focus:outline-none"
+                    aria-label="Checking verification status"
+                  >
                     <div className="inline-flex items-center justify-center space-x-2">
-                      <div className="h-2 w-2 bg-blue-400 rounded-full animate-bounce" style={{ animationDelay: "0ms" }}></div>
-                      <div className="h-2 w-2 bg-blue-400 rounded-full animate-bounce" style={{ animationDelay: "300ms" }}></div>
-                      <div className="h-2 w-2 bg-blue-400 rounded-full animate-bounce" style={{ animationDelay: "600ms" }}></div>
+                      <div
+                        className="h-2 w-2 bg-blue-400 rounded-full animate-bounce"
+                        style={{ animationDelay: "0ms" }}
+                      ></div>
+                      <div
+                        className="h-2 w-2 bg-blue-400 rounded-full animate-bounce"
+                        style={{ animationDelay: "300ms" }}
+                      ></div>
+                      <div
+                        className="h-2 w-2 bg-blue-400 rounded-full animate-bounce"
+                        style={{ animationDelay: "600ms" }}
+                      ></div>
                     </div>
                   </button>
                 </div>
 
                 <div className="pt-2">
-                  <p className="text-sm text-gray-500">Didn't receive the email?</p>
-                  <Button
-                    onClick={handleResendEmail}
-                    disabled={isResending}
-                    className="mt-2 w-full"
-                  >
-                    {isResending ? (
-                      <>
-                        <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
-                        Resending...
-                      </>
-                    ) : (
-                      "Resend Email"
-                    )}
+                  <p className="text-sm text-gray-500">
+                    Didn't receive the email?
+                  </p>
+                  <Button className="mt-2 w-full cursor-pointer">
+                    <Link href="/auth/resend-email">Resend Email</Link>
                   </Button>
                 </div>
+                <p className="text-sm text-gray-500">
+                  Once verified, you may safely close this tab.
+                </p>
               </>
             )}
-          </div>
-
-          <div className="mt-4">
-            <Link
-              href="/auth/sign-in"
-              className="text-sm font-medium text-blue-600 hover:text-blue-800 transition-colors"
-            >
-              Go to Login
-            </Link>
           </div>
         </div>
       </div>

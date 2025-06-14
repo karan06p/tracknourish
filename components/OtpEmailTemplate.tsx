@@ -1,7 +1,6 @@
 import React from "react";
 import {
   Body,
-  Button,
   Container,
   Head,
   Heading,
@@ -13,16 +12,13 @@ import {
   Text,
 } from "@react-email/components";
 
-interface VerificationEmailProps {
+interface OtpEmailTemplateProps {
   firstName: string;
-  verificationLink: string;
+  otp: string;
 }
 
-export const VerificationEmail = ({
-  firstName,
-  verificationLink,
-}: VerificationEmailProps) => {
-  const previewText = `Verify your Mealivo account`;
+const OtpEmailTemplate = ({ firstName, otp }: OtpEmailTemplateProps) => {
+  const previewText = `Your OTP for Mealivo password reset`;
 
   return (
     <Html>
@@ -33,49 +29,41 @@ export const VerificationEmail = ({
           <Section style={styles.logoContainer}>
             <Text style={styles.logo}>Mealivo</Text>
           </Section>
-          
+
           <Section style={styles.content}>
-            <Heading style={styles.heading}>Verify your email address</Heading>
-            
+            <Heading style={styles.heading}>Your OTP Code</Heading>
+
             <Text style={styles.paragraph}>Hi {firstName},</Text>
-            
+
             <Text style={styles.paragraph}>
-              Thanks for signing up for Mealivo! Please verify your email address 
-              to get started tracking your nutrition journey.
+              Use the following one-time password (OTP) to reset your Mealivo
+              password.
             </Text>
-            
-            <Section style={styles.buttonContainer}>
-              <Button style={styles.button} href={verificationLink}>
-                Verify Email
-              </Button>
+
+            <Section style={styles.otpContainer}>
+              <Text style={styles.otp}>{otp}</Text>
             </Section>
-            
+
             <Text style={styles.paragraph}>
-              If you didn't create an account with Mealivo, you can safely ignore this email.
+              This OTP will expire in 10 minutes. If you did not request a
+              password reset, please ignore this email.
             </Text>
-            
-            <Text style={styles.paragraph}>
-              The verification link will expire in 30 minutes.
-            </Text>
-            
+
             <Hr style={styles.divider} />
-            
-            <Text style={styles.footerText}>
-              If the button above doesn't work, paste this link into your browser:
-            </Text>
-            
-            <Link style={styles.link} href={verificationLink}>
-              {verificationLink}
-            </Link>
           </Section>
-          
+
           <Section style={styles.footer}>
             <Text style={styles.footerText}>
               © {new Date().getFullYear()} Mealivo. All rights reserved.
             </Text>
             <Text style={styles.footerText}>
-              <Link style={styles.footerLink} href="#">Privacy Policy</Link> • 
-              <Link style={styles.footerLink} href="#"> Terms of Service</Link>
+              <Link style={styles.footerLink} href="#">
+                Privacy Policy
+              </Link>{" "}
+              •{" "}
+              <Link style={styles.footerLink} href="#">
+                Terms of Service
+              </Link>
             </Text>
           </Section>
         </Container>
@@ -87,7 +75,8 @@ export const VerificationEmail = ({
 const styles = {
   body: {
     backgroundColor: "#f1f0fb",
-    fontFamily: "Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+    fontFamily:
+      "Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
     padding: "40px 0",
   },
   container: {
@@ -124,32 +113,19 @@ const styles = {
     color: "#8E9196",
     margin: "16px 0",
   },
-  buttonContainer: {
+  otpContainer: {
     textAlign: "center" as const,
-    margin: "30px 0",
+    margin: "20px 0",
   },
-  button: {
-    backgroundColor: "#9b87f5",
-    color: "#ffffff",
-    borderRadius: "6px",
-    fontWeight: "500",
-    padding: "12px 30px",
-    border: "none",
-    fontSize: "16px",
-    cursor: "pointer",
-    textDecoration: "none",
+  otp: {
+    fontSize: "32px",
+    fontWeight: "bold",
+    color: "#1A1F2C",
+    letterSpacing: "8px",
   },
   divider: {
     borderTop: "1px solid #eee",
     margin: "30px 0",
-  },
-  link: {
-    color: "#7E69AB",
-    textDecoration: "underline",
-    fontSize: "14px",
-    display: "block",
-    marginBottom: "16px",
-    wordBreak: "break-all" as const,
   },
   footer: {
     padding: "20px 30px",
@@ -170,4 +146,4 @@ const styles = {
   },
 };
 
-export default VerificationEmail;
+export default OtpEmailTemplate;

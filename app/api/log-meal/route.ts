@@ -3,6 +3,7 @@ import { ApiResponse } from "@/lib/utils";
 import { User } from "@/schema/UserSchema";
 import jwt from "jsonwebtoken"
 import { NextRequest } from "next/server";
+import dotenv from "dotenv"
 
 interface foodLoggedParams{
     mealName: string;
@@ -15,6 +16,7 @@ interface foodLoggedParams{
     fat: string;
     tags?: string[];
 }
+dotenv.config()
 
 const jwtSecret = process.env.JWT_SECRET!;
 

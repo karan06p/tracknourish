@@ -2,9 +2,10 @@ import { connectToDB } from "@/db/connectDb";
 import { ApiResponse, hashPassword } from "@/lib/utils";
 import { Resend } from "resend";
 import dotenv from "dotenv"
-import EmailTemplate from "@/components/Email-template";
+import { VerificationEmail } from "@/components/VerificationEmailTemplate";
 import { User } from "@/schema/UserSchema";
 import jwt from "jsonwebtoken";
+import { NextResponse } from "next/server";
 
 interface SignUpParams{
     firstName: string;
@@ -16,13 +17,11 @@ interface SignUpParams{
 dotenv.config()
 const resendApiKey = process.env.RESEND_API_KEY!;
 
-
 const resend = new Resend(resendApiKey)
 const JWT_SECRET = process.env.JWT_SECRET!;
 
-export async function POST(req: Request) {
+export async function POST(req: Request, res: NextResponse) {
     connectToDB();
-  
     try {
       const { firstName, lastName, email, password }: SignUpParams = await req.json();
   
@@ -47,23 +46,24 @@ export async function POST(req: Request) {
         }
       });
       await newUser.save();
-  
-      // Generate verification token (contains user email)
+      
+      
+      // Generate verification token(contains user email)
       const verificationToken = jwt.sign(
         { email },
         JWT_SECRET,
-        { expiresIn: "30m" }
+        { expiresIn: "10m" }
       );
-  
+
       const verificationLink = `${process.env.NEXT_PUBLIC_BASE_URL!}/auth/verify-email?token=${verificationToken}`;
-  
+      
       // Send the verification email
       try {
         await resend.emails.send({
           from: "Mealivo <onboarding@resend.dev>",
           to: email,
           subject: "Mealivo Email Verification",
-          react: EmailTemplate({
+          react: VerificationEmail({
             firstName,
             verificationLink,
           }),
@@ -72,7 +72,7 @@ export async function POST(req: Request) {
         console.error("Error sending verification email", error);
         return ApiResponse(500, "Failed to send verification email");
       };
-
+      
       return ApiResponse(200, "Verification Email sent");
     } catch (error) {
       console.error("Error in signing up user", error);

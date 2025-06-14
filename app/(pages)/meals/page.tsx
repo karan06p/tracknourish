@@ -52,7 +52,7 @@ import {
 import { useUser } from "@/hooks/use-user";
 import { eachMeal, Id, NutrientItem, SearchResults } from "@/types/Meal";
 import TableRowComponent from "@/components/TableRow";
-import { LineWave } from "react-loader-spinner";
+import { LineWave, Oval } from "react-loader-spinner";
 
 const baseUrl = process.env.NEXT_PUBLIC_BASE_URL!;
 
@@ -115,6 +115,20 @@ const MealsPage = () => {
     useState<boolean>(false);
   const [mealsLength, setMealsLength] = useState<number | undefined>();
 
+  if (isLoading)
+    return (
+      <div className="w-screen h-screen flex items-center justify-center">
+        <Oval
+          visible={isLoading}
+          height="80"
+          width="80"
+          strokeWidth="5"
+          color="#155dfc"
+          secondaryColor="#155dfc"
+          ariaLabel="oval-loading"
+        />
+      </div>
+    );
   if (isError) return <div>Error Loading Component, Please Refresh</div>;
 
   useEffect(() => {
@@ -425,7 +439,7 @@ const MealsPage = () => {
               className="hover:cursor-pointer"
               variant="outline"
               size="icon"
-              onClick={() => router.replace("/")}
+              onClick={() => router.back()}
             >
               <ArrowLeft className="h-4 w-4" />
             </Button>

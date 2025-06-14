@@ -4,6 +4,7 @@ import { ApiResponse } from "@/lib/utils";
 import { connectToDB } from "@/db/connectDb";
 import jwt from "jsonwebtoken";
 import { User } from "@/schema/UserSchema";
+import dotenv from "dotenv"
 
 cloudinary.config({
   secure: true,
@@ -11,6 +12,8 @@ cloudinary.config({
   api_key: process.env.CLOUDINARY_API_KEY!,
   api_secret: process.env.CLOUDINARY_API_SECRET!,
 });
+
+dotenv.config()
 
 const jwtSecret = process.env.JWT_SECRET!;
 

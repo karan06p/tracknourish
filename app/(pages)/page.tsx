@@ -45,27 +45,32 @@ import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { eachMeal } from "@/types/Meal";
 import { useEffect, useState } from "react";
-import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card";
+import {
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from "@/components/ui/hover-card";
+import { Oval } from "react-loader-spinner";
 
 const baseUrl = process.env.NEXT_PUBLIC_BASE_URL!;
 
 const Dashboard = () => {
   const { user, firstLetter, isLoading, isError } = useUser();
-  const [avgCalories, setAvgCalories] = useState<number | undefined>()
+  const [avgCalories, setAvgCalories] = useState<number | undefined>();
   const [protein, setProtein] = useState<number | undefined>();
-  // const [isLoading, setIsLoading] = useState<boolean>(false);
   const [userProfilePopup, setUserProfilePopup] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(false);
   const [fiber, setFiber] = useState<number | undefined>();
   const [profilePicUrl, setProfilePicUrl] = useState<string | undefined>();
   const router = useRouter();
-  
+
   const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
   const allMeals = user?.userDetails?.foodsLogged;
-  let mostRecentMeals = allMeals?.toReversed().splice(0,3);
-  
+  let mostRecentMeals = allMeals?.toReversed().splice(0, 3);
+
   useEffect(() => {
-    if(user?.userDetails?.foodsLogged){
+    if (user?.userDetails?.foodsLogged) {
       let totalCalories = 0;
       let totalProtein = 0;
       let totalFiber = 0;
@@ -73,67 +78,89 @@ const Dashboard = () => {
         const calories = parseFloat(item.calories);
         const protein = parseFloat(item.protein);
         const fiber = parseFloat(item.fiber);
-        if(!isNaN(calories)){
+        if (!isNaN(calories)) {
           totalCalories += calories;
         }
-        if(!isNaN(protein)){
+        if (!isNaN(protein)) {
           totalProtein += protein;
         }
-        if(!isNaN(fiber)){
+        if (!isNaN(fiber)) {
           totalFiber += fiber;
         }
-      })
-      if(user.userDetails?.foodsLogged.length > 0){
-        let calculatedAvgCalories = (totalCalories / user.userDetails?.foodsLogged.length).toFixed(2)
+      });
+      if (user.userDetails?.foodsLogged.length > 0) {
+        let calculatedAvgCalories = (
+          totalCalories / user.userDetails?.foodsLogged.length
+        ).toFixed(2);
         setAvgCalories(Number(calculatedAvgCalories));
-      }else {
-        setAvgCalories(0)
+      } else {
+        setAvgCalories(0);
       }
       setProtein(totalProtein);
-      setFiber(totalFiber)
+      setFiber(totalFiber);
     }
-    if(user?.userDetails?.profilePicUrl){
-      setProfilePicUrl(user?.userDetails?.profilePicUrl)
+    if (user?.userDetails?.profilePicUrl) {
+      setProfilePicUrl(user?.userDetails?.profilePicUrl);
     }
-  }, [user])
+  }, [user]);
 
-  if (isLoading) return <p>Loading...</p>;
+  if (isLoading)
+    return (
+      <div className="w-screen h-screen flex items-center justify-center">
+        <Oval
+          visible={isLoading}
+          height="80"
+          width="80"
+          strokeWidth="5"
+          color="#155dfc"
+          secondaryColor="#155dfc"
+          ariaLabel="oval-loading"
+        />
+      </div>
+    );
   if (isError || !user) {
     toast("User not found");
-    return <p>Error loading user info</p>;
-  };
+    return (
+      <div className="w-screen h-full flex items-center justify-center">
+        <div>
+          <p className="text-red-600">Error loading user info</p>
+          <p className="text-gray-400">Redirecting...</p>
+        </div>
+      </div>
+    );
+  }
 
   const handleSignOut = async () => {
-      // setIsLoading(true);
-      try {
-        await fetch(`${baseUrl}/api/sign-out`).then((res) => {
-          if (res.status === 200) {
-            router.refresh();
-            toast.success("Signed Out");
-          }else{
-            toast.error("Sign Out failed :(");
-          }
-        });
-      } catch (error) {
-        console.error("Sign out failed", error);
-        toast.error("Sign Out failed :(");
-      } finally {
-        // setIsLoading(false);
-      }
-    };
+    setLoading(true);
+    try {
+      await fetch(`${baseUrl}/api/sign-out`).then((res) => {
+        if (res.status === 200) {
+          router.refresh();
+          toast.success("Signed Out");
+        } else {
+          toast.error("Sign Out failed :(");
+        }
+      });
+    } catch (error) {
+      console.error("Sign out failed", error);
+      toast.error("Sign Out failed :(");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const getCaloriesPerDay = (foodsLogged: eachMeal[]) => {
     const caloriesByDay: { [date: string]: number } = {};
-    days.forEach(day => {
+    days.forEach((day) => {
       caloriesByDay[day] = 0;
-    })
+    });
     foodsLogged.forEach((meal: eachMeal) => {
       const date = new Date(meal.createdAt);
       const dayNumber = date.getDay();
       const actualDay = days[dayNumber];
 
       const calories = parseFloat(meal.calories);
-      if(!isNaN(calories)){
+      if (!isNaN(calories)) {
         caloriesByDay[actualDay] = (caloriesByDay[actualDay] || 0) + calories;
       }
     });
@@ -141,13 +168,20 @@ const Dashboard = () => {
     return Object.entries(caloriesByDay).map(([name, calories]) => ({
       name,
       calories,
-    }))
-  }
+    }));
+  };
 
   const getMacrosData = (foodsLogged: eachMeal[]) => {
-    const macrosByDay: { [name: string]: { protein: number, carbs: number, fat: number, fiber: number }} = {};
-    days.forEach(day => {
-      macrosByDay[day] = { protein: 0 , carbs: 0, fat: 0, fiber: 0}
+    const macrosByDay: {
+      [name: string]: {
+        protein: number;
+        carbs: number;
+        fat: number;
+        fiber: number;
+      };
+    } = {};
+    days.forEach((day) => {
+      macrosByDay[day] = { protein: 0, carbs: 0, fat: 0, fiber: 0 };
     });
 
     foodsLogged.forEach((meal: eachMeal) => {
@@ -160,20 +194,20 @@ const Dashboard = () => {
       const fat = parseFloat(meal.fat);
       const fiber = parseFloat(meal.fiber);
 
-      if(!isNaN(protein)) macrosByDay[actualDay].protein += protein;
-      if(!isNaN(carbs)) macrosByDay[actualDay].carbs += carbs;
-      if(!isNaN(fat)) macrosByDay[actualDay].fat += fat;
-      if(!isNaN(fiber)) macrosByDay[actualDay].fiber += fiber;
+      if (!isNaN(protein)) macrosByDay[actualDay].protein += protein;
+      if (!isNaN(carbs)) macrosByDay[actualDay].carbs += carbs;
+      if (!isNaN(fat)) macrosByDay[actualDay].fat += fat;
+      if (!isNaN(fiber)) macrosByDay[actualDay].fiber += fiber;
     });
 
-    return days.map(day => ({
+    return days.map((day) => ({
       name: day,
       protein: macrosByDay[day].protein,
       carbs: macrosByDay[day].carbs,
       fat: macrosByDay[day].fat,
       fiber: macrosByDay[day].fiber,
-    }))
-  }
+    }));
+  };
 
   const getPieData = (foodLogged: eachMeal[]) => {
     const today = new Date();
@@ -185,40 +219,40 @@ const Dashboard = () => {
     let totalFat = 0;
     let totalFiber = 0;
 
-    const recentMeals = foodLogged.filter(meal => {
-    const mealDate = new Date(meal.createdAt);
-    return mealDate >= sevenDaysAgo && mealDate <= today;
-  });
-
-  if (recentMeals.length > 0) {
-    recentMeals.forEach((meal: eachMeal) => {
-      const carbs = parseFloat(meal.carbohydrates);
-      const protein = parseFloat(meal.protein);
-      const fat = parseFloat(meal.fat);
-      const fiber = parseFloat(meal.fiber);
-
-      if (!isNaN(carbs)) totalCarbs += carbs;
-      if (!isNaN(protein)) totalProtein += protein;
-      if (!isNaN(fat)) totalFat += fat;
-      if (!isNaN(fiber)) totalFiber += fiber;
+    const recentMeals = foodLogged.filter((meal) => {
+      const mealDate = new Date(meal.createdAt);
+      return mealDate >= sevenDaysAgo && mealDate <= today;
     });
 
-    return [
-      { name: "Carbs", value: totalCarbs, color: "#e6564c" },
-      { name: "Protein", value: totalProtein, color: "#8884d8" },
-      { name: "Fat", value: totalFat, color: "#ffc658" },
-      { name: "Fiber", value: totalFiber, color: "#82ca9d" }
-    ].filter(macro => macro.value > 0);
-  }
+    if (recentMeals.length > 0) {
+      recentMeals.forEach((meal: eachMeal) => {
+        const carbs = parseFloat(meal.carbohydrates);
+        const protein = parseFloat(meal.protein);
+        const fat = parseFloat(meal.fat);
+        const fiber = parseFloat(meal.fiber);
 
-  return [];
-};
+        if (!isNaN(carbs)) totalCarbs += carbs;
+        if (!isNaN(protein)) totalProtein += protein;
+        if (!isNaN(fat)) totalFat += fat;
+        if (!isNaN(fiber)) totalFiber += fiber;
+      });
+
+      return [
+        { name: "Carbs", value: totalCarbs, color: "#e6564c" },
+        { name: "Protein", value: totalProtein, color: "#8884d8" },
+        { name: "Fat", value: totalFat, color: "#ffc658" },
+        { name: "Fiber", value: totalFiber, color: "#82ca9d" },
+      ].filter((macro) => macro.value > 0);
+    }
+
+    return [];
+  };
 
   const caloriesData = getCaloriesPerDay(user?.userDetails?.foodsLogged || []);
 
-  const macrosData = getMacrosData(user?.userDetails?.foodsLogged || [])
+  const macrosData = getMacrosData(user?.userDetails?.foodsLogged || []);
 
-  const pieData = getPieData(user?.userDetails?.foodsLogged || [])
+  const pieData = getPieData(user?.userDetails?.foodsLogged || []);
 
   // Chart config
   const chartConfig = {
@@ -245,13 +279,24 @@ const Dashboard = () => {
             </div>
             <div className="flex flex-row items-center gap-2 md:gap-4 justify-center md:mt-0">
               <div className="flex md:mt-0 md:ml-4 space-x-5 justify-center items-center">
-                <Button className="hidden sm:flex hover:cursor-pointer hover:bg-black hover:text-white bg-white text-black items-center gap-2 shadow-sm" 
-                  onClick={() => router.push("/meals")}> 
-                  <ForkKnife className="h-4 w-4" />
-                  Track Meal 
+                <Button className="hidden sm:flex shadow-sm hover:bg-black hover:text-white bg-white text-black">
+                  <Link
+                    href={"/meals"}
+                    className="hidden sm:flex hover:cursor-pointer  items-center gap-2"
+                  >
+                    <ForkKnife className="h-4 w-4" />
+                    Track Meal
+                  </Link>
                 </Button>
-                <HoverCard open={userProfilePopup} openDelay={100} closeDelay={100}>
-                  <HoverCardTrigger asChild onClick={() => setUserProfilePopup(!userProfilePopup)}>
+                <HoverCard
+                  open={userProfilePopup}
+                  openDelay={100}
+                  closeDelay={100}
+                >
+                  <HoverCardTrigger
+                    asChild
+                    onClick={() => setUserProfilePopup(!userProfilePopup)}
+                  >
                     {user?.userDetails?.profilePicUrl ? (
                       <img
                         src={profilePicUrl}
@@ -266,22 +311,43 @@ const Dashboard = () => {
                       </div>
                     )}
                   </HoverCardTrigger>
-                  <HoverCardContent className="w-40 mt-3 p-2 flex flex-col gap-2 items-baseline"> 
-                    <Button
-                      variant="outline"
-                      className="w-full justify-start"
-                      onClick={() => router.push("/profile")}
-                    >
-                      <User />
-                      Profile
+                  <HoverCardContent className="w-40 mt-3 p-2 flex flex-col gap-2 items-baseline">
+                    <Button variant="outline" className="w-full justify-start">
+                      <Link
+                        href="/profile"
+                        className="w-full flex justify-start items-center gap-2 hover:cursor-pointer"
+                      >
+                        <User />
+                        Profile
+                      </Link>
                     </Button>
                     <Button
                       variant="destructive"
-                      className="w-full justify-start hover:cursor-pointer"
+                      className="w-full"
                       onClick={handleSignOut}
+                      disabled={loading}
                     >
-                      <LogOut />
-                      Sign Out
+                      <div className="w-full flex justify-start items-center gap-2 hover:cursor-pointer">
+                        {loading ? (
+                          <>
+                            Signing Out
+                            <Oval
+                              visible={loading}
+                              height="24"
+                              width="24"
+                              strokeWidth="5"
+                              color="#FFFFFF"
+                              secondaryColor="#FFFFFF"
+                              ariaLabel="oval-loading"
+                            />
+                          </>
+                        ) : (
+                          <>
+                            <LogOut />
+                            Sign Out
+                          </>
+                        )}
+                      </div>
                     </Button>
                   </HoverCardContent>
                 </HoverCard>
@@ -301,7 +367,9 @@ const Dashboard = () => {
               <CardHeader className="pb-2 flex flex-row items-start justify-between space-y-0">
                 <div>
                   <CardDescription>Meals tracked</CardDescription>
-                  <CardTitle className="text-3xl">{user?.userDetails?.foodsLogged.length}</CardTitle>
+                  <CardTitle className="text-3xl">
+                    {user?.userDetails?.foodsLogged.length}
+                  </CardTitle>
                 </div>
                 <Utensils className="h-5 w-5 text-blue-500" />
               </CardHeader>
@@ -309,7 +377,8 @@ const Dashboard = () => {
                 <div className="flex items-center">
                   <TrendingUp className="mr-1 h-4 w-4 text-green-500" />
                   <p className="text-xs text-muted-foreground">
-                    <span className="text-green-500 font-medium">+12%</span> from last week
+                    <span className="text-green-500 font-medium">+12%</span>{" "}
+                    from last week
                   </p>
                 </div>
               </CardContent>
@@ -328,7 +397,8 @@ const Dashboard = () => {
                 <div className="flex items-center">
                   <TrendingDown className="mr-1 h-4 w-4 text-rose-500" />
                   <p className="text-xs text-muted-foreground">
-                    <span className="text-rose-500 font-medium">+3%</span> from last week
+                    <span className="text-rose-500 font-medium">+3%</span> from
+                    last week
                   </p>
                 </div>
               </CardContent>
@@ -349,7 +419,8 @@ const Dashboard = () => {
                 <div className="flex items-center">
                   <TrendingUp className="mr-1 h-4 w-4 text-green-500" />
                   <p className="text-xs text-muted-foreground">
-                    <span className="text-green-500 font-medium">+7%</span> from last week
+                    <span className="text-green-500 font-medium">+7%</span> from
+                    last week
                   </p>
                 </div>
               </CardContent>
@@ -370,7 +441,8 @@ const Dashboard = () => {
                 <div className="flex items-center">
                   <TrendingUp className="mr-1 h-4 w-4 text-green-500" />
                   <p className="text-xs text-muted-foreground">
-                    <span className="text-green-500 font-medium">+2%</span> from last week
+                    <span className="text-green-500 font-medium">+2%</span> from
+                    last week
                   </p>
                 </div>
               </CardContent>
@@ -384,7 +456,7 @@ const Dashboard = () => {
                 <div>
                   <CardTitle>Nutrition Trends</CardTitle>
                   <CardDescription>
-                    Track your nutrition patterns over the <b>past</b>  week
+                    Track your nutrition patterns over the <b>past</b> week
                   </CardDescription>
                 </div>
               </div>
@@ -407,110 +479,121 @@ const Dashboard = () => {
                 </TabsList>
                 <TabsContent value="calories" className="space-y-4">
                   <div className="w-full overflow-x-auto">
-                    <ChartContainer config={chartConfig} className="h-[220px] w-[280px] sm:h-[300px] sm:w-[390px] md:h-[360px] md:w-[510px] ml-[-30px]">
-                        <BarChart 
-                          data={caloriesData}
-                          margin={{ top: 10, right: 10, left: 0, bottom: 20 }}
-                        >
-                          <CartesianGrid
-                            strokeDasharray="3 3"
-                            vertical={false}
-                            opacity={0.3}
-                          />
-                          <XAxis dataKey="name" tick={{ fontSize: 12 }} />
-                          <YAxis tick={{ fontSize: 12 }} />
-                          <ChartTooltip content={<ChartTooltipContent />} />
-                          <Bar
-                            dataKey="calories"
-                            fill="#FF6384"
-                            radius={[4, 4, 0, 0]}
-                          />
-                        </BarChart>
+                    <ChartContainer
+                      config={chartConfig}
+                      className="h-[220px] w-[280px] sm:h-[300px] sm:w-[390px] md:h-[360px] md:w-[510px] ml-[-30px]"
+                    >
+                      <BarChart
+                        data={caloriesData}
+                        margin={{ top: 10, right: 10, left: 0, bottom: 20 }}
+                      >
+                        <CartesianGrid
+                          strokeDasharray="3 3"
+                          vertical={false}
+                          opacity={0.3}
+                        />
+                        <XAxis dataKey="name" tick={{ fontSize: 12 }} />
+                        <YAxis tick={{ fontSize: 12 }} />
+                        <ChartTooltip content={<ChartTooltipContent />} />
+                        <Bar
+                          dataKey="calories"
+                          fill="#FF6384"
+                          radius={[4, 4, 0, 0]}
+                        />
+                      </BarChart>
                     </ChartContainer>
                   </div>
                 </TabsContent>
 
                 <TabsContent value="macros" className="space-y-4">
                   <div className="w-full overflow-x-auto">
-                    <ChartContainer config={chartConfig} className="h-[220px] w-[280px] sm:h-[300px] sm:w-[390px] md:h-[360px] md:w-[510px] ml-[-30px]">
-                        <LineChart
-                          width={300} 
-                          height={220}
-                          data={macrosData}
-                          margin={{ top: 10, right: 10, left: 0, bottom: 20 }}
-                        >
-                          <CartesianGrid
-                            strokeDasharray="4 4"
-                            vertical={false}
-                            opacity={0.3}
-                          />
-                          <XAxis dataKey="name" tick={{ fontSize: 12 }} />
-                          <YAxis tick={{ fontSize: 12 }} />
-                          <ChartTooltip content={<ChartTooltipContent />} />
-                          <Line
-                            type="monotone"
-                            dataKey="protein"
-                            stroke="#8884d8"
-                            strokeWidth={2}
-                            dot={{ r: 4 }}
-                            activeDot={{ r: 6 }}
-                          />
-                          <Line
-                            type="monotone"
-                            dataKey="carbs"
-                            stroke="#e6564c"
-                            strokeWidth={2}
-                            dot={{ r: 4 }}
-                            activeDot={{ r: 6 }}
-                          />
-                          <Line
-                            type="monotone"
-                            dataKey="fiber"
-                            stroke="#82ca9d"
-                            strokeWidth={2}
-                            dot={{ r: 4 }}
-                            activeDot={{ r: 6 }}
-                          />
-                          <Line
-                            type="monotone"
-                            dataKey="fat"
-                            stroke="#ffc658"
-                            strokeWidth={2}
-                            dot={{ r: 4 }}
-                            activeDot={{ r: 6 }}
-                          />
-                        </LineChart>
+                    <ChartContainer
+                      config={chartConfig}
+                      className="h-[220px] w-[280px] sm:h-[300px] sm:w-[390px] md:h-[360px] md:w-[510px] ml-[-30px]"
+                    >
+                      <LineChart
+                        width={300}
+                        height={220}
+                        data={macrosData}
+                        margin={{ top: 10, right: 10, left: 0, bottom: 20 }}
+                      >
+                        <CartesianGrid
+                          strokeDasharray="4 4"
+                          vertical={false}
+                          opacity={0.3}
+                        />
+                        <XAxis dataKey="name" tick={{ fontSize: 12 }} />
+                        <YAxis tick={{ fontSize: 12 }} />
+                        <ChartTooltip content={<ChartTooltipContent />} />
+                        <Line
+                          type="monotone"
+                          dataKey="protein"
+                          stroke="#8884d8"
+                          strokeWidth={2}
+                          dot={{ r: 4 }}
+                          activeDot={{ r: 6 }}
+                        />
+                        <Line
+                          type="monotone"
+                          dataKey="carbs"
+                          stroke="#e6564c"
+                          strokeWidth={2}
+                          dot={{ r: 4 }}
+                          activeDot={{ r: 6 }}
+                        />
+                        <Line
+                          type="monotone"
+                          dataKey="fiber"
+                          stroke="#82ca9d"
+                          strokeWidth={2}
+                          dot={{ r: 4 }}
+                          activeDot={{ r: 6 }}
+                        />
+                        <Line
+                          type="monotone"
+                          dataKey="fat"
+                          stroke="#ffc658"
+                          strokeWidth={2}
+                          dot={{ r: 4 }}
+                          activeDot={{ r: 6 }}
+                        />
+                      </LineChart>
                     </ChartContainer>
                   </div>
                 </TabsContent>
 
                 <TabsContent value="breakdown" className="space-y-4">
                   <div className="flex items-center justify-center w-full overflow-x-auto">
-                      <RechartsPieChart width={400} height={280}>
-                        {pieData && pieData.length > 0 ? (
-                          <Pie
-                            data={pieData}
-                            cx="50%"
-                            cy="50%"
-                            labelLine={false}
-                            outerRadius={100}
-                            fill="#8884d8"
-                            dataKey="value"
-                            label={({ name, percent }) =>
-                              `${name} ${(percent * 100).toFixed(0)}%`
-                            }
-                          >
-                            {pieData.map((entry, index) => (
-                              <Cell key={`cell-${index}`} fill={entry.color} />
-                            ))}
-                          </Pie>
-                        ) : (
-                          <text x="50%" y="50%" textAnchor="middle" dominantBaseline="middle">
-                            Track New Meals!
-                          </text>
-                        )}
-                        <Tooltip />
-                      </RechartsPieChart>
+                    <RechartsPieChart width={400} height={280}>
+                      {pieData && pieData.length > 0 ? (
+                        <Pie
+                          data={pieData}
+                          cx="50%"
+                          cy="50%"
+                          labelLine={false}
+                          outerRadius={100}
+                          fill="#8884d8"
+                          dataKey="value"
+                          label={({ name, percent }) =>
+                            `${name} ${(percent * 100).toFixed(0)}%`
+                          }
+                        >
+                          {pieData.map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={entry.color} />
+                          ))}
+                        </Pie>
+                      ) : (
+                        <text
+                          x="50%"
+                          y="50%"
+                          textAnchor="middle"
+                          dominantBaseline="middle"
+                        >
+                          Track New Meals!
+                        </text>
+                      )}
+                      <Tooltip />
+                    </RechartsPieChart>
                   </div>
                 </TabsContent>
               </Tabs>
@@ -528,7 +611,11 @@ const Dashboard = () => {
                   </CardDescription>
                 </div>
                 <Link href="/meals">
-                  <Button variant="outline" size="sm" className="hover:cursor-pointer">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="hover:cursor-pointer"
+                  >
                     View All
                   </Button>
                 </Link>
@@ -537,42 +624,55 @@ const Dashboard = () => {
             <CardContent>
               <div className="rounded-md border">
                 {mostRecentMeals?.map((item: eachMeal, idx: number) => (
-                  <div className="p-4 border-b hover:bg-gray-50 transition-colors" key={idx}>
+                  <div
+                    className="p-4 border-b hover:bg-gray-50 transition-colors"
+                    key={idx}
+                  >
                     <div className="flex justify-between items-center">
                       <div>
                         <h3 className="font-medium flex items-center gap-2">
-                          <span className={`w-2 h-2 rounded-full 
-                            ${item.mealType === "breakfast" ? "bg-green-500": ""}
-                            ${item.mealType === "lunch" ? "bg-yellow-500": ""}
-                            ${item.mealType === "snack" ? "bg-blue-600": ""}
-                            ${item.mealType === "dinner" ? "bg-purple-500": ""}
-                            `}></span>
-                          {item.mealType.charAt(0).toUpperCase() + item.mealType.slice(1)}
+                          <span
+                            className={`w-2 h-2 rounded-full 
+                            ${
+                              item.mealType === "breakfast"
+                                ? "bg-green-500"
+                                : ""
+                            }
+                            ${item.mealType === "lunch" ? "bg-yellow-500" : ""}
+                            ${item.mealType === "snack" ? "bg-blue-600" : ""}
+                            ${item.mealType === "dinner" ? "bg-purple-500" : ""}
+                            `}
+                          ></span>
+                          {item.mealType.charAt(0).toUpperCase() +
+                            item.mealType.slice(1)}
                         </h3>
-                        <p className="text-sm text-gray-500">
-                          {item.mealName}
-                        </p>
+                        <p className="text-sm text-gray-500">{item.mealName}</p>
                       </div>
                       <div className="text-right">
-                        <p className="font-medium text-blue-600">{item.calories} kcal</p>
+                        <p className="font-medium text-blue-600">
+                          {item.calories} kcal
+                        </p>
                         <p className="text-sm text-gray-500">
-                          P: {item.protein} | C: {item.carbohydrates} | F: {item.fat}
+                          P: {item.protein} | C: {item.carbohydrates} | F:{" "}
+                          {item.fat}
                         </p>
                       </div>
                     </div>
                   </div>
                 ))}
               </div>
-              <div className="flex justify-center mt-4">
-              </div>
-                <div className="flex justify-center items-center">
-                  <Link href={"/meals"}>
-                  <Button variant="blue" className="hover:cursor-pointer w-36 sm:hidden">
+              <div className="flex justify-center mt-4"></div>
+              <div className="flex justify-center items-center">
+                <Link href={"/meals"}>
+                  <Button
+                    variant="blue"
+                    className="hover:cursor-pointer w-36 sm:hidden"
+                  >
                     <ForkKnife />
                     Track Meal
                   </Button>
-                  </Link>
-                </div>
+                </Link>
+              </div>
             </CardContent>
           </Card>
         </div>

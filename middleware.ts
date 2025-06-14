@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { jwtVerify } from "jose"; // REMEMBER :- JWT tokens do not work in nextjs middleware
 
-const publicRoutes = ["/landing", "/auth/sign-in", "/auth/sign-up", "/auth/verify-email"];
+const publicRoutes = ["/landing", "/auth/sign-in", "/auth/sign-up", "/auth/verify-email", "/auth/forgot-password", "/auth/resend-email"];
+
 const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET!);
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;

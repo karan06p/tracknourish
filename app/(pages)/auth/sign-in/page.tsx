@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import { useState } from "react";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
@@ -15,22 +15,30 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import { Oval } from "react-loader-spinner";
 
 const signInSchema = z.object({
   email: z.string().email("Please enter a valid email address"),
-  password: z.string().min(1, "Password is required"),
+  password: z.string().min(8, "Password is required"),
 });
 
 type SignInFormValues = z.infer<typeof signInSchema>;
 
 const SignIn = () => {
-  const [isLoading, setIsLoading] = useState(false)
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [showPassword, setShowPassword] = useState(false);
-  const router = useRouter()
-  
+  const router = useRouter();
+
   const form = useForm<SignInFormValues>({
     resolver: zodResolver(signInSchema),
     defaultValues: {
@@ -40,7 +48,7 @@ const SignIn = () => {
   });
 
   const onSubmit = async (values: SignInFormValues) => {
-    setIsLoading(true)
+    setIsLoading(true);
     const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/sign-in`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -48,17 +56,30 @@ const SignIn = () => {
         email: values.email,
         password: values.password,
       }),
-      credentials: "include"
-    })
-
-    if(res.status === 200){
+      credentials: "include",
+    });
+    const data = await res.json();
+    if (res.status === 200) {
       toast.success("Signed in successfully!", {
         description: "Redirecting to dashboard...",
       });
-      router.push("/")
-    }else {
-      const errorData = await res.json();
-      toast.error(errorData.message || "Something went wrong");
+      router.push("/");
+      setIsLoading(false);
+    } else if (res.status === 401) {
+      toast.error(data?.message || "Email not verified", {
+        description: (
+          <Button
+            className="absolute bottom-2 right-2 hover:cursor-pointer"
+            variant="ghost"
+          >
+            <Link href={"/auth/resend-email"}>Verify</Link>
+          </Button>
+        ),
+      });
+      setIsLoading(false);
+    } else {
+      toast.error(data?.message || "Something went wrong");
+      setIsLoading(false);
     }
   };
 
@@ -66,7 +87,9 @@ const SignIn = () => {
     <div className="flex min-h-screen items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl font-bold text-center">Welcome back</CardTitle>
+          <CardTitle className="text-2xl font-bold text-center">
+            Welcome back
+          </CardTitle>
           <CardDescription className="text-center">
             Sign in to your account to continue
           </CardDescription>
@@ -113,15 +136,17 @@ const SignIn = () => {
                         />
                         <Button
                           type="button"
-                          variant="ghost"
+                          variant="link"
                           size="icon"
-                          className="absolute right-1 top-1"
-                          onClick={() => setShowPassword(!showPassword)}
+                          className="absolute right-1 top-0 cursor-pointer"
+                          onClick={() => {
+                            setShowPassword(!showPassword);
+                          }}
                         >
                           {showPassword ? (
-                            <EyeOff className="h-4 w-4 text-gray-400" />
-                          ) : (
                             <Eye className="h-4 w-4 text-gray-400" />
+                          ) : (
+                            <EyeOff className="h-4 w-4 text-gray-400" />
                           )}
                         </Button>
                       </div>
@@ -131,20 +156,48 @@ const SignIn = () => {
                 )}
               />
               <div className="flex items-center justify-end">
-                <Link href="/forgot-password" className="text-sm text-blue-600 hover:text-blue-800">
+                <Link
+                  href={"/auth/forgot-password"}
+                  className="text-sm text-blue-600 hover:text-blue-800 hover:cursor-pointer"
+                >
                   Forgot password?
                 </Link>
               </div>
-              <Button type="submit" className="w-full">
-                Sign In <LogIn className="ml-2 h-4 w-4" />
-              </Button>
+
+              {isLoading ? (
+                <Button
+                  className="w-full hover:cursor-none"
+                  disabled={isLoading}
+                >
+                  Signing In
+                  <Oval
+                    visible={isLoading}
+                    height="80"
+                    width="80"
+                    color="#FFFFFF"
+                    secondaryColor="#FFFFFF"
+                    ariaLabel="oval-loading"
+                  />{" "}
+                </Button>
+              ) : (
+                <Button
+                  type="submit"
+                  className="w-full hover:cursor-pointer"
+                  disabled={isLoading}
+                >
+                  Sign In <LogIn className="ml-2 h-4 w-4 cursor-pointer" />
+                </Button>
+              )}
             </form>
           </Form>
         </CardContent>
         <CardFooter className="flex flex-col items-center">
           <p className="text-sm text-gray-600">
             Don't have an account?{" "}
-            <Link href="/auth/sign-up" className="text-blue-600 hover:text-blue-800 font-medium">
+            <Link
+              href="/auth/sign-up"
+              className="text-blue-600 hover:text-blue-800 font-medium hover:cursor-pointer"
+            >
               Sign Up
             </Link>
           </p>

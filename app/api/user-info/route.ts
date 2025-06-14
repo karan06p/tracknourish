@@ -3,6 +3,9 @@ import { ApiResponse } from "@/lib/utils";
 import { NextRequest, NextResponse } from "next/server";
 import jwt from "jsonwebtoken";
 import { User } from "@/schema/UserSchema";
+import dotenv from "dotenv"
+
+dotenv.config()
 
 const JWT_SECRET = process.env.JWT_SECRET!;
 

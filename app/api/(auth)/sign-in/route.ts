@@ -3,12 +3,14 @@ import { ApiResponse, comparePassword } from "@/lib/utils";
 import { User } from "@/schema/UserSchema";
 import jwt from "jsonwebtoken"
 import { NextResponse } from "next/server";
+import dotenv from "dotenv";
 
 interface SignInParams{
     email: string;
     password: string;
 }
 
+dotenv.config();
 const JWT_SECRET = process.env.JWT_SECRET!;
 const isProd = process.env.NODE_ENV === "production"
 
@@ -23,6 +25,11 @@ export async function POST(req: Request){
         // find user in DB
         const user  = await User.findOne({ email })
         if(!user) return ApiResponse(404, "User not found");
+
+        //check if user's email is verified
+        if(!user.isEmailVerified){
+            return ApiResponse(401, "Email not verified")
+        }
 
         // check if password saved in DB is same as the password entered
         const hashedPasswordInDb = user.hashedPassword;

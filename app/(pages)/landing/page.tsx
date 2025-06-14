@@ -4,6 +4,8 @@ import React, { useEffect, useRef } from "react";
 import Footer from "@/components/Footer";
 import { FeatureCard } from "@/components/FeatureCard";
 import Navbar from "@/components/Navbar";
+import FAQ from "@/sections/FaqSection";
+import PricingSection from "@/sections/PricingSection";
 
 export default function Home() {
   const heroRef = useRef<HTMLDivElement>(null);
@@ -239,7 +241,7 @@ export default function Home() {
                 Get Started
               </a>
               <a
-                href="#learn-more"
+                href="#features"
                 className="px-8 py-3 rounded-full bg-white border border-gray-300 text-gray-700 text-center font-medium transition-colors hover:bg-gray-50"
               >
                 Learn More
@@ -268,7 +270,7 @@ export default function Home() {
                 />
               </div>
               <div className="text-sm text-gray-500">
-                <span className="font-semibold text-gray-700">5,000+</span>{" "}
+                <span className="font-semibold text-gray-700">5.000+</span>{" "}
                 active users
               </div>
             </div>
@@ -396,6 +398,8 @@ export default function Home() {
         </div>
       </div>
     </section>
+    <PricingSection />
+    <FAQ />
     <Footer />
     </>
   );

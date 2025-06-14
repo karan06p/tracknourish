@@ -4,6 +4,9 @@ import { User } from "@/schema/UserSchema";
 import { NextRequest } from "next/server";
 import jwt from "jsonwebtoken";
 import { eachMeal } from "@/types/Meal";
+import dotenv from "dotenv"
+
+dotenv.config()
 
 const jwtSecret = process.env.JWT_SECRET!;
 
