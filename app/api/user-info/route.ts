@@ -7,7 +7,7 @@ import dotenv from "dotenv"
 
 dotenv.config()
 
-const JWT_SECRET = process.env.JWT_SECRET!;
+const jwtSecret = process.env.JWT_SECRET!;
 
 export async function GET(req: NextRequest){
     connectToDB()
@@ -15,7 +15,7 @@ export async function GET(req: NextRequest){
        const token = req.cookies.get("accessToken")?.value;
        if(!token) return ApiResponse(401, "Not Authenticated");
        try {
-        const payload = jwt.verify(token, JWT_SECRET) as { userId: string };
+        const payload = jwt.verify(token, jwtSecret) as { userId: string };
         const user = await User.findById(payload.userId).select("-hashedPassword -refreshToken");
         if (!user) return ApiResponse(404, "User not found");
         return NextResponse.json(user, { status: 200 });

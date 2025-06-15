@@ -18,7 +18,7 @@ dotenv.config()
 const resendApiKey = process.env.RESEND_API_KEY!;
 
 const resend = new Resend(resendApiKey)
-const JWT_SECRET = process.env.JWT_SECRET!;
+const jwtSecret = process.env.JWT_SECRET!;
 
 export async function POST(req: Request, res: NextResponse) {
     connectToDB();
@@ -51,7 +51,7 @@ export async function POST(req: Request, res: NextResponse) {
       // Generate verification token(contains user email)
       const verificationToken = jwt.sign(
         { email },
-        JWT_SECRET,
+        jwtSecret,
         { expiresIn: "10m" }
       );
 
@@ -60,9 +60,9 @@ export async function POST(req: Request, res: NextResponse) {
       // Send the verification email
       try {
         await resend.emails.send({
-          from: "Mealivo <onboarding@resend.dev>",
+          from: "Tracknourish <onboarding@resend.dev>",
           to: email,
-          subject: "Mealivo Email Verification",
+          subject: "Tracknourish Email Verification",
           react: VerificationEmail({
             firstName,
             verificationLink,

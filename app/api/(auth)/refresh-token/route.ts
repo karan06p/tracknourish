@@ -6,7 +6,7 @@ import { NextRequest, NextResponse } from "next/server";
 import dotenv from "dotenv";
 
 dotenv.config()
-const JWT_SECRET = process.env.JWT_SECRET!;
+const jwtSecret = process.env.JWT_SECRET!;
 const isProd = process.env.NODE_ENV === "production";
 
 export async function GET(req: NextRequest){
@@ -15,23 +15,18 @@ export async function GET(req: NextRequest){
         const refreshToken = req.cookies.get("refreshToken")?.value;
         if(!refreshToken) return ApiResponse(401, "No refresh token found");
 
-        const payload = jwt.verify(refreshToken, JWT_SECRET) as { userId: string };
+        const payload = jwt.verify(refreshToken, jwtSecret) as { userId: string };
         const user = await User.findById(payload.userId);
         if (!user) {
             return ApiResponse(403, "User not found");``
         }
-          
-        // if (user.refreshToken !== refreshToken) {
-        //     console.warn("Mismatch between user DB refresh token and browser one");
-        //     return ApiResponse(403, "Invalid refresh token");
-        // }  
 
         // create new tokens
-        const newAccessToken = jwt.sign({ userId: user._id }, JWT_SECRET, {
+        const newAccessToken = jwt.sign({ userId: user._id }, jwtSecret, {
             expiresIn: "1h",
         })
-            // create a new refresh token also for refreshToken rotation (google it)
-        const newRefreshToken = jwt.sign({ userId: user._id }, JWT_SECRET, {
+        
+        const newRefreshToken = jwt.sign({ userId: user._id }, jwtSecret, {
             expiresIn: "15d"
         })
 

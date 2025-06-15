@@ -49,7 +49,7 @@ const Navbar = () => {
               />
             </svg>
           </div>
-          <span className="text-xl font-display font-medium">Mealivo</span>
+          <span className="text-xl font-display font-medium">Tracknourish</span>
         </div>
 
         <nav className="hidden md:flex items-center gap-8">

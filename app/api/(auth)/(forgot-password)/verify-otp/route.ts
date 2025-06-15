@@ -1,15 +1,12 @@
 import { ApiResponse } from "@/lib/utils";
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
-import { User } from "@/schema/UserSchema";
-import { connectToDB } from "@/db/connectDb";
 
 dotenv.config();
 const jwtSecret = process.env.JWT_SECRET!;
 
-export async function POST(req: NextRequest, res: NextResponse){
-    connectToDB();
+export async function POST(req: NextRequest){
     try {
         const { otp } = await req.json();
         if(!otp) return ApiResponse(400, "Otp parameter not found");

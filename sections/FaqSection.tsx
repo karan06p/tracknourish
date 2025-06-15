@@ -8,12 +8,12 @@ import { Card, CardContent, CardTitle } from "@/components/ui/card";
 
 const faqData = [
   {
-    question: "What is Mealivo",
-    answer: "Mealivo is an app for tracking your daily meals and nutrition.",
+    question: "What is Tracknourish",
+    answer: "Tracknourish is an app for tracking your daily meals and nutrition.",
   },
   {
-    question: "Is Mealivo free to use",
-    answer: "Yes, Mealivo is free to use. However, some advanced features may require a subscription.",
+    question: "Is Tracknourish free to use",
+    answer: "Yes, Tracknourish is free to use. However, some advanced features may require a subscription.",
   },
   {
     question: "How do I add a new meal",

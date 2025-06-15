@@ -46,7 +46,7 @@ export default function Home() {
           />
         </svg>
       ),
-      title: "Intuitive Mealivo",
+      title: "Intuitive Tracknourish",
       description:
         "Quickly log your meals with our user-friendly interface. Take photos, scan barcodes, or use voice input for effortless tracking.",
     },
@@ -228,7 +228,7 @@ export default function Home() {
               Track Your Meals with Elegant Simplicity
             </h1>
             <p className="text-lg text-gray-600 mb-8 leading-relaxed">
-              Mealivo helps you maintain a healthy lifestyle through
+              Tracknourish helps you maintain a healthy lifestyle through
               intuitive meal tracking, detailed nutritional insights, and
               personalized recommendations.
             </p>

@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
+import { SpeedInsights } from "@vercel/speed-insights/next";
+import { Analytics } from "@vercel/analytics/next"
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -14,7 +16,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Mealivo",
+  title: "Tracknourish",
   description: "A simple app to track your meal's macros to get a described view into your food.",
   icons: {
     icon:"favicon.svg"
@@ -33,6 +35,8 @@ export default function RootLayout({
       >
         {children}
         <Toaster richColors/>
+        <SpeedInsights />
+        <Analytics />
       </body>
     </html>
   );

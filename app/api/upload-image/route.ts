@@ -4,18 +4,8 @@ import { ApiResponse } from "@/lib/utils";
 import { connectToDB } from "@/db/connectDb";
 import jwt from "jsonwebtoken";
 import { User } from "@/schema/UserSchema";
-import dotenv from "dotenv"
-
-cloudinary.config({
-  secure: true,
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME!,
-  api_key: process.env.CLOUDINARY_API_KEY!,
-  api_secret: process.env.CLOUDINARY_API_SECRET!,
-});
-
-dotenv.config()
-
-const jwtSecret = process.env.JWT_SECRET!;
+import dotenv from "dotenv";
+import { RateLimiterMemory } from "rate-limiter-flexible"
 
 interface CloudinaryUploadResults {
   public_id: string;
@@ -27,6 +17,21 @@ interface CloudinaryUploadResults {
   original_filename: string;
   signature: string;
 }
+
+cloudinary.config({
+  secure: true,
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME!,
+  api_key: process.env.CLOUDINARY_API_KEY!,
+  api_secret: process.env.CLOUDINARY_API_SECRET!,
+});
+dotenv.config()
+
+const rateLimiter = new RateLimiterMemory({
+  points: 6,
+  duration: 60,
+})
+
+const jwtSecret = process.env.JWT_SECRET!;
 
 const handleDeleteImage = async (publicId: string) => {
    try {
@@ -46,6 +51,15 @@ const handleDeleteImage = async (publicId: string) => {
 }
 
 export async function POST(req: NextRequest) {
+
+  const ip = req.headers.get('x-forwarded-for') || 'unknown';
+  
+  try {
+    await rateLimiter.consume(ip)
+  } catch (error) {
+    return ApiResponse(429, "Too many requests. Please try again later.");
+  }
+
   connectToDB();
   try {
     const formData = await req.formData();

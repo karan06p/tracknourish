@@ -60,10 +60,10 @@ const SignIn = () => {
     });
     const data = await res.json();
     if (res.status === 200) {
+      router.push("/");
       toast.success("Signed in successfully!", {
         description: "Redirecting to dashboard...",
       });
-      router.push("/");
       setIsLoading(false);
     } else if (res.status === 401) {
       toast.error(data?.message || "Email not verified", {

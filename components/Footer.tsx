@@ -33,7 +33,7 @@ const Footer = () => {
                 />
               </svg>
             </div>
-            <span className="text-xl font-display font-medium">Mealivo</span>
+            <span className="text-xl font-display font-medium">Tracknourish</span>
           </div>
           <p className="text-gray-600 text-md text-center md:text-left">
             Simplifying nutrition tracking for a healthier lifestyle.
@@ -102,7 +102,6 @@ const Footer = () => {
             <ul className="space-y-2">
               <li>
                 <a
-                  href="mailto:support@mealivo.com"
                   className="text-gray-600 hover:text-primary transition-colors text-sm"
                 >
                   example@exm.com
@@ -115,7 +114,7 @@ const Footer = () => {
         {/* Bottom Section */}
         <div className="pt-6 border-t border-gray-200 flex flex-col md:flex-row justify-between items-center">
           <p className="text-gray-500 text-sm">
-            © {new Date().getFullYear()} Mealivo. All rights reserved.
+            © {new Date().getFullYear()} Tracknourish. All rights reserved.
           </p>
           {/* <ul className="flex gap-6 mt-4 md:mt-0">
             <li>

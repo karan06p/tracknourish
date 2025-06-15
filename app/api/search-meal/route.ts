@@ -1,7 +1,20 @@
 import { ApiResponse } from "@/lib/utils";
 import { NextRequest, NextResponse } from "next/server";
+import { RateLimiterMemory } from "rate-limiter-flexible";
+
+const rateLimiter = new RateLimiterMemory({
+  points: 10,
+  duration: 90,
+})
 
 export async function GET(req: NextRequest) {
+    const ip = req.headers.get('x-forwarded-for') || 'unknown';
+
+    try {
+      await rateLimiter.consume(ip)
+    } catch (error) {
+      return ApiResponse(429, "Too many requests. Please try again later.")
+    }
   try {
     const query = req.nextUrl.searchParams.get("query");
 

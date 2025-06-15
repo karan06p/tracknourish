@@ -18,7 +18,7 @@ interface OtpEmailTemplateProps {
 }
 
 const OtpEmailTemplate = ({ firstName, otp }: OtpEmailTemplateProps) => {
-  const previewText = `Your OTP for Mealivo password reset`;
+  const previewText = `Your OTP for Tracknourish password reset`;
 
   return (
     <Html>
@@ -27,7 +27,7 @@ const OtpEmailTemplate = ({ firstName, otp }: OtpEmailTemplateProps) => {
       <Body style={styles.body}>
         <Container style={styles.container}>
           <Section style={styles.logoContainer}>
-            <Text style={styles.logo}>Mealivo</Text>
+            <Text style={styles.logo}>Tracknourish</Text>
           </Section>
 
           <Section style={styles.content}>
@@ -36,7 +36,7 @@ const OtpEmailTemplate = ({ firstName, otp }: OtpEmailTemplateProps) => {
             <Text style={styles.paragraph}>Hi {firstName},</Text>
 
             <Text style={styles.paragraph}>
-              Use the following one-time password (OTP) to reset your Mealivo
+              Use the following one-time password (OTP) to reset your Tracknourish
               password.
             </Text>
 
@@ -54,7 +54,7 @@ const OtpEmailTemplate = ({ firstName, otp }: OtpEmailTemplateProps) => {
 
           <Section style={styles.footer}>
             <Text style={styles.footerText}>
-              © {new Date().getFullYear()} Mealivo. All rights reserved.
+              © {new Date().getFullYear()} Tracknourish. All rights reserved.
             </Text>
             <Text style={styles.footerText}>
               <Link style={styles.footerLink} href="#">

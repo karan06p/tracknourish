@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -58,6 +58,7 @@ export default function ForgotPasswordPage() {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [isResendingOtp, setIsResendingOtp] = useState<boolean>(false);
+  const [resendOtpTimer, setResendOtpTimer] = useState(0);
 
   // Email Form
   const emailForm = useForm<ForgotPasswordFormValues>({
@@ -70,6 +71,18 @@ export default function ForgotPasswordPage() {
     resolver: zodResolver(resetPasswordSchema),
     defaultValues: { password: "", confirmPassword: "" },
   });
+
+   useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (resendOtpTimer > 0) {
+      interval = setInterval(() => {
+        setResendOtpTimer((prev) => prev - 1);
+      }, 1000);
+    }
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [resendOtpTimer]);
 
   const handleEmailSubmit = async (values: ForgotPasswordFormValues) => {
     try {
@@ -87,6 +100,7 @@ export default function ForgotPasswordPage() {
       if (res.status === 200) {
         toast.success(data.message || "OTP has been sent to your email.");
         setOtpSent(true);
+        setResendOtpTimer(120);
       } else if (res.status === 401) {
         toast.error(data?.message || "Email not verified", {
           description: (
@@ -154,6 +168,7 @@ export default function ForgotPasswordPage() {
       const data = await res.json();
       if (res.status === 200) {
         toast.success("OTP has been resent to your email.");
+        setResendOtpTimer(120);
       } else {
         toast.error(data.message || "Failed to resend OTP.");
       }
@@ -287,6 +302,7 @@ export default function ForgotPasswordPage() {
                 onClick={handleResendOtp}
                 variant="link"
                 className="text-blue-600 hover:text-blue-800"
+                disabled={isLoading || resendOtpTimer > 0}
               >
                 {isResendingOtp ? (
                   <Oval
@@ -294,12 +310,14 @@ export default function ForgotPasswordPage() {
                     height="24"
                     width="24"
                     strokeWidth="5"
-                    color="#FFFFFF"
-                    secondaryColor="#FFFFFF"
+                    color="#155dfc"
+                    secondaryColor="#155dfc"
                     ariaLabel="oval-loading"
                   />
                 ) : (
-                  "Resend OTP"
+                  <>
+                    {resendOtpTimer > 0 ? `Resend OTP (${resendOtpTimer}s)` : "Resend OTP"}
+                  </>
                 )}
               </Button>
             </div>

@@ -5,11 +5,9 @@ import { User } from "@/schema/UserSchema";
 import { connectToDB } from "@/db/connectDb";
 import { v2 as cloudinary } from "cloudinary";
 import dotenv from "dotenv"
+import { RateLimiterMemory } from "rate-limiter-flexible";
 
 dotenv.config()
-
-const jwtSecret = process.env.JWT_SECRET!;
-
 cloudinary.config({
   secure: true,
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME!,
@@ -17,7 +15,24 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET!,
 });
 
+const rateLimiter = new RateLimiterMemory({
+  points: 5,
+  duration: 60,
+});
+
+const jwtSecret = process.env.JWT_SECRET!;
+
 export async function POST(req: NextRequest, res: NextResponse) {
+
+  const ip = req.headers.get('x-forwarded-for') || 'unknown';
+
+  try {
+    await rateLimiter.consume(ip);
+  } catch (rateError) {
+    return ApiResponse(429, "Too many requests. Please try again later.");
+  }
+
+
   connectToDB();
   try {
     const { type } = await req.json();

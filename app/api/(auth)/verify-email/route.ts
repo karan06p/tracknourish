@@ -10,7 +10,7 @@ interface VerifyEmailParam{
 }
 
 dotenv.config();
-const JWT_SECRET = process.env.JWT_SECRET!;
+const jwtSecret = process.env.JWT_SECRET!;
 const isProd = process.env.NODE_ENV === "production"
 
 export async function POST(req: NextRequest) {
@@ -19,7 +19,7 @@ export async function POST(req: NextRequest) {
         const { token }: VerifyEmailParam = await req.json();
         if(!token) return ApiResponse(400, "Verification token is needed");
 
-        const payload = jwt.verify(token, JWT_SECRET) as { email: string };
+        const payload = jwt.verify(token, jwtSecret) as { email: string };
           if (!payload || !payload.email) {
           return ApiResponse(400, "Verification code expired");
           }
@@ -41,11 +41,11 @@ export async function POST(req: NextRequest) {
         }
 
       // Create access and refresh tokens
-      const accessToken = jwt.sign({ userId: user._id }, JWT_SECRET, {
+      const accessToken = jwt.sign({ userId: user._id }, jwtSecret, {
         expiresIn: "1h",
       });
   
-      const refreshToken = jwt.sign({ userId: user._id }, JWT_SECRET, {
+      const refreshToken = jwt.sign({ userId: user._id }, jwtSecret, {
         expiresIn: "15d",
       });
   

@@ -113,7 +113,7 @@ export default function ResendEmailPage() {
                 </FormItem>
               )}
             />
-            <Button type="submit" disabled={isLoading} className="w-full mt-4">
+            <Button type="submit" disabled={isLoading} className="w-full mt-4 hover:cursor-pointer">
               {isLoading ? "Sending..." : "Resend Email"}
             </Button>
           </form>

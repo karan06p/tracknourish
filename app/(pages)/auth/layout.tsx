@@ -2,7 +2,7 @@ import { Metadata } from "next";
 
 export const metadata: Metadata = {
     title: "Authentication",
-    description: "Sign Up to Mealivo",
+    description: "Sign Up to Tracknourish",
 };
 
 

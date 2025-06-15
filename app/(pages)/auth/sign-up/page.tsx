@@ -78,8 +78,8 @@ export default function SignUp() {
       .then((response) => {
         response.json().then((data) => {
           if (response.status === 200) {
-            toast.success(data.message);
             router.push("/auth/verify-email");
+            toast.success(data.message);
           } else {
             toast.error(data.message);
           }
