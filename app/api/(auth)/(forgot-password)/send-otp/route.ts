@@ -49,7 +49,7 @@ export async function POST(req: Request) {
   
     try {
       await resend.emails.send({
-        from: "Tracknourish <onboarding@resend.dev>",
+        from: "Tracknourish <noreply@tracknourish.xyz>",
         to: email,
         subject: "Tracknourish OTP",
         react: OtpEmailTemplate({

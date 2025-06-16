@@ -76,7 +76,7 @@ export async function POST(req: Request) {
       // Send the verification email
       try {
         await resend.emails.send({
-          from: "Tracknourish <onboarding@resend.dev>",
+          from: "Tracknourish <noreply@tracknourish.xyz>",
           to: email,
           subject: "Tracknourish Email Verification",
           react: VerificationEmail({
