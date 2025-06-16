@@ -57,7 +57,7 @@ const baseUrl = process.env.NEXT_PUBLIC_BASE_URL!;
 
 const MemoizedMealCard = memo(RecentMealCard);
 
-function debounce<T extends (...args: unknown[]) => void>(func: T, wait: number) {
+function debounce<T extends (...args: string[]) => void>(func: T, wait: number) {
   let timeout: ReturnType<typeof setTimeout>;
   return (...args: Parameters<T>) => {
     clearTimeout(timeout);
@@ -232,7 +232,6 @@ const MealsPage = () => {
   );
 
   const debouncedSetQuery = useMemo(
-    // @ts-expect-error
     () => debounce((val: string) => setDebouncedQuery(val), 300),
     []
   );
@@ -280,11 +279,12 @@ const MealsPage = () => {
         body: JSON.stringify(values),
         credentials: "include",
       });
+      const data = await res.json()
       if (res.status === 200) {
         toast.success("New meal added successfully.");
         mutate();
       } else {
-        toast.error(`Error while adding new meal: ${res.statusText}`);
+        toast.error(data.message);
       }
     } catch (error) {
       toast.error("Unexpected error occurred while adding new meal.");
