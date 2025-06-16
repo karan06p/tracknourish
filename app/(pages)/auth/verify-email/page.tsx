@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import { CheckCircle, Mail } from "lucide-react";
@@ -11,9 +11,9 @@ import Link from "next/link";
 const VerifyEmail = () => {
   const [isVerified, setIsVerified] = useState(false);
   const [secondsLeft, setSecondsLeft] = useState(4);
+  const router = useRouter();
 
   const searchParams = useSearchParams();
-  const router = useRouter();
   const token = searchParams.get("token");
 
   useEffect(() => {
@@ -56,6 +56,7 @@ const VerifyEmail = () => {
   }, [router, token]);
 
   return (
+     <Suspense fallback={<div>Loading...</div>}>
     <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-b from-blue-50 to-white px-4 py-12">
       <div className="max-w-md w-full space-y-8 text-center">
         <div className="flex justify-center">
@@ -140,6 +141,7 @@ const VerifyEmail = () => {
         </div>
       </div>
     </div>
+    </Suspense>
   );
 };
 
