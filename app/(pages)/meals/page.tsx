@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useEffect, useState, useMemo, memo, useCallback } from "react";
-import { useRouter } from "next/navigation";
 import { ArrowLeft, Plus, Filter, Search, Loader, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -233,7 +232,7 @@ const MealsPage = () => {
   );
 
   const debouncedSetQuery = useMemo(
-    // @ts-ignore
+    // @ts-expect-error
     () => debounce((val: string) => setDebouncedQuery(val), 300),
     []
   );

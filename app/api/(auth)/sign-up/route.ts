@@ -5,7 +5,6 @@ import dotenv from "dotenv"
 import { VerificationEmail } from "@/components/VerificationEmailTemplate";
 import { User } from "@/schema/UserSchema";
 import jwt from "jsonwebtoken";
-import { NextResponse } from "next/server";
 import { RateLimiterMemory } from "rate-limiter-flexible";
 
 interface SignUpParams{

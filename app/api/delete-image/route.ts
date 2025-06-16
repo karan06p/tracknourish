@@ -1,5 +1,5 @@
 import { ApiResponse } from "@/lib/utils";
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 import jwt from "jsonwebtoken";
 import { User } from "@/schema/UserSchema";
 import { connectToDB } from "@/db/connectDb";
@@ -22,13 +22,14 @@ const rateLimiter = new RateLimiterMemory({
 
 const jwtSecret = process.env.JWT_SECRET!;
 
-export async function POST(req: NextRequest, res: NextResponse) {
+export async function POST(req: NextRequest) {
 
   const ip = req.headers.get('x-forwarded-for') || 'unknown';
 
   try {
     await rateLimiter.consume(ip);
   } catch (rateError) {
+    console.error("Rate Limiter Error:", rateError)
     return ApiResponse(429, "Too many requests. Please try again later.");
   }
 
