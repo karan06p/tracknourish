@@ -8,6 +8,12 @@ import FAQ from "@/sections/FaqSection";
 import PricingSection from "@/sections/PricingSection";
 import Image from "next/image";
 
+//Images
+import hero from "@/assets/landing/Hero.avif"
+import first from "@/assets/landing/first.avif"
+import second from "@/assets/landing/second.avif"
+import third from "@/assets/landing/third.avif"
+
 export default function Home() {
   const heroRef = useRef<HTMLDivElement>(null);
   const imageRef = useRef<HTMLImageElement>(null);
@@ -252,19 +258,19 @@ export default function Home() {
             <div className="flex items-center gap-4">
               <div className="flex -space-x-2">
                 <Image
-                  src="/landing/first.avif"
+                  src={first}
                   alt="User"
                   className="w-10 h-10 rounded-full border-2 border-white object-cover"
                   loading="lazy"
                 />
                 <Image
-                  src="/landing/second.avif"
+                  src={second}
                   alt="User"
                   className="w-10 h-10 rounded-full border-2 border-white object-cover"
                   loading="lazy"
                 />
                 <Image
-                  src="/landing/third.avif"
+                  src={third}
                   alt="User"
                   className="w-10 h-10 rounded-full border-2 border-white object-cover"
                   loading="lazy"
@@ -286,7 +292,7 @@ export default function Home() {
             />
             <div className="glass-card absolute inset-4 rounded-2xl overflow-hidden shadow-lg animate-scale-in">
               <Image
-                src="/landing/Hero.avif"
+                src={hero}
                 alt="Healthy meals"
                 className="w-full h-full object-cover transform scale-105"
                 loading="lazy"
