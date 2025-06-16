@@ -297,7 +297,7 @@ export default function ForgotPasswordPage() {
               )}
             </Button>
             <div className="text-center">
-              <p className="text-sm text-gray-600">Didn't receive the OTP?</p>
+              <p className="text-sm text-gray-600">Didn&#39;t receive the OTP?</p>
               <Button
                 onClick={handleResendOtp}
                 variant="link"

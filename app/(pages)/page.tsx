@@ -67,7 +67,7 @@ const Dashboard = () => {
   const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
   const allMeals = user?.userDetails?.foodsLogged;
-  let mostRecentMeals = allMeals?.toReversed().splice(0, 3);
+  const mostRecentMeals = allMeals?.toReversed().splice(0, 3);
 
   useEffect(() => {
     if (user?.userDetails?.foodsLogged) {
@@ -89,7 +89,7 @@ const Dashboard = () => {
         }
       });
       if (user.userDetails?.foodsLogged.length > 0) {
-        let calculatedAvgCalories = (
+        const calculatedAvgCalories = (
           totalCalories / user.userDetails?.foodsLogged.length
         ).toFixed(2);
         setAvgCalories(Number(calculatedAvgCalories));
@@ -104,8 +104,7 @@ const Dashboard = () => {
     }
   }, [user]);
 
-  if (isLoading)
-    return (
+  if (isLoading){
       <div className="w-screen h-screen flex items-center justify-center">
         <Oval
           visible={isLoading}
@@ -117,17 +116,14 @@ const Dashboard = () => {
           ariaLabel="oval-loading"
         />
       </div>
-    );
+  }
   if (isError || !user) {
-    toast("User not found");
-    return (
       <div className="w-screen h-full flex items-center justify-center">
         <div>
           <p className="text-red-600">Error loading user info</p>
           <p className="text-gray-400">Redirecting...</p>
         </div>
       </div>
-    );
   }
 
   const handleSignOut = async () => {

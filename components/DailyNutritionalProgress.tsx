@@ -7,7 +7,7 @@ export default function DailyNutritionalProgress() {
   return (
     <Card className='hover:cursor-not-allowed'>
             <CardHeader className="pb-3 flex justify-between items-center">
-              <h2 className="text-lg font-medium">Today's Nutrition Goals</h2>
+              <h2 className="text-lg font-medium">Today&#39;s Nutrition Goals</h2>
               <ComingSoonInfo/>
             </CardHeader>
             <CardContent className="space-y-6">

@@ -62,7 +62,7 @@ export async function POST(req: NextRequest, res: NextResponse) {
       publicId = user.userDetails.coverBgId;
     }
     if (!publicId) {
-      return ApiResponse(400, "Image's public id not found");
+      return ApiResponse(400, "Public id not found");
     }
 
     try {

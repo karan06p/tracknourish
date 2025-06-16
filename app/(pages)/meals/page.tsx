@@ -29,7 +29,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import Footer from "@/components/Footer";
 import { toast } from "sonner";
 import { NutritionalSummary } from "@/components/NutritionalSummary";
 import RecentMealCard from "@/components/RecentMealCard";
@@ -52,14 +51,14 @@ import {
 import { useUser } from "@/hooks/use-user";
 import { eachMeal, Id, NutrientItem, SearchResults } from "@/types/Meal";
 import TableRowComponent from "@/components/TableRow";
-import { LineWave, Oval } from "react-loader-spinner";
+import { Oval } from "react-loader-spinner";
 import Link from "next/link";
 
 const baseUrl = process.env.NEXT_PUBLIC_BASE_URL!;
 
 const MemoizedMealCard = memo(RecentMealCard);
 
-function debounce<T extends (...args: any[]) => void>(func: T, wait: number) {
+function debounce<T extends (...args: unknown[]) => void>(func: T, wait: number) {
   let timeout: ReturnType<typeof setTimeout>;
   return (...args: Parameters<T>) => {
     clearTimeout(timeout);
@@ -96,7 +95,6 @@ const trackMealformSchema = z.object({
 
 const MealsPage = () => {
   const { user, isError, mutate } = useUser();
-  const router = useRouter();
   const [showAddMealForm, setShowAddMealForm] = useState(false);
   const [recentMeals, setRecentMeals] = useState<eachMeal[] | undefined>([]);
   const [showFilters, setShowFilters] = useState(false);
@@ -116,7 +114,7 @@ const MealsPage = () => {
     useState<boolean>(false);
   const [mealsLength, setMealsLength] = useState<number | undefined>();
 
-  if (isLoading)
+  if (isLoading){
     <div className="w-screen h-screen flex items-center justify-center">
       <Oval
         visible={isLoading}
@@ -127,8 +125,11 @@ const MealsPage = () => {
         secondaryColor="#155dfc"
         ariaLabel="oval-loading"
       />
-    </div>;
-  if (isError) return <div>Error Loading Component, Please Refresh</div>;
+    </div>
+  }
+  if (isError) {
+  <div>Error Loading Component, Please Refresh</div>;
+  }
 
   useEffect(() => {
     if (user?.userDetails?.foodsLogged) {
@@ -232,6 +233,7 @@ const MealsPage = () => {
   );
 
   const debouncedSetQuery = useMemo(
+    // @ts-ignore
     () => debounce((val: string) => setDebouncedQuery(val), 300),
     []
   );

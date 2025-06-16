@@ -24,7 +24,7 @@ const PricingSection = () => {
             Choose Your Plan
           </h2>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Start free and upgrade when you're ready. No hidden fees, no surprises.
+            Start free and upgrade when you are ready. No hidden fees, no surprises.
           </p>
         </div>
 

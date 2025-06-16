@@ -18,6 +18,7 @@ export async function POST(req: Request){
 
         return ApiResponse(200, "Password Resetted")
     } catch (error) {
+        console.error("Internal error occured while trying to reset password", error)
         return ApiResponse(500, "Internal error occured while trying to reset password")
     }
 }

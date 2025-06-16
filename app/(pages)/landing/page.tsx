@@ -6,6 +6,7 @@ import { FeatureCard } from "@/components/FeatureCard";
 import Navbar from "@/components/Navbar";
 import FAQ from "@/sections/FaqSection";
 import PricingSection from "@/sections/PricingSection";
+import Image from "next/image";
 
 export default function Home() {
   const heroRef = useRef<HTMLDivElement>(null);
@@ -250,19 +251,19 @@ export default function Home() {
 
             <div className="flex items-center gap-4">
               <div className="flex -space-x-2">
-                <img
+                <Image
                   src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&h=120&q=80"
                   alt="User"
                   className="w-10 h-10 rounded-full border-2 border-white object-cover"
                   loading="lazy"
                 />
-                <img
+                <Image
                   src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=120&h=120&q=80"
                   alt="User"
                   className="w-10 h-10 rounded-full border-2 border-white object-cover"
                   loading="lazy"
                 />
-                <img
+                <Image
                   src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=120&h=120&q=80"
                   alt="User"
                   className="w-10 h-10 rounded-full border-2 border-white object-cover"
@@ -284,7 +285,7 @@ export default function Home() {
               aria-hidden="true"
             />
             <div className="glass-card absolute inset-4 rounded-2xl overflow-hidden shadow-lg animate-scale-in">
-              <img
+              <Image
                 ref={imageRef}
                 src="https://images.unsplash.com/photo-1498837167922-ddd27525d352?auto=format&fit=crop&w=800&q=80"
                 alt="Healthy meals"

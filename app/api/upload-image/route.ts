@@ -54,7 +54,8 @@ export async function POST(req: NextRequest) {
   
   try {
     await rateLimiter.consume(ip)
-  } catch (error) {
+  } catch (rateError) {
+    console.error("Rate Limiter Error:", rateError);
     return ApiResponse(429, "Too many requests. Please try again later.");
   }
 
@@ -119,6 +120,7 @@ export async function POST(req: NextRequest) {
     await user.save()
     return NextResponse.json({ result }, { status: 200 });
   } catch (error) {
+    console.error("Image upload failed", error)
     return NextResponse.json({ error: "Image upload failed" }, { status: 500 });
   }
 }

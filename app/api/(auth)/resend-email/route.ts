@@ -43,6 +43,7 @@ export async function POST(req: Request) {
     try {
       await rateLimiter.consume(ip, 2);
     } catch (rateError) {
+      console.error("Rate Limiter Error", rateError)
       return ApiResponse(429, "Too many requests. Please try again later.");
     }
 
@@ -64,7 +65,7 @@ export async function POST(req: Request) {
 
     return ApiResponse(200, "Verification email sent");
   } catch (error) {
-    console.error(500, "Error in resending email");
+    console.error(500, "Error in resending email", error);
     return ApiResponse(500, "Internal error occured while resending email");
   }
 }

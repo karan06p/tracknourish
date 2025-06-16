@@ -193,7 +193,7 @@ const SignIn = () => {
         </CardContent>
         <CardFooter className="flex flex-col items-center">
           <p className="text-sm text-gray-600">
-            Don't have an account?{" "}
+            Don&#39;t have an account?{" "}
             <Link
               href="/auth/sign-up"
               className="text-blue-600 hover:text-blue-800 font-medium hover:cursor-pointer"

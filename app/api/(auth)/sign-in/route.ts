@@ -28,6 +28,7 @@ export async function POST(req: Request){
       try {
         await rateLimiter.consume(ip);
       } catch (rateError) {
+        console.error("Rate Limiter Error:", rateError)
         return ApiResponse(429, "Too many requests. Please try again later.");
       }
 

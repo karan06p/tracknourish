@@ -61,24 +61,14 @@ const Profile = () => {
     }
     if (user?.userDetails?.foodsLogged) {
       let totalCalories = 0;
-      let totalProtein = 0;
-      let totalFiber = 0;
       user.userDetails?.foodsLogged.forEach((item: eachMeal) => {
         const calories = parseFloat(item.calories);
-        const protein = parseFloat(item.protein);
-        const fiber = parseFloat(item.fiber);
         if (!isNaN(calories)) {
           totalCalories += calories;
         }
-        if (!isNaN(protein)) {
-          totalProtein += protein;
-        }
-        if (!isNaN(fiber)) {
-          totalFiber += fiber;
-        }
       });
       if (user?.userDetails?.foodsLogged.length > 0) {
-        let calculatedAvgCalories = (
+        const calculatedAvgCalories = (
           totalCalories / user.userDetails?.foodsLogged.length
         ).toFixed(1);
         setAvgCalories(Number(calculatedAvgCalories));
@@ -92,7 +82,7 @@ const Profile = () => {
         setCoverPicUrl(user.userDetails.coverBgUrl);
       }
     }
-  }, [user]);
+  }, [user, months]);
 
   if (isLoading){;
   <div className="w-screen h-screen flex items-center justify-center">
@@ -108,8 +98,7 @@ const Profile = () => {
   </div>;
   }
   if (isError) {
-    toast("User not found");
-    return <p>Error loading user info</p>;
+    <p>Error loading user info</p>;
   }
 
   const recentMeals: [eachMeal] = user?.userDetails?.foodsLogged

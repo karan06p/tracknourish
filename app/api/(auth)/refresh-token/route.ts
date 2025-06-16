@@ -18,7 +18,7 @@ export async function GET(req: NextRequest){
         const payload = jwt.verify(refreshToken, jwtSecret) as { userId: string };
         const user = await User.findById(payload.userId);
         if (!user) {
-            return ApiResponse(403, "User not found");``
+            return ApiResponse(403, "User not found");
         }
 
         // create new tokens

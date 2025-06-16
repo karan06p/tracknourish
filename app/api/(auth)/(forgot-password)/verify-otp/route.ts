@@ -23,6 +23,7 @@ export async function POST(req: NextRequest){
             return ApiResponse(400, "Otp is incorrect")
         }
     } catch (error) {
+        console.error("Internal error occured while verifying OTP", error)
         return ApiResponse(500, "Internal error occured while verifying OTP")
     }
 }

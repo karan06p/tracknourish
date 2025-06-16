@@ -20,6 +20,7 @@ export async function GET(req: NextRequest){
         if (!user) return ApiResponse(404, "User not found");
         return NextResponse.json(user, { status: 200 });
        } catch (error) {
+        console.error("Error while verifying token:", error)
         return ApiResponse(400, "Error in verifying token")
        }
     } catch (error) {

@@ -86,7 +86,7 @@ export default function ResendEmailPage() {
             Resend Verification Email
           </h2>
           <p className="text-gray-600 text-center mt-2">
-            Enter your email address below and we'll send you a new verification
+            Enter your email address below and we&#39;ll send you a new verification
             link.
           </p>
         </div>

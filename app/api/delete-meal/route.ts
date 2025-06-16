@@ -31,7 +31,7 @@ export async function POST(req: NextRequest) {
     );
 
     if (mealIndex === -1) {
-      return ApiResponse(400, "Meal not found in user's logged food");
+      return ApiResponse(400, "Meal not found");
     }
 
     // Remove the meal from the foodsLogged array

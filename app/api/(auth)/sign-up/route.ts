@@ -27,13 +27,14 @@ const jwtSecret = process.env.JWT_SECRET!;
 
 const resend = new Resend(resendApiKey);
 
-export async function POST(req: Request, res: NextResponse) {
+export async function POST(req: Request) {
 
   const ip = req.headers.get('x-forwarded-for') || 'unknown';
   
     try {
       await rateLimiter.consume(ip);
     } catch (rateError) {
+      console.error("Rate Limiter Error:", rateError);
       return ApiResponse(429, "Too many requests. Please try again later.");
     }
 
@@ -92,7 +93,7 @@ export async function POST(req: Request, res: NextResponse) {
       return ApiResponse(200, "Verification Email sent");
     } catch (error) {
       console.error("Error in signing up user", error);
-      return ApiResponse(400, "Couldn't sign up");
+      return ApiResponse(400, "Could not sign up");
     }
   }
   

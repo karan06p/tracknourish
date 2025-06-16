@@ -2,8 +2,7 @@
 
 import React, { useRef, useState } from "react";
 import { Button } from "./ui/button";
-import { useRouter } from "next/navigation";
-import { ArrowLeft, Camera, Upload, Trash2, ImagePlus, Delete } from "lucide-react";
+import { ArrowLeft, Camera, Upload, Trash2, ImagePlus } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useUser } from "@/hooks/use-user";
 import {
@@ -22,7 +21,6 @@ const baseUrl = process.env.NEXT_PUBLIC_BASE_URL!;
 
 export default function ImageUploader(props: ImageUploaderProps) {
   const { mutate, user } = useUser();
-  const router = useRouter();
   const inputRef = useRef<HTMLInputElement>(null);
   const cameraRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
@@ -43,7 +41,7 @@ export default function ImageUploader(props: ImageUploaderProps) {
         body: formData,
       });
 
-      const data = await res.json();
+      await res.json();
 
       if (res.ok) {
         mutate();
@@ -54,7 +52,8 @@ export default function ImageUploader(props: ImageUploaderProps) {
       } else {
         toast.error("Upload failed: " + res.statusText);
       }
-    } catch (e) {
+    } catch (error) {
+      console.error("Upload failed", error);
       toast.error("Upload failed");
     } finally {
       setUploading(false);
@@ -82,10 +81,11 @@ export default function ImageUploader(props: ImageUploaderProps) {
       } else {
         toast.error(data.error || "Delete failed");
       }
-    } catch (e) {
+    } catch (error) {
+      console.error("Unexpected error occurred during deletion", error);
       toast.error("Unexpected error occurred during deletion");
-    } finally{
-      setIsDeleting(false)
+    } finally {
+      setIsDeleting(false);
     }
   };
   return (
@@ -99,7 +99,7 @@ export default function ImageUploader(props: ImageUploaderProps) {
         )}
       >
         <Link href={"/"}>
-        <ArrowLeft className="h-4 w-4" />
+          <ArrowLeft className="h-4 w-4" />
         </Link>
       </Button>
 
@@ -148,14 +148,14 @@ export default function ImageUploader(props: ImageUploaderProps) {
                 </Button>
               )}
               {isDeleting && (
-            <div>
-              <div className="flex items-center space-x-2">
-                <div className="animate-spin">
-                  <Trash2 className="h-4 w-4" />
+                <div>
+                  <div className="flex items-center space-x-2">
+                    <div className="animate-spin">
+                      <Trash2 className="h-4 w-4" />
+                    </div>
+                    <p className="text-sm text-muted-foreground">Deleting...</p>
+                  </div>
                 </div>
-                <p className="text-sm text-muted-foreground">Deleting...</p>
-              </div>
-            </div>
               )}
             </div>
             {uploading && (
@@ -168,7 +168,6 @@ export default function ImageUploader(props: ImageUploaderProps) {
                 </div>
               </div>
             )}
-            
           </div>
         </PopoverContent>
       </Popover>
@@ -177,14 +176,20 @@ export default function ImageUploader(props: ImageUploaderProps) {
         type="file"
         ref={inputRef}
         style={{ display: "none" }}
-        onChange={(e) => handleFileUpload(e.target.files?.[0]!)}
+        onChange={(e) => {
+          const file = e.target.files?.[0];
+          if (file) handleFileUpload(file);
+        }}
         accept="image/*"
       />
       <input
         type="file"
         ref={cameraRef}
         style={{ display: "none" }}
-        onChange={(e) => handleFileUpload(e.target.files?.[0]!)}
+        onChange={(e) => {
+          const file = e.target.files?.[0];
+          if (file) handleFileUpload(file);
+        }}
         accept="image/*"
         capture="environment"
       />

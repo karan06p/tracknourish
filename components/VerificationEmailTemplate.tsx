@@ -51,7 +51,7 @@ export const VerificationEmail = ({
             </Section>
             
             <Text style={styles.paragraph}>
-              If you didn't create an account with Tracknourish, you can safely ignore this email.
+              If you didn&#39;t create an account with Tracknourish, you can safely ignore this email.
             </Text>
             
             <Text style={styles.paragraph}>

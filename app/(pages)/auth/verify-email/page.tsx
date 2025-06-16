@@ -97,7 +97,7 @@ const VerifyEmail = () => {
             ) : (
               <>
                 <p className="text-gray-600">
-                  We've sent a verification link to your email. Please click the
+                  We&#39;ve sent a verification link to your email. Please click the
                   link in your email to activate your account.
                 </p>
 
@@ -125,7 +125,7 @@ const VerifyEmail = () => {
 
                 <div className="pt-2">
                   <p className="text-sm text-gray-500">
-                    Didn't receive the email?
+                    Didn&#39;t receive the email?
                   </p>
                   <Button className="mt-2 w-full cursor-pointer">
                     <Link href="/auth/resend-email">Resend Email</Link>
