@@ -88,7 +88,7 @@ const Dashboard = () => {
           totalFiber += fiber;
         }
       });
-      if (user.userDetails?.foodsLogged.length > 0) {
+      if (user?.userDetails?.foodsLogged.length > 0) {
         const calculatedAvgCalories = (
           totalCalories / user.userDetails?.foodsLogged.length
         ).toFixed(2);
@@ -267,7 +267,7 @@ const Dashboard = () => {
           <div className="py-6 flex items-center justify-between md:flex-row md:items-center md:justify-between gap-8">
             <div className="flex-1 min-w-0 text-start md:text-left">
               <h1 className="text-2xl sm:text-2xl md:text-3xl font-bold leading-7 text-white">
-                Welcome {user.userDetails?.firstName}
+                Welcome {user?.userDetails?.firstName || "User"}
               </h1>
               <p className="mt-1 sm:mt-2 text-sm sm:text-sm text-blue-100">
                 Track your nutrition journey and stay healthy
