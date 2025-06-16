@@ -252,19 +252,19 @@ export default function Home() {
             <div className="flex items-center gap-4">
               <div className="flex -space-x-2">
                 <Image
-                  src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&h=120&q=80"
+                  src="/landing/first.avif"
                   alt="User"
                   className="w-10 h-10 rounded-full border-2 border-white object-cover"
                   loading="lazy"
                 />
                 <Image
-                  src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=120&h=120&q=80"
+                  src="/landing/second.avif"
                   alt="User"
                   className="w-10 h-10 rounded-full border-2 border-white object-cover"
                   loading="lazy"
                 />
                 <Image
-                  src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=120&h=120&q=80"
+                  src="/landing/third.avif"
                   alt="User"
                   className="w-10 h-10 rounded-full border-2 border-white object-cover"
                   loading="lazy"
@@ -286,8 +286,7 @@ export default function Home() {
             />
             <div className="glass-card absolute inset-4 rounded-2xl overflow-hidden shadow-lg animate-scale-in">
               <Image
-                ref={imageRef}
-                src="https://images.unsplash.com/photo-1498837167922-ddd27525d352?auto=format&fit=crop&w=800&q=80"
+                src="/landing/Hero.avif"
                 alt="Healthy meals"
                 className="w-full h-full object-cover transform scale-105"
                 loading="lazy"
