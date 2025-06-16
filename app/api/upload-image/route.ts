@@ -27,7 +27,7 @@ cloudinary.config({
 dotenv.config()
 
 const rateLimiter = new RateLimiterMemory({
-  points: 6,
+  points: 3,
   duration: 60,
 })
 
@@ -37,10 +37,8 @@ const handleDeleteImage = async (publicId: string) => {
    try {
       const res = await cloudinary.uploader.destroy(publicId);
       if (res.result !== "ok"){
-        console.log("Clouinary problem maybe")
         return ApiResponse(400, "Image deletion in cloudinary failed");
 }
-      // todo: WE CAN RETRY THE DELETION HERE AND IF STILL IT FAILS THEN RETURN
     } catch (error) {
       console.error("Error occured in deleting image from cloudinary", error);
       return ApiResponse(
@@ -121,7 +119,6 @@ export async function POST(req: NextRequest) {
     await user.save()
     return NextResponse.json({ result }, { status: 200 });
   } catch (error) {
-    console.log("Upload image failed", error);
     return NextResponse.json({ error: "Image upload failed" }, { status: 500 });
   }
 }

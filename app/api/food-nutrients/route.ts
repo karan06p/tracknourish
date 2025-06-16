@@ -1,10 +1,9 @@
 import { ApiResponse } from "@/lib/utils";
 import { NextResponse } from "next/server";
 
-export async function GET(context: { params: { id: string } }
-) {
+export async function POST(req: Request) {
   try {
-    const { id } = await context.params; // using await because of ESlint error only even though not needed
+    const id = await req.json() 
     if (!id) {
       console.error("Food ID parameter missing");
       return ApiResponse(400, "Food ID is required");

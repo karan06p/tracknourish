@@ -4,6 +4,7 @@ import { User } from "@/schema/UserSchema";
 import jwt from "jsonwebtoken"
 import { NextResponse } from "next/server";
 import dotenv from "dotenv";
+import { RateLimiterMemory } from "rate-limiter-flexible";
 
 interface SignInParams{
     email: string;
@@ -11,10 +12,25 @@ interface SignInParams{
 }
 
 dotenv.config();
+
+const rateLimiter = new RateLimiterMemory({
+  points: 4,
+  duration: 80,
+});
+
 const jwtSecret = process.env.JWT_SECRET!;
 const isProd = process.env.NODE_ENV === "production"
 
 export async function POST(req: Request){
+
+    const ip = req.headers.get('x-forwarded-for') || 'unknown';
+    
+      try {
+        await rateLimiter.consume(ip);
+      } catch (rateError) {
+        return ApiResponse(429, "Too many requests. Please try again later.");
+      }
+
     connectToDB()
     try {
         const { email, password }: SignInParams = await req.json()

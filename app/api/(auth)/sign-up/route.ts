@@ -6,6 +6,7 @@ import { VerificationEmail } from "@/components/VerificationEmailTemplate";
 import { User } from "@/schema/UserSchema";
 import jwt from "jsonwebtoken";
 import { NextResponse } from "next/server";
+import { RateLimiterMemory } from "rate-limiter-flexible";
 
 interface SignUpParams{
     firstName: string;
@@ -15,12 +16,27 @@ interface SignUpParams{
 }
 
 dotenv.config()
-const resendApiKey = process.env.RESEND_API_KEY!;
 
-const resend = new Resend(resendApiKey)
+const rateLimiter = new RateLimiterMemory({
+  points: 2,
+  duration: 60,
+});
+
+const resendApiKey = process.env.RESEND_API_KEY!;
 const jwtSecret = process.env.JWT_SECRET!;
 
+const resend = new Resend(resendApiKey);
+
 export async function POST(req: Request, res: NextResponse) {
+
+  const ip = req.headers.get('x-forwarded-for') || 'unknown';
+  
+    try {
+      await rateLimiter.consume(ip);
+    } catch (rateError) {
+      return ApiResponse(429, "Too many requests. Please try again later.");
+    }
+
     connectToDB();
     try {
       const { firstName, lastName, email, password }: SignUpParams = await req.json();

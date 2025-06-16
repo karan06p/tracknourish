@@ -94,7 +94,7 @@ const Profile = () => {
     }
   }, [user]);
 
-  if (isLoading) return;
+  if (isLoading){;
   <div className="w-screen h-screen flex items-center justify-center">
     <Oval
       visible={isLoading}
@@ -106,6 +106,7 @@ const Profile = () => {
       ariaLabel="oval-loading"
     />
   </div>;
+  }
   if (isError) {
     toast("User not found");
     return <p>Error loading user info</p>;

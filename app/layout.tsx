@@ -16,8 +16,16 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Tracknourish",
-  description: "A simple app to track your meal's macros to get a described view into your food.",
+  title: "Tracknourish - Track Your Nutrition",
+  description: "Easily track your daily meals and nutrition and get a described view into your food.",
+   openGraph: {
+    title: "Tracknourish",
+    description: "Track your meals and nutrition easily.",
+    url: "https://tracknourish.xyz",
+    siteName: "Tracknourish",
+    locale: "en_US",
+    type: "website",
+  },
   icons: {
     icon:"favicon.svg"
   }

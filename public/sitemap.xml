@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>https://www.tracknourish.xyz/landing</loc></url>
+  <url><loc>https://www.tracknourish.xyz/auth/sign-in</loc></url>
+  <url><loc>https://www.tracknourish.xyz/auth/sign-up</loc></url>
+  <url><loc>https://www.tracknourish.xyz/auth/verify-email</loc></url>
+  <url><loc>https://www.tracknourish.xyz/auth/forgot-password</loc></url>
+  <url><loc>https://www.tracknourish.xyz/auth/resend-email</loc></url>
+</urlset>

@@ -53,6 +53,7 @@ import { useUser } from "@/hooks/use-user";
 import { eachMeal, Id, NutrientItem, SearchResults } from "@/types/Meal";
 import TableRowComponent from "@/components/TableRow";
 import { LineWave, Oval } from "react-loader-spinner";
+import Link from "next/link";
 
 const baseUrl = process.env.NEXT_PUBLIC_BASE_URL!;
 
@@ -116,19 +117,17 @@ const MealsPage = () => {
   const [mealsLength, setMealsLength] = useState<number | undefined>();
 
   if (isLoading)
-    return (
-      <div className="w-screen h-screen flex items-center justify-center">
-        <Oval
-          visible={isLoading}
-          height="80"
-          width="80"
-          strokeWidth="5"
-          color="#155dfc"
-          secondaryColor="#155dfc"
-          ariaLabel="oval-loading"
-        />
-      </div>
-    );
+    <div className="w-screen h-screen flex items-center justify-center">
+      <Oval
+        visible={isLoading}
+        height="80"
+        width="80"
+        strokeWidth="5"
+        color="#155dfc"
+        secondaryColor="#155dfc"
+        ariaLabel="oval-loading"
+      />
+    </div>;
   if (isError) return <div>Error Loading Component, Please Refresh</div>;
 
   useEffect(() => {
@@ -347,7 +346,12 @@ const MealsPage = () => {
     setIsLoading(true);
     setIsPopoverOpen(false);
     try {
-      const res = await fetch(`${baseUrl}/api/food-nutrients/${food.id}`);
+      const res = await fetch(`${baseUrl}/api/food-nutrients/`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify(food.id),
+      });
       if (res.status === 402) {
         toast.error("Daily API limit reached. Please try again tomorrow.");
         return;
@@ -439,9 +443,10 @@ const MealsPage = () => {
               className="hover:cursor-pointer"
               variant="outline"
               size="icon"
-              onClick={() => router.back()}
             >
+              <Link href={"/"}>
               <ArrowLeft className="h-4 w-4" />
+              </Link>
             </Button>
 
             <div className="flex items-center gap-3">
@@ -627,7 +632,7 @@ const MealsPage = () => {
                                                 setIsPopoverOpen(false);
                                               }}
                                             >
-                                              <X className="h-5 w-5 hover:bg-gray-300 rounded-full" />
+                                              <X className="h-5 w-5 hover:bg-gray-300 rounded-full cursor-pointer" />
                                             </button>
                                           )}
                                         </div>
@@ -644,18 +649,15 @@ const MealsPage = () => {
                                           </div>
 
                                           {isLoading ? (
-                                            <div className="w-full flex justify-center items-center">
-                                              <LineWave
+                                            <div className="w-full flex justify-center items-center my-2">
+                                              <Oval
                                                 visible={true}
-                                                height="100"
-                                                width="100"
-                                                color="#f0fdf4"
-                                                ariaLabel="line-wave-loading"
-                                                wrapperStyle={{}}
-                                                wrapperClass=""
-                                                firstLineColor=""
-                                                middleLineColor=""
-                                                lastLineColor=""
+                                                height="50"
+                                                width="50"
+                                                strokeWidth="5"
+                                                color="#155dfc"
+                                                secondaryColor="#155dfc"
+                                                ariaLabel="oval-loading"
                                               />
                                             </div>
                                           ) : searchResults.length > 0 ? (
@@ -713,7 +715,7 @@ const MealsPage = () => {
                                   </SelectTrigger>
                                   <SelectContent className="w-56 sm:w-fit">
                                     <SelectItem value="breakfast">
-                                      <div className="flex items-center gap-2">
+                                      <div className="flex items-center gap-2 hover:cursor-pointer">
                                         <span>
                                           {MEAL_CATEGORIES.breakfast.icon}
                                         </span>
@@ -721,7 +723,7 @@ const MealsPage = () => {
                                       </div>
                                     </SelectItem>
                                     <SelectItem value="lunch">
-                                      <div className="flex items-center gap-2">
+                                      <div className="flex items-center gap-2 hover:cursor-pointer">
                                         <span>
                                           {MEAL_CATEGORIES.lunch.icon}
                                         </span>
@@ -729,7 +731,7 @@ const MealsPage = () => {
                                       </div>
                                     </SelectItem>
                                     <SelectItem value="dinner">
-                                      <div className="flex items-center gap-2">
+                                      <div className="flex items-center gap-2 hover:cursor-pointer">
                                         <span>
                                           {MEAL_CATEGORIES.dinner.icon}
                                         </span>
@@ -737,7 +739,7 @@ const MealsPage = () => {
                                       </div>
                                     </SelectItem>
                                     <SelectItem value="snack">
-                                      <div className="flex items-center gap-2">
+                                      <div className="flex items-center gap-2 hover:cursor-pointer">
                                         <span>
                                           {MEAL_CATEGORIES.snack.icon}
                                         </span>
@@ -913,13 +915,14 @@ const MealsPage = () => {
                                           newTags.splice(index, 1);
                                           field.onChange(newTags);
                                         }}
-                                        className="h-8 w-8 flex-shrink-0"
+                                        className="h-8 w-8 flex-shrink-0 cursor-pointer"
                                       >
                                         ×
                                       </Button>
                                     </div>
                                   ))}
                                   <Button
+                                    className="hover:cursor-pointer"
                                     type="button"
                                     variant="outline"
                                     size="sm"
@@ -944,10 +947,11 @@ const MealsPage = () => {
                     <Button
                       variant="outline"
                       onClick={() => setShowAddMealForm(false)}
+                      className="hover:cursor-pointer"
                     >
                       Cancel
                     </Button>
-                    <Button type="submit">Track Meal</Button>
+                    <Button type="submit" className="hover:cursor-pointer">Track Meal</Button>
                   </CardFooter>{" "}
                 </form>
               </Form>
@@ -978,7 +982,7 @@ const MealsPage = () => {
                   ? "Try changing your filters or search query"
                   : "Start tracking your meals to see them here"}
               </p>
-              <Button onClick={() => setShowAddMealForm(true)}>
+              <Button onClick={() => setShowAddMealForm(true)} className="hover:cursor-pointer">
                 <Plus className="h-4 w-4 mr-2" /> Track Your First Meal
               </Button>
             </div>
@@ -1095,7 +1099,6 @@ const MealsPage = () => {
           </CardContent>
         </Card>
       </main>
-      <Footer />
     </div>
   );
 };

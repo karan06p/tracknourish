@@ -3,7 +3,7 @@
 import React, { useRef, useState } from "react";
 import { Button } from "./ui/button";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Camera, Upload, Trash2, ImagePlus } from "lucide-react";
+import { ArrowLeft, Camera, Upload, Trash2, ImagePlus, Delete } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useUser } from "@/hooks/use-user";
 import {
@@ -12,6 +12,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { toast } from "sonner";
+import Link from "next/link";
 
 interface ImageUploaderProps {
   type: "cover" | "profile";
@@ -25,6 +26,7 @@ export default function ImageUploader(props: ImageUploaderProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const cameraRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
+  const [isDeleting, setIsDeleting] = useState<boolean>(false);
   const [open, setOpen] = useState(false);
 
   const handleFileUpload = async (file: File) => {
@@ -47,8 +49,10 @@ export default function ImageUploader(props: ImageUploaderProps) {
         mutate();
         setOpen(false);
         toast.success("Image uploaded successfully");
+        if (inputRef.current) inputRef.current.value = "";
+        if (cameraRef.current) cameraRef.current.value = "";
       } else {
-        toast.error("Upload failed: " + data.error);
+        toast.error("Upload failed: " + res.statusText);
       }
     } catch (e) {
       toast.error("Upload failed");
@@ -58,6 +62,7 @@ export default function ImageUploader(props: ImageUploaderProps) {
   };
 
   const handleDelete = async () => {
+    setIsDeleting(true);
     try {
       const res = await fetch(`${baseUrl}/api/delete-image`, {
         method: "POST",
@@ -72,11 +77,15 @@ export default function ImageUploader(props: ImageUploaderProps) {
         mutate();
         setOpen(false);
         toast.success("Image deleted successfully");
+        if (inputRef.current) inputRef.current.value = "";
+        if (cameraRef.current) cameraRef.current.value = "";
       } else {
         toast.error(data.error || "Delete failed");
       }
     } catch (e) {
       toast.error("Unexpected error occurred during deletion");
+    } finally{
+      setIsDeleting(false)
     }
   };
   return (
@@ -88,9 +97,10 @@ export default function ImageUploader(props: ImageUploaderProps) {
           "cursor-pointer absolute left-4 top-4 bg-white/70 backdrop-blur-sm hover:bg-white/90",
           props.type === "cover" ? "" : "hidden"
         )}
-        onClick={() => router.back()}
       >
+        <Link href={"/"}>
         <ArrowLeft className="h-4 w-4" />
+        </Link>
       </Button>
 
       <Popover open={open} onOpenChange={setOpen}>
@@ -137,6 +147,16 @@ export default function ImageUploader(props: ImageUploaderProps) {
                   Remove current image
                 </Button>
               )}
+              {isDeleting && (
+            <div>
+              <div className="flex items-center space-x-2">
+                <div className="animate-spin">
+                  <Trash2 className="h-4 w-4" />
+                </div>
+                <p className="text-sm text-muted-foreground">Deleting...</p>
+              </div>
+            </div>
+              )}
             </div>
             {uploading && (
               <div>
@@ -148,6 +168,7 @@ export default function ImageUploader(props: ImageUploaderProps) {
                 </div>
               </div>
             )}
+            
           </div>
         </PopoverContent>
       </Popover>
