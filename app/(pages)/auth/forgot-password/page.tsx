@@ -104,12 +104,14 @@ export default function ForgotPasswordPage() {
       } else if (res.status === 401) {
         toast.error(data?.message || "Email not verified", {
           description: (
+            <Link href={"/auth/resend-email"}>
             <Button
               className="absolute bottom-2 right-2 hover:cursor-pointer"
               variant="ghost"
             >
-              <Link href={"/auth/resend-email"}>Verify</Link>
+              Verify
             </Button>
+              </Link>
           ),
         });
         setIsLoading(false);

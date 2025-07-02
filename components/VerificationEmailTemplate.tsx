@@ -7,7 +7,6 @@ import {
   Heading,
   Hr,
   Html,
-  Link,
   Preview,
   Section,
   Text,
@@ -45,7 +44,7 @@ export const VerificationEmail = ({
             </Text>
             
             <Section style={styles.buttonContainer}>
-              <Button style={styles.button} href={verificationLink}>
+              <Button style={styles.button} href={verificationLink} target="_blank">
                 Verify Email
               </Button>
             </Section>
@@ -64,10 +63,6 @@ export const VerificationEmail = ({
           <Section style={styles.footer}>
             <Text style={styles.footerText}>
               © {new Date().getFullYear()} Tracknourish. All rights reserved.
-            </Text>
-            <Text style={styles.footerText}>
-              <Link style={styles.footerLink} href="#">Privacy Policy</Link> • 
-              <Link style={styles.footerLink} href="#"> Terms of Service</Link>
             </Text>
           </Section>
         </Container>

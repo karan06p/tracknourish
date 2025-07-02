@@ -18,6 +18,7 @@ export async function POST(req: NextRequest){
         if(!payload || !payload.otp) return ApiResponse(400, "Otp not found in the token");
     
         if(otp === payload.otp) {
+            req.cookies.delete("verificationToken");
             return ApiResponse(200, "Otp Verified")
         }else{
             return ApiResponse(400, "Otp is incorrect")

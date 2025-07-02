@@ -11,12 +11,13 @@ interface PricingCardProps {
   price: string;
   period: string;
   features: string[];
-  buttonText: string;
-  buttonLink: string
+  buttonText?: string;
+  buttonLink?: string
   buttonVariant?: "default" | "outline" | "secondary" | "ghost" | "link" | "destructive";
   icon: React.ReactNode;
   popular?: boolean;
   comingSoon?: boolean;
+  showButton: boolean;
 }
 
 const PricingCard = (props: PricingCardProps) => {
@@ -77,15 +78,19 @@ const PricingCard = (props: PricingCardProps) => {
       </CardContent>
 
       <CardFooter className="pt-6 pb-6 px-6">
-        <Link href={props?.buttonLink || ""}>
-        <Button 
+        
+        {
+          props.showButton ? 
+          <Link href={props?.buttonLink || ""}> <Button 
           className="w-ful cursor-pointer" 
           variant={props.buttonVariant}
           disabled={props.comingSoon}
         >
           {props.buttonText}
         </Button>
-        </Link>
+        </Link> : ""
+        }
+       
       </CardFooter>
     </Card>
   );

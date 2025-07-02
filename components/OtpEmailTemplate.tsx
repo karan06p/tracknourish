@@ -56,15 +56,6 @@ const OtpEmailTemplate = ({ firstName, otp }: OtpEmailTemplateProps) => {
             <Text style={styles.footerText}>
               © {new Date().getFullYear()} Tracknourish. All rights reserved.
             </Text>
-            <Text style={styles.footerText}>
-              <Link style={styles.footerLink} href="#">
-                Privacy Policy
-              </Link>{" "}
-              •{" "}
-              <Link style={styles.footerLink} href="#">
-                Terms of Service
-              </Link>
-            </Text>
           </Section>
         </Container>
       </Body>

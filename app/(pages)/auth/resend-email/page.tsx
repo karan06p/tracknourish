@@ -57,12 +57,14 @@ export default function ResendEmailPage() {
         toast.error("User already exists", {
           action: (
             <div className="grid">
+              <Link href="/auth/sign-in">
               <Button
                 variant="link"
-                className="p-0 text-white hover:text-gray-100"
+                className="p-0 text-white hover:text-gray-100 hover:cursor-pointer "
               >
-                <Link href="/auth/sign-in">Sign in</Link>
+                Sign in
               </Button>
+                </Link>
             </div>
           ),
         });

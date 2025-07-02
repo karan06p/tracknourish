@@ -38,6 +38,7 @@ const PricingSection = () => {
             buttonText="Get Started"
             buttonLink="/auth/sign-up"
             buttonVariant="outline"
+            showButton={true}
             icon={<Check className="w-6 h-6" />}
             popular={false}
           />
@@ -48,9 +49,7 @@ const PricingSection = () => {
             price="Coming Soon"
             period=""
             features={proFeatures}
-            buttonText="Notify Me"
-            buttonLink=""
-            buttonVariant="default"
+            showButton={false}
             icon={<Star className="w-6 h-6" />}
             popular={false}
             comingSoon={true}

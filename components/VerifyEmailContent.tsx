@@ -126,9 +126,14 @@ const VerifyEmailContent = () => {
                   <p className="text-sm text-gray-500">
                     Didn&#39;t receive the email?
                   </p>
-                  <Button className="mt-2 w-full cursor-pointer">
-                    <Link href="/auth/resend-email">Resend Email</Link>
+                  <p className="text-xs text-gray-500 mt-1">
+    Be sure to check your <span className="text-red-600">spam</span> folder.
+  </p>
+                    <Link href="/auth/resend-email">
+                  <Button className="mt-2 w-full hover:cursor-pointer ">
+                    Resend Email
                   </Button>
+                    </Link>
                 </div>
                 <p className="text-sm text-gray-500">
                   Once verified, you may safely close this tab.

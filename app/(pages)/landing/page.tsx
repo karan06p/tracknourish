@@ -13,6 +13,7 @@ import hero from "@/assets/landing/Hero.avif"
 import first from "@/assets/landing/first.avif"
 import second from "@/assets/landing/second.avif"
 import third from "@/assets/landing/third.avif"
+import CookieBanner from "@/components/CookieBanner";
 
 export default function Home() {
   const heroRef = useRef<HTMLDivElement>(null);
@@ -407,6 +408,7 @@ export default function Home() {
     <PricingSection />
     <FAQ />
     <Footer />
+    <CookieBanner />
     </>
   );
 }

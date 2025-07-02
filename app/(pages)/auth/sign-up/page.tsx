@@ -281,7 +281,7 @@ export default function SignUp() {
             Already have an account?{" "}
             <Link
               href="/auth/sign-in"
-              className="text-blue-600 hover:text-blue-800 font-medium"
+              className="text-blue-600 hover:text-blue-800 font-medium hover:cursor-pointer "
             >
               Sign In
             </Link>

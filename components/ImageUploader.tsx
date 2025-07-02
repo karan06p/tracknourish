@@ -90,18 +90,18 @@ export default function ImageUploader(props: ImageUploaderProps) {
   };
   return (
     <>
+        <Link href={"/"}>
       <Button
         variant="outline"
         size="icon"
         className={cn(
-          "cursor-pointer absolute left-4 top-4 bg-white/70 backdrop-blur-sm hover:bg-white/90",
+          "hover:cursor-pointer  absolute left-4 top-4 bg-white/70 backdrop-blur-sm hover:bg-white/90",
           props.type === "cover" ? "" : "hidden"
         )}
       >
-        <Link href={"/"}>
           <ArrowLeft className="h-4 w-4" />
-        </Link>
       </Button>
+        </Link>
 
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>

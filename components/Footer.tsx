@@ -4,10 +4,11 @@ const Footer = () => {
   return (
     <footer className="bg-gray-50 border-t border-gray-200 py-12 px-6 md:px-10">
       <div className="max-w-7xl mx-auto">
+        <div className="flex flex-col md:flex-row justify-between">
         {/* Top Section */}
         <div className="flex flex-col justify-center items-start mb-8 gap-3">
           {/* Logo and Description */}
-          <div className="flex items-baseline gap-2 mb-6 md:mb-0">
+          <div className="flex items-baseline gap-2 mb-0">
             <div className="w-10 h-10 rounded-lg bg-primary flex items-center justify-center">
               <svg
                 width="24"
@@ -41,11 +42,11 @@ const Footer = () => {
         </div>
 
         {/* Links Section */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-6">
+        <div className="flex justify-start gap-8 mb-6 ">
           {/* Main Links */}
-          <div>
+          <div className="flex flex-col items-start">
             <h3 className="text-lg font-semibold text-gray-800 mb-4">Quick Links</h3>
-            <ul className="space-y-2">
+            <ul className="space-y-2 flex flex-col md:flex-row gap-2 md:gap-6">
               <li>
                 <a
                   href="#features"
@@ -73,42 +74,8 @@ const Footer = () => {
             </ul>
           </div>
 
-          {/* Legal Links */}
-          <div>
-            <h3 className="text-lg font-semibold text-gray-800 mb-4">Legal</h3>
-            <ul className="space-y-2">
-              <li>
-                <a
-                  href="#terms"
-                  className="text-gray-600 hover:text-primary transition-colors text-sm"
-                >
-                  Terms of Service
-                </a>
-              </li>
-              <li>
-                <a
-                  href="#privacy"
-                  className="text-gray-600 hover:text-primary transition-colors text-sm"
-                >
-                  Privacy Policy
-                </a>
-              </li>
-            </ul>
-          </div>
-
-          {/* Contact Links */}
-          <div>
-            <h3 className="text-lg font-semibold text-gray-800 mb-4">Contact</h3>
-            <ul className="space-y-2">
-              <li>
-                <a
-                  className="text-gray-600 hover:text-primary transition-colors text-sm"
-                >
-                  example@exm.com
-                </a>
-              </li>
-            </ul>
-          </div>
+          
+        </div>
         </div>
 
         {/* Bottom Section */}

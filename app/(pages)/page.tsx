@@ -104,26 +104,26 @@ const Dashboard = () => {
     }
   }, [user]);
 
-  if (isLoading){
-      <div className="w-screen h-screen flex items-center justify-center">
-        <Oval
-          visible={isLoading}
-          height="80"
-          width="80"
-          strokeWidth="5"
-          color="#155dfc"
-          secondaryColor="#155dfc"
-          ariaLabel="oval-loading"
-        />
-      </div>
+  if (isLoading) {
+    <div className="w-screen h-screen flex items-center justify-center">
+      <Oval
+        visible={isLoading}
+        height="80"
+        width="80"
+        strokeWidth="5"
+        color="#155dfc"
+        secondaryColor="#155dfc"
+        ariaLabel="oval-loading"
+      />
+    </div>;
   }
   if (isError || !user) {
-      <div className="w-screen h-full flex items-center justify-center">
-        <div>
-          <p className="text-red-600">Error loading user info</p>
-          <p className="text-gray-400">Redirecting...</p>
-        </div>
+    <div className="w-screen h-full flex items-center justify-center">
+      <div>
+        <p className="text-red-600">Error loading user info</p>
+        <p className="text-gray-400">Redirecting...</p>
       </div>
+    </div>;
   }
 
   const handleSignOut = async () => {
@@ -262,7 +262,8 @@ const Dashboard = () => {
   return (
     <div className="min-h-screen w-full bg-gray-50/70">
       {/* Dashboard header with matching gradient and improved responsiveness */}
-      <div className="bg-gradient-to-r from-primary/90 to-rose-400/80 shadow-md">
+      <div className="bg-gradient-to-r from-primary/90 to-blue-200/80 shadow-md">
+        {" "}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="py-6 flex items-center justify-between md:flex-row md:items-center md:justify-between gap-8">
             <div className="flex-1 min-w-0 text-start md:text-left">
@@ -275,15 +276,15 @@ const Dashboard = () => {
             </div>
             <div className="flex flex-row items-center gap-2 md:gap-4 justify-center md:mt-0">
               <div className="flex md:mt-0 md:ml-4 space-x-5 justify-center items-center">
-                <Button className="hidden sm:flex shadow-sm hover:bg-black hover:text-white bg-white text-black">
-                  <Link
-                    href={"/meals"}
-                    className="hidden sm:flex hover:cursor-pointer  items-center gap-2"
-                  >
+                <Link
+                  href={"/meals"}
+                  className="hidden sm:flex items-center gap-2"
+                >
+                  <Button className="hidden hover:cursor-pointer  sm:flex shadow-sm hover:bg-black hover:text-white bg-white text-black">
                     <ForkKnife className="h-4 w-4" />
                     Track Meal
-                  </Link>
-                </Button>
+                  </Button>
+                </Link>
                 <HoverCard
                   open={userProfilePopup}
                   openDelay={100}
@@ -308,15 +309,18 @@ const Dashboard = () => {
                     )}
                   </HoverCardTrigger>
                   <HoverCardContent className="w-40 mt-3 p-2 flex flex-col gap-2 items-baseline">
-                    <Button variant="outline" className="w-full justify-start">
-                      <Link
-                        href="/profile"
-                        className="w-full flex justify-start items-center gap-2 hover:cursor-pointer"
+                    <Link
+                      href="/profile"
+                      className="w-full flex justify-start items-center gap-2"
+                    >
+                      <Button
+                        variant="outline"
+                        className="w-full justify-start hover:cursor-pointer "
                       >
                         <User />
                         Profile
-                      </Link>
-                    </Button>
+                      </Button>
+                    </Link>
                     <Button
                       variant="destructive"
                       className="w-full"

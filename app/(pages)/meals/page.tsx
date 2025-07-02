@@ -440,15 +440,15 @@ const MealsPage = () => {
         {/* Page Header */}
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-8 gap-4">
           <div className="w-full flex items-center justify-between gap-4">
+            <Link href={"/"}>
             <Button
               className="hover:cursor-pointer"
               variant="outline"
               size="icon"
             >
-              <Link href={"/"}>
               <ArrowLeft className="h-4 w-4" />
-              </Link>
             </Button>
+              </Link>
 
             <div className="flex items-center gap-3">
               <Button

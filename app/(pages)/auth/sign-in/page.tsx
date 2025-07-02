@@ -68,12 +68,14 @@ const SignIn = () => {
     } else if (res.status === 401) {
       toast.error(data?.message || "Email not verified", {
         description: (
+          <Link href={"/auth/resend-email"}>
           <Button
             className="absolute bottom-2 right-2 hover:cursor-pointer"
             variant="ghost"
           >
-            <Link href={"/auth/resend-email"}>Verify</Link>
+            Verify
           </Button>
+            </Link>
         ),
       });
       setIsLoading(false);
@@ -185,7 +187,7 @@ const SignIn = () => {
                   className="w-full hover:cursor-pointer"
                   disabled={isLoading}
                 >
-                  Sign In <LogIn className="ml-2 h-4 w-4 cursor-pointer" />
+                  Sign In <LogIn className="ml-2 h-4 w-4" />
                 </Button>
               )}
             </form>

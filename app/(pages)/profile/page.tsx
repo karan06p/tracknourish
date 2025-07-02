@@ -196,13 +196,15 @@ const Profile = () => {
                     <Salad className="h-5 w-5 mr-2" />
                     Recent Meals
                   </h2>
+                  <Link href={"/meals"}>
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="h-8 px-2 w-full sm:w-auto"
+                    className="h-8 px-2 w-full sm:w-auto hover:cursor-pointer "
                   >
-                    <Link href={"/meals"}>View All</Link>
+                    View All
                   </Button>
+                    </Link>
                 </div>
               </CardHeader>
               <CardContent className="space-y-4">
